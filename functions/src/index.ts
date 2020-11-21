@@ -1,4 +1,5 @@
 import * as functions from 'firebase-functions';
+import { executeNewGame } from './newGame';
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -16,3 +17,7 @@ export const makeUppercase = functions.database
     const uppercase = original.toUpperCase();
     return snapshot.ref.parent!.child('uppercase').set(uppercase);
   });
+
+export const newGame = functions.https.onCall((data, context) => {
+  return executeNewGame();
+});

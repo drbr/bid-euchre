@@ -11,7 +11,7 @@ export function NewGameUI() {
   return (
     <div>
       <p>Game ID: {gameId}</p>
-      <button onClick={callForNewGame} />
+      <button onClick={callForNewGame}>New Game</button>
     </div>
   );
 }

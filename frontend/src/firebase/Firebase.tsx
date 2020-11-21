@@ -11,6 +11,7 @@ import 'firebase/analytics';
 // Add the Firebase products that you want to use
 import 'firebase/auth';
 import 'firebase/database';
+import 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBr-sNf5z0MFSSgf1_dEYOY2iESqh91kfc',

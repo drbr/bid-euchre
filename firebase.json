@@ -9,12 +9,9 @@
     ]
   },
   "hosting": {
+    "predeploy": ["npm --prefix frontend run build"],
     "public": "frontend/build",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",
@@ -30,7 +27,13 @@
       "port": 9000
     },
     "hosting": {
-      "port": 5000
+      "port": 5000,
+      "headers": [
+        {
+          "source": "/service-worker.js",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+        }
+      ]
     },
     "ui": {
       "enabled": true

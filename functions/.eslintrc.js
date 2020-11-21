@@ -1,4 +1,4 @@
-{
+module.exports = {
   "env": {
     "browser": true,
     "es6": true,
@@ -12,7 +12,7 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "tsconfig.json",
-    "tsconfigRootDir": "functions",
+    "tsconfigRootDir": __dirname,
     "sourceType": "module"
   },
   "plugins": ["@typescript-eslint", "import"],

@@ -25,3 +25,9 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
+
+// Use local emulators when developing
+if (window.location.hostname === 'localhost') {
+  firebase.functions().useEmulator('localhost', 5001);
+  firebase.database().useEmulator('localhost', 9000);
+}

@@ -19,8 +19,9 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
+    "lint": "eslint src",
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "yarn run lint && yarn run react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

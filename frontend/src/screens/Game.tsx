@@ -16,6 +16,10 @@ export function Game(props: GameProps) {
     void callForGameValue();
   }, [props.gameId]);
 
+  if (!gameValue) {
+    return <></>;
+  }
+
   return (
     <div>
       <p>Game ID: {props.gameId}</p>

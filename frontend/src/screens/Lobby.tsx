@@ -7,6 +7,7 @@ export function Lobby() {
 
   return (
     <div>
+      <h1>Play Bid Euchre!</h1>
       <div>
         <button onClick={() => callForNewGame(navigate)}>New Game</button>
       </div>

@@ -1,4 +1,4 @@
-import { firebaseDatabase } from './InitFirebaseInFrontend';
+import { firebaseDatabase } from './FirebaseWebClientInFrontend';
 import { GameDB } from '../../../functions/apiContract/database/GameDB';
 
 export async function getGameValue(gameId: string): Promise<GameDB> {

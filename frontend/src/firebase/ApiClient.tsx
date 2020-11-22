@@ -1,10 +1,5 @@
-import { firebaseFunctions } from './InitFirebaseInFrontend';
+import { firebaseFunctions } from './FirebaseWebClientInFrontend';
 import { NewGameResult } from '../../../functions/apiContract/functions/NewGame';
-
-/** Type-safe version of Firebase's HttpsCallableResult */
-export type TypedHttpsCallableResult<T> = {
-  readonly data: T;
-};
 
 const newGameEndpoint = firebaseFunctions.httpsCallable('newGame');
 

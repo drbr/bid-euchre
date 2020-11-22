@@ -1,8 +1,10 @@
-# Compiled JavaScript files
+# Compiled artifacts
+/lib
 **/*.js
 **/*.js.map
 
-serviceAccountKey.ts
+# Firebase service account key
+serviceAccountKey.json
 
 # Except the ESLint config file
 !.eslintrc.js

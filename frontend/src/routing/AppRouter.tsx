@@ -1,13 +1,15 @@
 import { Router, RouteComponentProps } from '@reach/router';
 import { Lobby } from '../screens/Lobby';
-import { Game } from '../screens/Game';
-import { GamePathRouteProps, LobbyPath } from './paths';
+import { Game } from '../screens/GameContainer';
+import { GamePathRouteProps } from './paths';
 
 export function AppRouter() {
   return (
     <Router>
-      <LobbyRoute path={LobbyPath} />
-      <GameRoute path="game/:gameId" />
+      <LobbyRoute path="/" />
+      <LobbyRoute path="/game/" />
+      <GameRoute path="/game/:gameId" />
+      <LobbyRoute default />
     </Router>
   );
 }

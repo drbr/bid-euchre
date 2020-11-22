@@ -1,15 +1,15 @@
 import { useNavigate } from '@reach/router';
 import { makeNewGameAndNavigateThere } from './makeNewGameAndNavigateThere';
 
-export function Lobby() {
+export function GameNotFound() {
   const navigate = useNavigate();
 
   return (
     <div>
-      <h1>Play Bid Euchre!</h1>
+      <p>A game with that ID was not found.</p>
       <div>
         <button onClick={() => makeNewGameAndNavigateThere(navigate)}>
-          New Game
+          Start a new game
         </button>
       </div>
     </div>

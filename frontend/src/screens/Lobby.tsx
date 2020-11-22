@@ -1,33 +1,20 @@
-import { useState } from 'react';
+import { NavigateFn, useNavigate } from '@reach/router';
 import { newGame } from '../firebase/ApiClient';
-import { getGameValue } from '../firebase/DatabaseClient';
+import { GamePathLink } from '../routing/paths';
 
 export function Lobby() {
-  const [gameId, setGameId] = useState('');
-  const [gameValue, setGameValue] = useState('');
-
-  function callForNewGame() {
-    return newGame().then(({ gameId }) => setGameId(gameId));
-  }
-
-  function callForGameValue() {
-    return getGameValue(gameId).then(({ randomValue }) =>
-      setGameValue(String(randomValue))
-    );
-  }
+  const navigate = useNavigate();
 
   return (
     <div>
-      <p>Game ID: {gameId}</p>
-      <p>Game Value: {gameValue}</p>
       <div>
-        <button onClick={callForNewGame}>New Game</button>
-      </div>
-      <div>
-        <button onClick={callForGameValue} disabled={!gameId}>
-          Get Game Info
-        </button>
+        <button onClick={() => callForNewGame(navigate)}>New Game</button>
       </div>
     </div>
   );
+}
+
+async function callForNewGame(navigate: NavigateFn) {
+  const { gameId } = await newGame();
+  await navigate(GamePathLink({ gameId }));
 }

@@ -1,11 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import { NewGameResult } from '../../apiContract/models/NewGame';
 
-export default function executeNewGame(): NewGameResult {
+import { firebaseDatabase } from '../firebase/InitFirebaseInBackend';
+
+export default async function executeNewGame(): Promise<NewGameResult> {
   const gameId = uuidv4();
-  console.log(`New game ID: ${gameId}`);
-  // firebase.database.ref(`games/${gameId}`).set({
-  //   pending: true,
-  // });
+  const gameValue = Math.floor(Math.random() * 10000);
+  await firebaseDatabase.ref(`games/${gameId}`).set({
+    randomValue: gameValue,
+  });
   return { gameId };
 }

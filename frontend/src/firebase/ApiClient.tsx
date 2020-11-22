@@ -1,4 +1,4 @@
-import { firebaseFunctions } from './InitFirebase';
+import { firebaseFunctions } from './InitFirebaseInFrontend';
 import { NewGameResult } from '../../../functions/apiContract/models/NewGame';
 
 /** Type-safe version of Firebase's HttpsCallableResult */

@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions';
-import executeNewGame from './endpoints/executeNewGame';
+import executeNewGame from './activities/executeNewGame';
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript

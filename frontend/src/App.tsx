@@ -1,6 +1,6 @@
 import logo from './style/logo.svg';
 import './style/App.css';
-import { NewGameUI } from './splash/NewGame';
+import { NewGameUI } from './splash/NewGameScreen';
 
 export default function App() {
   return (

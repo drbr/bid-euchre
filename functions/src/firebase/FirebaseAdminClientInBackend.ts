@@ -1,9 +1,8 @@
 import * as admin from 'firebase-admin';
-import * as serviceAccountKey from '../../config/serviceAccountKey';
 
 // Initialize the app with a service account, granting admin privileges
 admin.initializeApp({
-  credential: admin.credential.cert(JSON.stringify(serviceAccountKey)),
+  credential: admin.credential.cert('../../config/serviceAccountKey.json'),
   databaseURL: 'https://bid-euchre-9be3c.firebaseio.com',
 });
 
@@ -15,7 +14,6 @@ export const firebaseDatabaseAdminClient = admin.database();
 // ref.once('value', function (snapshot) {
 //   console.log(snapshot.val());
 // });
-
 
 // Use local emulators when developing
 // if (window.location.hostname === 'localhost') {

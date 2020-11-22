@@ -1,5 +1,5 @@
 import { firebaseFunctions } from './InitFirebase';
-import { NewGameResult } from '../../../functions/src/models/NewGame';
+import { NewGameResult } from '../../../functions/apiContract/models/NewGame';
 
 /** Type-safe version of Firebase's HttpsCallableResult */
 export type TypedHttpsCallableResult<T> = {

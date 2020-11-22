@@ -1,12 +1,15 @@
-import * as admin from 'firebase-admin';
+import * as AdminSDK from 'firebase-admin';
+import { serviceAccountKey } from '../../config/serviceAccountKey';
 
 // Initialize the app with a service account, granting admin privileges
-admin.initializeApp({
-  credential: admin.credential.cert('../../config/serviceAccountKey.json'),
+AdminSDK.initializeApp({
+  credential: AdminSDK.credential.cert(
+    serviceAccountKey as AdminSDK.ServiceAccount
+  ),
   databaseURL: 'https://bid-euchre-9be3c.firebaseio.com',
 });
 
-export const firebaseDatabaseAdminClient = admin.database();
+export const firebaseDatabaseAdminClient = AdminSDK.database();
 
 // As an admin, the app has access to read and write all data, regardless of Security Rules
 // const db = admin.database();

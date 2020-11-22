@@ -1,5 +1,5 @@
 import { firebaseFunctions } from './FirebaseWebClientInFrontend';
-import { NewGameResult } from '../../../functions/apiContract/functions/NewGame';
+import { NewGameResult } from '../../../functions/apiContract/cloudFunctions/NewGame';
 
 const newGameEndpoint = firebaseFunctions.httpsCallable('newGame');
 

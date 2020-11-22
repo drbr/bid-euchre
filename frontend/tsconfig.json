@@ -23,5 +23,5 @@
   },
   "include": [
     "src"
-  ]
+, "../functions/apiContract", "../functions/src/database"  ]
 }

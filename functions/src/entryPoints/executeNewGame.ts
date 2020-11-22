@@ -1,8 +1,8 @@
 import { GameDB } from '../../apiContract/database/GameDB';
-import { NewGameResult } from '../../apiContract/functions/NewGame';
-import { generateFriendlyId } from '../database/generateFriendlyId';
+import { NewGameResult } from '../../apiContract/cloudFunctions/NewGame';
+import { generateFriendlyId } from '../databaseHelpers/generateFriendlyId';
 
-import { tryCreatingListNodeWithData } from '../database/tryCreatingNode';
+import { tryCreatingListNodeWithData } from '../databaseHelpers/tryCreatingNode';
 
 export default async function executeNewGame(): Promise<NewGameResult> {
   const data: GameDB = {

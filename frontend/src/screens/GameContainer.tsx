@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import { getGameValue } from '../firebase/DatabaseClient';
 import { GameNotFound } from './GameNotFound';
 
-export type GameProps = {
+export type GameContainerProps = {
   gameId: string;
 };
 
-export function Game(props: GameProps) {
+export function GameContainer(props: GameContainerProps) {
   const [gameValue, setGameValue] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
 

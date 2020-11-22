@@ -1,5 +1,5 @@
 import { NavigateFn } from '@reach/router';
-import { newGame } from '../firebase/ApiClient';
+import { newGame } from '../firebase/CloudFunctionsClient';
 import { GamePathLink } from '../routing/paths';
 
 export async function makeNewGameAndNavigateThere(navigate: NavigateFn) {

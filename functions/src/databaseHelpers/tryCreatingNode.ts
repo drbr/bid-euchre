@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
-import { TypedDataSnapshot } from './TypedDataSnapshot';
+import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot';
 
 const ID_COLLISION_TRIES = 5;
 

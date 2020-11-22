@@ -1,6 +1,6 @@
 import logo from './style/logo.svg';
 import './style/App.css';
-import { NewGameUI } from './splash/NewGameScreen';
+import { Lobby } from './screens/Lobby';
 
 export default function App() {
   return (
@@ -8,7 +8,7 @@ export default function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Play Bid Euchre!</h1>
-        <NewGameUI />
+        <Lobby />
       </header>
     </div>
   );

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { newGame } from '../firebase/ApiClient';
 import { getGameValue } from '../firebase/DatabaseClient';
 
-export function NewGameUI() {
+export function Lobby() {
   const [gameId, setGameId] = useState('');
   const [gameValue, setGameValue] = useState('');
 

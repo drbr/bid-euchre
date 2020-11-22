@@ -1,3 +1,4 @@
+import * as functions from 'firebase-functions';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
 import { TypedDataSnapshot } from './TypedDataSnapshot';
 
@@ -20,11 +21,10 @@ export async function tryCreatingListNodeWithData<T>(props: {
       });
 
     if (committed) {
-      console.log(snapshot);
       return snapshot;
     } else {
       tries--;
-      console.log(
+      functions.logger.info(
         `ID collision when creating node at ${path}/. Will try ${tries} more times.`
       );
     }

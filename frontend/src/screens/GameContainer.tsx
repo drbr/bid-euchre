@@ -12,11 +12,11 @@ export function Game(props: GameProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function callForGameValue() {
+    async function fetchGameValue() {
       const game = await getGameValue(props.gameId);
       setGameValue(game ? String(game.randomValue) : '');
     }
-    void callForGameValue();
+    void fetchGameValue();
   }, [props.gameId, navigate]);
 
   if (gameValue === undefined) {

@@ -8,7 +8,10 @@ module.exports = {
   "extends": [
     "react-app",
     "react-app/jest",
+    "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
   ],
   "rules": {
     "react/jsx-uses-react": "off",

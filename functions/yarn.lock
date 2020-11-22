@@ -307,6 +307,13 @@
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.3.tgz#c893b73721db73699943bfc3653b1deb7faa4a3a"
   integrity sha512-Jus9s4CDbqwocc5pOAnh8ShfrnMcPHuJYzVcSUU7lrh8Ni5HuIqX3oilL86p3dlTrk0LzHRCgA/GQ7uNCw6l2Q==
 
+"@types/nanoid@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/nanoid/-/nanoid-2.1.0.tgz#41edfda78986e9127d0dc14de982de766f994020"
+  integrity sha512-xdkn/oRTA0GSNPLIKZgHWqDTWZsVrieKomxJBOQUK9YDD+zfSgmwD5t4WJYra5S7XyhTw7tfvwznW+pFexaepQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*":
   version "14.14.9"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.9.tgz#04afc9a25c6ff93da14deabd65dc44485b53c8d6"
@@ -344,11 +351,6 @@
   dependencies:
     "@types/mime" "*"
     "@types/node" "*"
-
-"@types/uuid@^8.3.0":
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.0.tgz#215c231dff736d5ba92410e6d602050cce7e273f"
-  integrity sha512-eQ9qFW/fhfGJF8WKHGEHZEyVWfZxrT+6CLIJGBcZPfxUh/+BnEj+UCGYMlr9qZuX/2AltsvwrGqp0LhEW8D0zQ==
 
 "@typescript-eslint/eslint-plugin@^3.9.1":
   version "3.10.1"
@@ -1862,6 +1864,11 @@ ms@2.1.2, ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
+nanoid@^3.1.18:
+  version "3.1.18"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.18.tgz#0680db22ab01c372e89209f5d18283d98de3e96d"
+  integrity sha512-rndlDjbbHbcV3xi+R2fpJ+PbGMdfBxz5v1fATIQFq0DP64FsicQdwnKLy47K4kZHdRpmQXtz24eGsxQqamzYTA==
+
 natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
@@ -2571,7 +2578,7 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
-uuid@^8.0.0, uuid@^8.3.1:
+uuid@^8.0.0:
   version "8.3.1"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.1.tgz#2ba2e6ca000da60fce5a196954ab241131e05a31"
   integrity sha512-FOmRr+FmWEIG8uhZv6C2bTgEVXsHk08kE7mPlrBbEe+c3r9pjceVPgupIfNIhc4yx55H69OXANrUaSuu9eInKg==

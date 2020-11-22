@@ -1,14 +1,19 @@
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 import { GameDB } from '../../apiContract/database/GameDB';
 import { NewGameResult } from '../../apiContract/functions/NewGame';
 
-import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
+import { tryCreatingListNodeWithData } from '../database/tryCreatingNode';
 
 export default async function executeNewGame(): Promise<NewGameResult> {
-  const gameId = uuidv4();
-  const gameValue = Math.floor(Math.random() * 10000);
-  const data: GameDB = { randomValue: gameValue };
+  const data: GameDB = {
+    randomValue: Math.floor(Math.random() * 10000),
+  };
 
-  await firebaseDatabaseAdminClient.ref(`games/${gameId}`).set(data);
-  return { gameId };
+  const createdGame = await tryCreatingListNodeWithData({
+    path: 'games',
+    data,
+    generateId: () => nanoid(10),
+  });
+
+  return { gameId: createdGame.key || '' };
 }

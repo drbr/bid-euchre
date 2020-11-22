@@ -26,10 +26,11 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-export const FirebaseFunctions = firebase.functions();
+export const firebaseFunctions = firebase.functions();
+export const firebaseDatabase = firebase.database();
 
 // Use local emulators when developing
 if (window.location.hostname === 'localhost') {
-  firebase.functions().useEmulator('localhost', 5001);
-  firebase.database().useEmulator('localhost', 9000);
+  firebaseFunctions.useEmulator('localhost', 5001);
+  firebaseDatabase.useEmulator('localhost', 9000);
 }

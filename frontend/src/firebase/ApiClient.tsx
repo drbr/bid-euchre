@@ -1,4 +1,4 @@
-import { FirebaseFunctions } from './Firebase';
+import { firebaseFunctions } from './InitFirebase';
 import {
   NewGameRequest,
   NewGameResult,
@@ -9,7 +9,7 @@ export type TypedHttpsCallableResult<T> = {
   readonly data: T;
 };
 
-const newGameEndpoint = FirebaseFunctions.httpsCallable('newGame');
+const newGameEndpoint = firebaseFunctions.httpsCallable('newGame');
 
 export function newGame(data: NewGameRequest): Promise<NewGameResult> {
   return newGameEndpoint(data).then((result) => result.data);

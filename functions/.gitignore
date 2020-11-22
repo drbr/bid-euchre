@@ -5,6 +5,7 @@
 
 # Firebase service account key
 serviceAccountKey.json
+serviceAccountKey.ts
 
 # Except the ESLint config file
 !.eslintrc.js

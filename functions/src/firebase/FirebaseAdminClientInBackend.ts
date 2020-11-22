@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import * as serviceAccountKey from '../../config/serviceAccountKey.json';
+import * as serviceAccountKey from '../../config/serviceAccountKey';
 
 // Initialize the app with a service account, granting admin privileges
 admin.initializeApp({

@@ -4,9 +4,9 @@ import { newGame } from '../firebase/ApiClient';
 export function NewGameUI() {
   const [gameId, setGameId] = useState('');
 
-  const callForNewGame = () => {
-    newGame({}).then(({ gameId }) => setGameId(gameId));
-  };
+  function callForNewGame() {
+    return newGame().then(({ gameId }) => setGameId(gameId));
+  }
 
   return (
     <div>

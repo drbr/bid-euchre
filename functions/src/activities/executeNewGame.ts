@@ -4,5 +4,8 @@ import { NewGameResult } from '../models/NewGame';
 export default function executeNewGame(): NewGameResult {
   const gameId = uuidv4();
   console.log(`New game ID: ${gameId}`);
+  // firebase.database.ref(`games/${gameId}`).set({
+  //   pending: true,
+  // });
   return { gameId };
 }

@@ -2,6 +2,8 @@
 **/*.js
 **/*.js.map
 
+serviceAccountKey.ts
+
 # Except the ESLint config file
 !.eslintrc.js
 

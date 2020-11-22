@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { NewGameResult } from '../models/NewGame';
+import { NewGameResult } from '../../apiContract/models/NewGame';
 
 export default function executeNewGame(): NewGameResult {
   const gameId = uuidv4();

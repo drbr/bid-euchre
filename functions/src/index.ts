@@ -9,15 +9,15 @@ export const helloWorld = functions.https.onRequest((request, response) => {
   response.send('Hello from Firebase!');
 });
 
-export const makeUppercase = functions.database
-  .ref('/messages/{pushId}/original')
-  .onCreate((snapshot, context) => {
-    const original = snapshot.val();
-    console.log('Uppercasing', context.params.pushId, original);
-    const uppercase = original.toUpperCase();
-    return snapshot.ref.parent!.child('uppercase').set(uppercase);
-  });
+// export const makeUppercase = functions.database
+//   .ref('/messages/{pushId}/original')
+//   .onCreate((snapshot, context) => {
+//     const original = snapshot.val();
+//     console.log('Uppercasing', context.params.pushId, original);
+//     const uppercase = original.toUpperCase();
+//     return snapshot.ref.parent!.child('uppercase').set(uppercase);
+//   });
 
-export const newGame = functions.https.onCall((data, context) => {
+export const newGame = functions.https.onCall(() => {
   return executeNewGame();
 });

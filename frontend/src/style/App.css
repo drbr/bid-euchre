@@ -13,15 +13,16 @@
   }
 }
 
+/* Use http://colorsafe.co/ to choose a color palette */
 .App-header {
-  background-color: #006628;
+  background-color: #076324;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: #f0f0f0;
+  color: #fefefe;
 }
 
 .App-link {

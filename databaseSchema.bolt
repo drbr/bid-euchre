@@ -15,14 +15,13 @@ path /publicGameState/{gameId} is PublicGameState {
   read() { true }
 }
 
-// Everything is public in GameConfig except for the User Auth IDs
-path /gameConfig/{gameId} is GameConfig {
-  /playersByPosition/{position}/userAuthId {
-    read() { false }
-  }
-  /playersByPosition/{position}/friendlyName {
-    read() { true }
-  }
+path /publicGameConfig/{gameId} is PublicGameConfig {
+  read() { true }
+}
+
+// Player identities are private to the server
+path /playerIdentities/{gameId} is Map<Position, String> {
+  read() { false }
 }
 
 // Player-private game state can be read only by that player
@@ -40,13 +39,8 @@ type PublicGameState {
   wonTricks: Map<Partnership, Number>,
 }
 
-type GameConfig {
-  playersByPosition: Map<Position, PlayerInGameConfig>
-}
-
-type PlayerInGameConfig {
-  userAuthId: String,
-  friendlyName: String,
+type PublicGameConfig {
+  playerFriendlyNames: Map<Position, String>,
 }
 
 type PlayerPrivateGameState {

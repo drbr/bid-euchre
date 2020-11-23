@@ -5,8 +5,11 @@ export type DatabaseSchema = {
   publicGameState: {
     [gameId: string]: PublicGameState;
   };
-  gameConfig: {
-    [gameId: string]: GameConfig;
+  publicGameConfig: {
+    [gameId: string]: PublicGameConfig;
+  };
+  playerIdentities: {
+    [gameId: string]: Record<Position, string>;
   };
   playerPrivateGameState: {
     [gameId: string]: {
@@ -33,24 +36,22 @@ export type PublicGameState = {
 };
 
 /**
- * The Game Config contains information about the setup of a particular game: house rules, player
- * identities and positions.
+ * The public game config contains information about the setup of a particular game: house rules,
+ * player names, and such. This object will be created as soon as a user requests a "new game". The
+ * data in this object can change before the game begins, but stays constant once the game has
+ * started.
  *
- * This state can be read by anyone (players and observers), with the exception of the `userAuthId`
- * field, which is private to the server.
- *
- * This object will be created as soon as a user starts a "new game". The data in this object can
- * change before the game begins, but stays constant once the game has started.
+ * This state can be read by anyone (players and observers).
  */
-export type GameConfig = {
-  playersByPosition: Record<Position, PlayerInGameConfig>;
+export type PublicGameConfig = {
+  playerFriendlyNames: Record<Position, string>;
 };
 
-/** The `userAuthId` field should remain private to the server. */
-export type PlayerInGameConfig = {
-  userAuthId: string;
-  friendlyName: string;
-};
+/**
+ * Player identities list the user auth IDs for each player in the game, and are thus private to the
+ * server.
+ */
+export type PlayerIdentities = Record<Position, string>;
 
 /**
  * This state is private to an individual player; only that player is allowed to read it while the

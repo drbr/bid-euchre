@@ -1,4 +1,3 @@
-import { useNavigate } from '@reach/router';
 import { useEffect, useState } from 'react';
 import * as DAO from '../firebase/ReadDAO';
 import { GameNotFound } from './GameNotFound';
@@ -9,17 +8,16 @@ export type GameContainerProps = {
 
 export function GameContainer(props: GameContainerProps) {
   const [gameValue, setGameValue] = useState<string | undefined>(undefined);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchGameValue() {
-      const game = await DAO.getPublicGameConfig(props.gameId);
-      setGameValue(game ? String(JSON.stringify(game)) : '');
-    }
-    void fetchGameValue();
-  }, [props.gameId, navigate]);
+    return DAO.subscribeToPublicGameConfig(props.gameId, (gameConfig) => {
+      const gameValue = gameConfig ? String(JSON.stringify(gameConfig)) : '';
+      setGameValue(gameValue);
+    });
+  }, [props.gameId]);
 
   if (gameValue === undefined) {
+    // Still loading the initial value
     return <></>;
   }
 

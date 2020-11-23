@@ -1,0 +1,24 @@
+import { Card, Suit } from './Cards';
+
+export type Position = 'north' | 'south' | 'east' | 'west';
+
+export type Partnership = 'northsouth' | 'eastwest';
+
+export type Bid =
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 12
+  | 24
+  | 48
+  | 96
+  | 192
+  | null
+  | 'pass';
+
+export type Trump = Suit | null;
+
+export type Trick = { lead: Position } & Record<Position, Card | null>;

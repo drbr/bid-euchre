@@ -58,7 +58,6 @@ function ColorSchemePicker(props: ColorSchemePickerProps) {
       vAlignContent="center"
       style={{ marginLeft: 'auto', padding: 10 }}
     >
-      Choose color scheme:
       {ColorSchemes.map((scheme, i) => (
         <div
           key={i}

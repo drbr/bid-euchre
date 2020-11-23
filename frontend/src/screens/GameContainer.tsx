@@ -1,6 +1,6 @@
 import { useNavigate } from '@reach/router';
 import { useEffect, useState } from 'react';
-import { getGameValue } from '../firebase/DatabaseClient';
+import { getPublicGameConfig } from '../firebase/DatabaseClient';
 import { GameNotFound } from './GameNotFound';
 
 export type GameContainerProps = {
@@ -13,8 +13,10 @@ export function GameContainer(props: GameContainerProps) {
 
   useEffect(() => {
     async function fetchGameValue() {
-      const game = await getGameValue(props.gameId);
-      setGameValue(game ? String(game.randomValue) : '');
+      const game = await getPublicGameConfig(props.gameId);
+      setGameValue(
+        game ? String(JSON.stringify(game.playerFriendlyNames)) : ''
+      );
     }
     void fetchGameValue();
   }, [props.gameId, navigate]);

@@ -1,7 +1,11 @@
+import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { firebaseDatabase } from './FirebaseWebClientInFrontend';
-import { GameDB } from '../../../functions/apiContract/database/GameDB';
 
-export async function getGameValue(gameId: string): Promise<GameDB | null> {
-  const snapshot = await firebaseDatabase.ref(`games/${gameId}`).get();
+export async function getPublicGameConfig(
+  gameId: string
+): Promise<PublicGameConfig | null> {
+  const snapshot = await firebaseDatabase
+    .ref(`publicGameConfig/${gameId}`)
+    .get();
   return snapshot.val();
 }

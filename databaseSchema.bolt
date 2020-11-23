@@ -5,8 +5,6 @@
  * TypeScript definitions are maintained by hand in functions/apiContract/database/DataModel.ts.
  */
 
-isCurrentUser(uid) { auth != null && auth.uid === uid }
-
 path / {
   write() { false }
 }
@@ -24,9 +22,10 @@ path /playerIdentities/{gameId} is Map<Position, String> {
   read() { false }
 }
 
-// Player-private game state can be read only by that player
-path /playerPrivateGameState/{gameId}/{userAuthId} is PlayerPrivateGameState {
-  read() { isCurrentUser(userAuthId) }
+// Player-private game state can be read only by that player.
+// Since a player knows only their own user ID, this is "security by obscurity".
+path /playerPrivateGameState/{gameId}/{userId} is PlayerPrivateGameState {
+  read() { true }
 }
 
 type PublicGameState {

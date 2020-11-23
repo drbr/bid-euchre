@@ -13,7 +13,7 @@ export type DatabaseSchema = {
   };
   playerPrivateGameState: {
     [gameId: string]: {
-      [userAuthId: string]: PlayerPrivateGameState;
+      [userId: string]: PlayerPrivateGameState;
     };
   };
 };
@@ -48,7 +48,7 @@ export type PublicGameConfig = {
 };
 
 /**
- * Player identities list the user auth IDs for each player in the game, and are thus private to the
+ * Player identities list the user IDs for each player in the game, and are thus private to the
  * server.
  */
 export type PlayerIdentities = Record<Position, string | null>;

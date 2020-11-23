@@ -1,10 +1,17 @@
+/**
+ * This Bolt file gets compiled into the database.rules.json file for the Firebase Realtime
+ * Database. There are libraries that claim to be able to generate typescript definitions that
+ * correspond to this schema, but neither of the two that I tried were good enough, so the
+ * TypeScript definitions are maintained by hand in functions/apiContract/database/DataModel.ts.
+ */
+
 isCurrentUser(uid) { auth != null && auth.uid === uid }
 
 path / {
   write() { false }
 }
 
-path /publicGameState is PublicGameState {
+path /publicGameState/{gameId} is PublicGameState {
   read() { true }
 }
 
@@ -12,7 +19,6 @@ path /gameConfig/{gameId} is GameConfig {}
 path /gameConfig/{gameId}/playersByPosition/{position}/userAuthId {
   read() { false }
 }
-
 path /gameConfig/{gameId}/playersByPosition/{position}/friendlyName {
   read() { true }
 }
@@ -21,31 +27,29 @@ path /playerPrivateGameState/{gameId}/{userAuthId} {
   read() { isCurrentUser(userAuthId) }
 }
 
-/**
- * This state represents the game as it progresses, and is managed by the State Machine. Data in the
- * Public Game State is visible to all players as well as observers.
- *
- * This object will be created once the game is fully configured; its creation signifies the start
- * of gameplay.
- */
 type PublicGameState {
-  score: PartnershipRecord<Number>,
+  score: Map<Partnership, Number>,
   currentDealer: Position,
-  bids: PositionRecord<Bid>,
+  bids: Map<Position, Bid>,
   trump: Trump,
-  currentTrick: Trick,
-  wonTricks: PartnershipRecord<Number>,
+  // currentTrick: Trick,
+  wonTricks: Map<Partnership, Number>,
 }
 
 type GameConfig {
-  playersByPosition: PositionRecord<String>
+  playersByPosition: Map<Position, PlayerInGameConfig>
 }
 
-/*
- * The following types validate the inputs to the database, but in TypeScript, we can use
- * nicer string literal union types. Bolt won't generate that TypeScript for us, but we still
- * want to validate the data being written.
- */
+type PlayerInGameConfig {
+  userAuthId: String,
+  friendlyName: String,
+}
+
+type PlayerPrivateGameState {
+  position: Position,
+  hand: Card[],
+}
+
 type Suit extends String {
   validate() {
     this === 'C' ||
@@ -80,23 +84,11 @@ type Position extends String {
   }
 }
 
-type PositionRecord<T> {
-  north: T,
-  south: T,
-  east: T,
-  west: T
-}
-
 type Partnership extends String {
   validate() { this === 'northsouth' || this === 'eastwest' }
 }
 
-type PartnershipRecord<T> {
-  northsouth: T,
-  eastwest: T,
-}
-
-type Bid extends Number | Null | String {
+type Bid extends String | Number | Null {
   validate() {
     this === 1 ||
     this === 2 ||
@@ -114,8 +106,8 @@ type Bid extends Number | Null | String {
   }
 }
 
-type Trump extends Suit | Null {}
+type Trump extends Suit | Null;
 
-type Trick extends PositionRecord<Card | Null> {
-  lead: Position,
-}
+// type Trick extends Map<Position, Card | Null> {
+//   lead: Position,
+// }

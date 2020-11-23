@@ -1,5 +1,5 @@
-import { Card, Hand } from './Cards';
-import { Position, Bid, Trump, Partnership } from './GameState';
+import { Card, Hand, Suit } from './Cards';
+import { Position, Bid, Partnership } from './GameState';
 
 export type DatabaseSchema = {
   publicGameState: {
@@ -29,9 +29,9 @@ export type PublicGameState = {
   score: Record<Partnership, number>;
   currentDealer: Position;
   bids: Record<Position, Bid>;
-  trump: Trump;
+  trump?: Suit;
   currentTrickLead: Position;
-  currentTrick: Record<Position, Card | null>;
+  currentTrick: Partial<Record<Position, Card>>;
   wonTricks: Record<Partnership, number>;
 };
 
@@ -44,14 +44,15 @@ export type PublicGameState = {
  * This state can be read by anyone (players and observers).
  */
 export type PublicGameConfig = {
-  playerFriendlyNames: Record<Position, string | null>;
+  gameExists: boolean;
+  playerFriendlyNames: Partial<Record<Position, string>>;
 };
 
 /**
  * Player identities list the user IDs for each player in the game, and are thus private to the
  * server.
  */
-export type PlayerIdentities = Record<Position, string | null>;
+export type PlayerIdentities = Partial<Record<Position, string>>;
 
 /**
  * This state is private to an individual player; only that player is allowed to read it while the

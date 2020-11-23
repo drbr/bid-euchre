@@ -1,5 +1,3 @@
-import { Suit } from './Cards';
-
 export type Position = 'north' | 'south' | 'east' | 'west';
 
 export type Partnership = 'northsouth' | 'eastwest';
@@ -18,5 +16,3 @@ export type Bid =
   | 192
   | null
   | 'pass';
-
-export type Trump = Suit | null;

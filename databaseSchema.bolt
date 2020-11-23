@@ -32,13 +32,14 @@ type PublicGameState {
   score: Map<Partnership, Number>,
   currentDealer: Position,
   bids: Map<Position, Bid>,
-  trump: Trump,
+  trump: Suit | Null,
   currentTrickLead: Position,
   currentTrick: Map<Position, Card | Null>,
   wonTricks: Map<Partnership, Number>,
 }
 
 type PublicGameConfig {
+  gameExists: Boolean,
   playerFriendlyNames: Map<Position, String>,
 }
 
@@ -102,5 +103,3 @@ type Bid extends String | Number | Null {
     this === 'pass'
   }
 }
-
-type Trump extends Suit | Null;

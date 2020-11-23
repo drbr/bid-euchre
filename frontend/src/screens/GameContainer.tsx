@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
 import * as DAO from '../firebase/ReadDAO';
+import { ConfigureGame } from './ConfigureGame';
 import { GameNotFound } from './GameNotFound';
 
 export type GameContainerProps = {
@@ -7,28 +9,24 @@ export type GameContainerProps = {
 };
 
 export function GameContainer(props: GameContainerProps) {
-  const [gameValue, setGameValue] = useState<string | undefined>(undefined);
+  const [gameConfig, setGameConfig] = useState<
+    PublicGameConfig | undefined | 'gameNotFound'
+  >(undefined);
 
   useEffect(() => {
-    return DAO.subscribeToPublicGameConfig(props.gameId, (gameConfig) => {
-      const gameValue = gameConfig ? String(JSON.stringify(gameConfig)) : '';
-      setGameValue(gameValue);
-    });
+    return DAO.subscribeToPublicGameConfig(props.gameId, (gameConfig) =>
+      setGameConfig(gameConfig ?? 'gameNotFound')
+    );
   }, [props.gameId]);
 
-  if (gameValue === undefined) {
+  if (gameConfig === undefined) {
     // Still loading the initial value
     return <></>;
   }
 
-  if (gameValue === '') {
+  if (gameConfig === 'gameNotFound') {
     return <GameNotFound />;
   }
 
-  return (
-    <div>
-      <p>Game ID: {props.gameId}</p>
-      <p>Game Value: {gameValue}</p>
-    </div>
-  );
+  return <ConfigureGame gameId={props.gameId} {...gameConfig} />;
 }

@@ -2,15 +2,6 @@ import * as functions from 'firebase-functions';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
 import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot';
 
-/** Sets the node at `path` to `value` (wrapper around `ref.set`) */
-export async function setNode<T>(props: {
-  path: string;
-  value: T;
-}): Promise<void> {
-  const { path, value } = props;
-  await firebaseDatabaseAdminClient.ref(path).set(value);
-}
-
 const ID_COLLISION_TRIES = 5;
 
 export class ID_COLLISION_ERROR {}

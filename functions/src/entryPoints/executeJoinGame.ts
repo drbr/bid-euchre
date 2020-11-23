@@ -1,10 +1,6 @@
 import { generateHardToGuessId } from '../databaseHelpers/generateId';
-import { DatabaseNodes } from '../databaseHelpers/DatabaseNodes';
+import * as DAO from '../databaseHelpers/WriteDAO';
 
-import {
-  setNode,
-  transactionallyCreateChildNode,
-} from '../databaseHelpers/CrudHelpers';
 import {
   JoinGameRequest,
   JoinGameResult,
@@ -16,17 +12,8 @@ export default async function executeJoinGame(
   const { gameId, position, friendlyName } = request;
   const playerId = generateHardToGuessId();
 
-  await transactionallyCreateChildNode({
-    path: DatabaseNodes.playerIdentitiesForGame(gameId),
-    value: playerId,
-    generateKey: () => position,
-    tries: 1,
-  });
-
-  await setNode({
-    path: `${DatabaseNodes.publicGameConfigForGame(gameId)}/${position}`,
-    value: friendlyName,
-  });
+  await DAO.addPlayerIdToGameAtPosition({ gameId, playerId, position });
+  await DAO.setPlayerNameAtPosition({ gameId, friendlyName, position });
 
   return { playerId };
 }

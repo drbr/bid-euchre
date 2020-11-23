@@ -1,11 +1,14 @@
+isCurrentUser(uid) { auth != null && auth.uid === uid }
+
 path / {
   write() { false }
 }
 
-path /publicGameState {
+path /publicGameState is PublicGameState {
   read() { true }
 }
 
+path /gameConfig/{gameId} is GameConfig {}
 path /gameConfig/{gameId}/playersByPosition/{position}/userAuthId {
   read() { false }
 }
@@ -18,7 +21,101 @@ path /playerPrivateGameState/{gameId}/{userAuthId} {
   read() { isCurrentUser(userAuthId) }
 }
 
+/**
+ * This state represents the game as it progresses, and is managed by the State Machine. Data in the
+ * Public Game State is visible to all players as well as observers.
+ *
+ * This object will be created once the game is fully configured; its creation signifies the start
+ * of gameplay.
+ */
+type PublicGameState {
+  score: PartnershipRecord<Number>,
+  currentDealer: Position,
+  bids: PositionRecord<Bid>,
+  trump: Trump,
+  currentTrick: Trick,
+  wonTricks: PartnershipRecord<Number>,
+}
 
-// Define isCurrentUser() function to test if the given user id
-// matches the currently signed-in user.
-isCurrentUser(uid) { auth != null && auth.uid === uid }
+type GameConfig {
+  playersByPosition: PositionRecord<String>
+}
+
+/*
+ * The following types validate the inputs to the database, but in TypeScript, we can use
+ * nicer string literal union types. Bolt won't generate that TypeScript for us, but we still
+ * want to validate the data being written.
+ */
+type Suit extends String {
+  validate() {
+    this === 'C' ||
+    this === 'H' ||
+    this === 'S' ||
+    this === 'D'
+  }
+}
+
+type Rank extends String {
+  validate() {
+    this === '9' ||
+    this === '10' ||
+    this === 'J' ||
+    this === 'Q' ||
+    this === 'K' ||
+    this === 'A'
+  }
+}
+
+type Card {
+  rank: Rank,
+  suit: Suit
+}
+
+type Position extends String {
+  validate() {
+    this === 'north' ||
+    this === 'south' ||
+    this === 'east' ||
+    this === 'west'
+  }
+}
+
+type PositionRecord<T> {
+  north: T,
+  south: T,
+  east: T,
+  west: T
+}
+
+type Partnership extends String {
+  validate() { this === 'northsouth' || this === 'eastwest' }
+}
+
+type PartnershipRecord<T> {
+  northsouth: T,
+  eastwest: T,
+}
+
+type Bid extends Number | Null | String {
+  validate() {
+    this === 1 ||
+    this === 2 ||
+    this === 3 ||
+    this === 4 ||
+    this === 5 ||
+    this === 6 ||
+    this === 12 ||
+    this === 24 ||
+    this === 48 ||
+    this === 96 ||
+    this === 192 ||
+    this === null ||
+    this === 'pass'
+  }
+}
+
+type Trump extends Suit | Null {}
+
+type Trick extends PositionRecord<Card | Null> {
+  lead: Position,
+}

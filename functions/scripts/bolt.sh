@@ -27,4 +27,4 @@ firebase-bolt < "$schemaFile" > "$databaseRulesJsonOutput"
 
 # Compile the Typescript typedefs
 echo "$typescriptSchemaHeader" > "$typescriptSchemaOutput"
-firebase-bolt-compiler < "$schemaFile" > "$typescriptSchemaOutput"
+firebase-bolt-compiler < "$schemaFile" >> "$typescriptSchemaOutput"

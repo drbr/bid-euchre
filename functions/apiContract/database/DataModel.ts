@@ -44,14 +44,14 @@ export type PublicGameState = {
  * This state can be read by anyone (players and observers).
  */
 export type PublicGameConfig = {
-  playerFriendlyNames: Record<Position, string | undefined>;
+  playerFriendlyNames: Record<Position, string | null>;
 };
 
 /**
  * Player identities list the user auth IDs for each player in the game, and are thus private to the
  * server.
  */
-export type PlayerIdentities = Record<Position, string | undefined>;
+export type PlayerIdentities = Record<Position, string | null>;
 
 /**
  * This state is private to an individual player; only that player is allowed to read it while the

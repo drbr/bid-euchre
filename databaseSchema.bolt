@@ -1,4 +1,24 @@
 path / {
-  read() { true }
   write() { false }
 }
+
+path /publicGameState {
+  read() { true }
+}
+
+path /gameConfig/{gameId}/playersByPosition/{position}/userAuthId {
+  read() { false }
+}
+
+path /gameConfig/{gameId}/playersByPosition/{position}/friendlyName {
+  read() { true }
+}
+
+path /playerPrivateGameState/{gameId}/{userAuthId} {
+  read() { isCurrentUser(userAuthId) }
+}
+
+
+// Define isCurrentUser() function to test if the given user id
+// matches the currently signed-in user.
+isCurrentUser(uid) { auth != null && auth.uid === uid }

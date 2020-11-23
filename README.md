@@ -30,3 +30,19 @@ to the correct locations.
 
 You will also need a credential for the Firebase Admin SDK Service Account, which is not checked in
 to source control. Get one on the [Firebase Console](https://console.firebase.google.com/u/0/project/bid-euchre-9be3c/settings/serviceaccounts/adminsdk).
+
+# Technologies/libraries used
+
+Frontend:
+
+- TypeScript
+- React
+- React-Flexview
+- Reach Router
+- Typestyle
+
+Backend:
+
+- TypeScript
+- Firebase
+- Bolt

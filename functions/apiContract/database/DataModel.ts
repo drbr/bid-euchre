@@ -13,7 +13,7 @@ export type DatabaseSchema = {
   };
   playerPrivateGameState: {
     [gameId: string]: {
-      [userId: string]: PlayerPrivateGameState;
+      [playerId: string]: PlayerPrivateGameState;
     };
   };
 };

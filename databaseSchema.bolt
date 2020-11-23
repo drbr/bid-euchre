@@ -1,0 +1,11 @@
+path /users/{uid} is Users {
+  read() { true }
+  write() { false }
+}
+
+type Users extends User[] {}
+
+type User {
+  firstName: String;
+  lastName: String;
+}

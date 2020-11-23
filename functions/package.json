@@ -1,8 +1,9 @@
 {
   "name": "functions",
   "scripts": {
+    "bolt": "./scripts/bolt.sh",
     "lint": "eslint \"src/**/*\"",
-    "build": "yarn run lint && yarn run tsc",
+    "build": "yarn run bolt && yarn run lint && yarn run tsc",
     "watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",

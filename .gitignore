@@ -6,6 +6,10 @@ database-debug.log
 firebase-debug.log
 ui-debug.log
 
+# Generated database schema
+/database.rules.json
+/functions/apiContract/database/Schema.ts
+
 # Dependencies
 node_modules
 .pnp

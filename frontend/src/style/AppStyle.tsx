@@ -13,7 +13,6 @@ export const AppStyle = cssClass('AppContainer', {
 
 export const FooterStyle = cssClass('AppFooter', {
   width: '100vw',
-  backgroundColor: 'blue',
   fontSize: '1rem',
   fontWeight: 600,
   display: 'flex',

@@ -65,7 +65,8 @@ function ColorSchemePicker(props: ColorSchemePickerProps) {
         <div
           key={i}
           className={ColorSwatchStyle}
-          style={{ backgroundColor: scheme.backgroundColor }}
+          style={{ backgroundColor: scheme.backgroundColor, marginLeft: 5 }}
+          onClick={() => props.setColorScheme(i)}
         />
       ))}
     </FlexView>

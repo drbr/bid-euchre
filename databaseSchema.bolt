@@ -1,11 +1,4 @@
-path /users/{uid} is Users {
+path / {
   read() { true }
   write() { false }
-}
-
-type Users extends User[] {}
-
-type User {
-  firstName: String;
-  lastName: String;
 }

@@ -1,4 +1,4 @@
-import { Card, Suit } from './Cards';
+import { Suit } from './Cards';
 
 export type Position = 'north' | 'south' | 'east' | 'west';
 
@@ -20,5 +20,3 @@ export type Bid =
   | 'pass';
 
 export type Trump = Suit | null;
-
-export type Trick = { lead: Position } & Record<Position, Card | null>;

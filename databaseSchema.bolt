@@ -15,15 +15,18 @@ path /publicGameState/{gameId} is PublicGameState {
   read() { true }
 }
 
-path /gameConfig/{gameId} is GameConfig {}
-path /gameConfig/{gameId}/playersByPosition/{position}/userAuthId {
-  read() { false }
-}
-path /gameConfig/{gameId}/playersByPosition/{position}/friendlyName {
-  read() { true }
+// Everything is public in GameConfig except for the User Auth IDs
+path /gameConfig/{gameId} is GameConfig {
+  /playersByPosition/{position}/userAuthId {
+    read() { false }
+  }
+  /playersByPosition/{position}/friendlyName {
+    read() { true }
+  }
 }
 
-path /playerPrivateGameState/{gameId}/{userAuthId} {
+// Player-private game state can be read only by that player
+path /playerPrivateGameState/{gameId}/{userAuthId} is PlayerPrivateGameState {
   read() { isCurrentUser(userAuthId) }
 }
 
@@ -32,7 +35,8 @@ type PublicGameState {
   currentDealer: Position,
   bids: Map<Position, Bid>,
   trump: Trump,
-  // currentTrick: Trick,
+  currentTrickLead: Position,
+  currentTrick: Map<Position, Card | Null>,
   wonTricks: Map<Partnership, Number>,
 }
 
@@ -107,7 +111,3 @@ type Bid extends String | Number | Null {
 }
 
 type Trump extends Suit | Null;
-
-// type Trick extends Map<Position, Card | Null> {
-//   lead: Position,
-// }

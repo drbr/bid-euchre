@@ -1,5 +1,5 @@
-import { Hand } from './Cards';
-import { Position, Bid, Trump, Partnership, Trick } from './GameState';
+import { Card, Hand } from './Cards';
+import { Position, Bid, Trump, Partnership } from './GameState';
 
 export type DatabaseSchema = {
   publicGameState: {
@@ -27,7 +27,8 @@ export type PublicGameState = {
   currentDealer: Position;
   bids: Record<Position, Bid>;
   trump: Trump;
-  currentTrick: Trick;
+  currentTrickLead: Position;
+  currentTrick: Record<Position, Card | null>;
   wonTricks: Record<Partnership, number>;
 };
 

@@ -80,5 +80,5 @@ export const ColorSchemeClasses: ReadonlyArray<string> = ColorSchemes.map(
 export const ColorSwatchStyle = cssClass('ColorSwatch', {
   height: 'calc(12px + 1vmin)',
   width: 'calc(12px + 1vmin)',
-  border: '2px solid black',
+  border: '2px solid #181818',
 });

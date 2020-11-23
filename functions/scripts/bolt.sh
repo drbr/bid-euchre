@@ -2,10 +2,11 @@
 
 script_dir=${0:h}
 
-schemaFile="${script_dir}/../../databaseSchema.bolt"
+# Paths are relative to the `functions` directory
+schemaFile="../databaseSchema.bolt"
 
-databaseRulesJsonOutput="${script_dir}/../../database.rules.json"
-typescriptSchemaOutput="${script_dir}/apiContract/database/Schema.ts"
+databaseRulesJsonOutput="../database.rules.json"
+typescriptSchemaOutput="./apiContract/database/Schema.ts"
 
 typescriptSchemaHeader='/*
  * THIS IS AN AUTO-GENERATED FILE – DO NOT EDIT BY HAND!
@@ -16,8 +17,8 @@ typescriptSchemaHeader='/*
 '
 
 # Clean up the old files to be extra sure
-rm "$databaseRulesJsonOutput"
-rm "$typescriptSchemaOutput"
+rm "$databaseRulesJsonOutput" 2>/dev/null
+rm "$typescriptSchemaOutput" 2>/dev/null
 
 
 # Compile the JSON database rules schema

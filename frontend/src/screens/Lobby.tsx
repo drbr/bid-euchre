@@ -7,6 +7,9 @@ export function Lobby() {
   return (
     <div>
       <h1>Play Bid Euchre!</h1>
+      <p>
+        <a href="https://www.euchre.space">Read the rules</a>
+      </p>
       <div>
         <button onClick={() => makeNewGameAndNavigateThere(navigate)}>
           New Game

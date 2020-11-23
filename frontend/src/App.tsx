@@ -23,29 +23,27 @@ export default function App() {
       <FlexView grow vAlignContent="center">
         <AppRouter />
       </FlexView>
-      <FlexView>
-        <AppFooter
-          colorScheme={colorSchemeId}
-          setColorScheme={saveAndRenderColorScheme}
-        />
-      </FlexView>
+      <AppFooter
+        colorScheme={colorSchemeId}
+        setColorScheme={saveAndRenderColorScheme}
+      />
     </div>
   );
 }
 
 function AppFooter(props: ColorSchemePickerProps) {
   return (
-    <div className={FooterStyle}>
+    <FlexView wrap className={FooterStyle}>
       <FlexView
         vAlignContent="center"
-        style={{ marginRight: 'auto ', padding: 10 }}
+        style={{ marginRight: 'auto', padding: 10 }}
       >
         © 2020 Andrew Brandon-Rumman
       </FlexView>
       <div style={{ marginLeft: 'auto' }}>
         <ColorSchemePicker {...props} />
       </div>
-    </div>
+    </FlexView>
   );
 }
 
@@ -65,7 +63,10 @@ function ColorSchemePicker(props: ColorSchemePickerProps) {
         <div
           key={i}
           className={ColorSwatchStyle}
-          style={{ backgroundColor: scheme.backgroundColor, marginLeft: 5 }}
+          style={{
+            backgroundColor: scheme.backgroundColor,
+            marginLeft: '.5vmin',
+          }}
           onClick={() => props.setColorScheme(i)}
         />
       ))}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  PlayerPrivateGameState,
   PublicGameConfig,
   PublicGameState,
 } from '../../../functions/apiContract/database/DataModel';
@@ -87,10 +86,15 @@ export function GameContainer(props: GameContainerProps) {
       />
     );
   } else {
+    /* Add stuff to the window for debugging */
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    (window as any).gameConfig = gameConfig;
+    (window as any).publicGameState = publicGameState;
+    (window as any).playerInfoFromStorage = playerInfoFromStorage;
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+
     return (
       <div>
-        <p>Public game state: {JSON.stringify(publicGameState, null, 2)}</p>
-        <p>Player info: {JSON.stringify(playerInfoFromStorage, null, 2)}</p>
         <PlayGame
           gameId={props.gameId}
           playerId={
@@ -105,7 +109,7 @@ export function GameContainer(props: GameContainerProps) {
               ? 'south'
               : playerInfoFromStorage.position
           }
-        ></PlayGame>
+        />
       </div>
     );
   }

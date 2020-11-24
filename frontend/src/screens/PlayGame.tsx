@@ -7,6 +7,7 @@ import {
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from './GameLayout';
 import * as DAO from '../firebase/FrontendDAO';
+import { mapGameConfig } from '../gameLogic/ModelMappers';
 
 export type PlayGameProps = {
   gameId: string;
@@ -29,16 +30,20 @@ export function PlayGame(props: PlayGameProps) {
     }
   }, [props.gameId, props.playerId]);
 
+  /* Add stuff to the window for debugging */
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  (window as any).privateGameState = privateGameState;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
   return (
     <div>
-      <p>Private game state: {JSON.stringify(privateGameState, null, 2)}</p>
       <p>
-        {props.playerId
-          ? null
-          : 'You are a spectator of the current in-progress game!'}
+        {props.playerId ? null : 'You are a spectator of the current game!'}
       </p>
       <GameLayout
-        renderPlayerElement={(position) => <div>{position}</div>}
+        renderPlayerElement={(position) => (
+          <div>{props.gameConfig.playerFriendlyNames[position]}</div>
+        )}
         tableCenterElement={null}
         viewpoint={props.seatedAt}
       />

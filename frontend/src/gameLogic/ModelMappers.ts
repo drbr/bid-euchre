@@ -1,4 +1,5 @@
 import {
+  PlayerPrivateGameState,
   PublicGameConfig,
   PublicGameState,
 } from '../../../functions/apiContract/database/DataModel';
@@ -24,7 +25,7 @@ export function mapGameConfig(
  * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined
  * values.
  */
-export function mapGameState(
+export function mapPublicGameState(
   original: PublicGameState | undefined
 ): PublicGameState | null {
   if (!original) {
@@ -36,10 +37,19 @@ export function mapGameState(
     bids: mapPositionRecord(original.bids),
     trump: original.trump,
     currentTrickLead: original.currentTrickLead,
-    currentTrick: original.currentTrick
-      ? mapPositionRecord(original.currentTrick)
-      : undefined,
-    wonTricks: original.wonTricks,
+    currentTrick: mapPositionRecord(original.currentTrick),
+    wonTricksThisRound: original.wonTricksThisRound,
+  };
+}
+
+export function mapPrivateGameState(
+  original: PlayerPrivateGameState | undefined
+): PlayerPrivateGameState | null {
+  if (!original) {
+    return null;
+  }
+  return {
+    hand: original.hand || [],
   };
 }
 

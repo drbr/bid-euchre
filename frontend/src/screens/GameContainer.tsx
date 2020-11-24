@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  PlayerPrivateGameState,
   PublicGameConfig,
   PublicGameState,
 } from '../../../functions/apiContract/database/DataModel';
@@ -13,31 +14,32 @@ import {
 } from '../uiHelpers/LocalStorageClient';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { joinGame } from '../firebase/CloudFunctionsClient';
+import { PlayGame } from './PlayGame';
 
 export type GameContainerProps = {
   gameId: string;
 };
 
 export function GameContainer(props: GameContainerProps) {
-  const [fetchedGameConfig, setFetchedGameConfig] = useState<
+  const [gameConfig, setGameConfig] = useState<
     PublicGameConfig | undefined | 'gameNotFound'
   >(undefined);
   useEffect(() => {
     return DAO.subscribeToPublicGameConfig(props.gameId, (gameConfig) =>
-      setFetchedGameConfig(gameConfig ?? 'gameNotFound')
+      setGameConfig(gameConfig ?? 'gameNotFound')
     );
   }, [props.gameId]);
 
-  const [fetchedGameState, setFetchedGameState] = useState<
+  const [publicGameState, setPublicGameState] = useState<
     PublicGameState | undefined | 'gameNotFound'
   >(undefined);
   useEffect(() => {
     return DAO.subscribeToPublicGameState(props.gameId, (gameState) =>
-      setFetchedGameState(gameState ?? 'gameNotFound')
+      setPublicGameState(gameState ?? 'gameNotFound')
     );
   }, [props.gameId]);
 
-  const [fetchedPlayerInfo, setFetchedPlayerInfo] = useState<
+  const [playerInfoFromStorage, setPlayerInfoFromStorage] = useState<
     PlayerInfoStorage | 'gameNotFound'
   >(
     () => retrievePlayerInfoForGame({ gameId: props.gameId }) || 'gameNotFound'
@@ -56,43 +58,61 @@ export function GameContainer(props: GameContainerProps) {
       });
 
       storePlayerInfoForGame(joinGameResult);
-      setFetchedPlayerInfo(joinGameResult);
+      setPlayerInfoFromStorage(joinGameResult);
     } catch (e) {
       alert(`Could not join game. Please try again.`);
     }
   }
 
-  if (fetchedGameConfig === undefined || fetchedGameState === undefined) {
+  if (gameConfig === undefined || publicGameState === undefined) {
     // Still loading the initial values
     return <></>;
   }
 
-  if (fetchedGameConfig === 'gameNotFound') {
+  if (gameConfig === 'gameNotFound') {
     return <GameNotFound />;
   }
 
-  if (fetchedGameState === 'gameNotFound') {
+  if (publicGameState === 'gameNotFound') {
     return (
       <JoinGame
         gameId={props.gameId}
         joinGameAtPosition={joinGameAtPosition}
         seatedAt={
-          fetchedPlayerInfo === 'gameNotFound'
+          isSpectator(playerInfoFromStorage)
             ? undefined
-            : fetchedPlayerInfo.position
+            : playerInfoFromStorage.position
         }
-        {...fetchedGameConfig}
+        {...gameConfig}
       />
     );
   } else {
-    if (fetchedPlayerInfo === 'gameNotFound') {
-      return <div>You are a spectator of the current in-progress game!</div>;
-    } else {
-      return (
-        <div>
-          You are now playing the game! {JSON.stringify(fetchedPlayerInfo)}
-        </div>
-      );
-    }
+    return (
+      <div>
+        <p>Public game state: {JSON.stringify(publicGameState, null, 2)}</p>
+        <p>Player info: {JSON.stringify(playerInfoFromStorage, null, 2)}</p>
+        <PlayGame
+          gameId={props.gameId}
+          playerId={
+            isSpectator(playerInfoFromStorage)
+              ? null
+              : playerInfoFromStorage.playerId
+          }
+          gameConfig={gameConfig}
+          publicGameState={publicGameState}
+          seatedAt={
+            isSpectator(playerInfoFromStorage)
+              ? 'south'
+              : playerInfoFromStorage.position
+          }
+        ></PlayGame>
+      </div>
+    );
   }
+}
+
+function isSpectator(
+  info: PlayerInfoStorage | 'gameNotFound'
+): info is 'gameNotFound' {
+  return info === 'gameNotFound';
 }

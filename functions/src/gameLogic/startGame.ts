@@ -48,7 +48,7 @@ const InitialPublicGameState: PublicGameState = {
     east: null,
     west: null,
   },
-  wonTricks: {
+  wonTricksThisRound: {
     northsouth: 0,
     eastwest: 0,
   },

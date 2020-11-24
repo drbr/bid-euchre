@@ -30,7 +30,7 @@ export type PublicGameState = {
   trump?: Suit;
   currentTrickLead?: Position;
   currentTrick?: Record<Position, Card | null>;
-  wonTricks: Record<Partnership, number>;
+  wonTricksThisRound: Record<Partnership, number>;
 };
 
 /**
@@ -63,7 +63,6 @@ export type PlayerIdentities = Record<Position, string | null>;
  * of gameplay.
  */
 export type PlayerPrivateGameState = {
-  position: Position;
   hand: Hand;
 };
 

@@ -35,7 +35,7 @@ type PublicGameState {
   trump: Suit | Null,
   currentTrickLead: Position,
   currentTrick: Map<Position, Card | Null>,
-  wonTricks: Map<Partnership, Number>,
+  wonTricksThisRound: Map<Partnership, Number>,
 }
 
 type PublicGameConfig {
@@ -44,7 +44,6 @@ type PublicGameConfig {
 }
 
 type PlayerPrivateGameState {
-  position: Position,
   hand: Card[],
 }
 

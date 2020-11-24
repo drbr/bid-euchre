@@ -7,23 +7,40 @@ export type GameLayoutProps = {
   tableCenterElement: React.ReactNode;
 };
 
+const positionsByViewpoint: Record<Position, ReadonlyArray<Position>> = {
+  north: ['south', 'east', 'west', 'north'],
+  south: ['north', 'west', 'east', 'south'],
+  east: ['west', 'south', 'north', 'east'],
+  west: ['east', 'north', 'south', 'west'],
+};
+
 export function GameLayout(props: GameLayoutProps) {
+  const positionsInOrder = positionsByViewpoint[props.viewpoint];
+
   return (
     <table className={GameLayoutClass}>
       <tbody>
         <tr>
           <Cell />
-          <PlayerCell>{props.renderPlayerElement('north')}</PlayerCell>
+          <PlayerCell>
+            {props.renderPlayerElement(positionsInOrder[0])}
+          </PlayerCell>
           <Cell />
         </tr>
         <tr>
-          <PlayerCell>{props.renderPlayerElement('west')}</PlayerCell>
+          <PlayerCell>
+            {props.renderPlayerElement(positionsInOrder[1])}
+          </PlayerCell>
           <CenterCell>{props.tableCenterElement}</CenterCell>
-          <PlayerCell>{props.renderPlayerElement('east')}</PlayerCell>
+          <PlayerCell>
+            {props.renderPlayerElement(positionsInOrder[2])}
+          </PlayerCell>
         </tr>
         <tr>
           <Cell />
-          <PlayerCell>{props.renderPlayerElement('south')}</PlayerCell>
+          <PlayerCell>
+            {props.renderPlayerElement(positionsInOrder[3])}
+          </PlayerCell>
           <Cell />
         </tr>
       </tbody>
@@ -52,6 +69,7 @@ function PlayerCell(props: React.PropsWithChildren<unknown>) {
 }
 
 const GameLayoutClass = cssClass('GameLayout', {
+  width: '100vw',
   textAlign: 'left',
 });
 

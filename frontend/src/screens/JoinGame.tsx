@@ -47,6 +47,7 @@ export function JoinGame(props: JoinGameProps) {
             <div>
               <label>Enter your name and join at an open position:</label>
               <input
+                autoFocus
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
               />

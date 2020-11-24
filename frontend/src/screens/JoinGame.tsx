@@ -13,12 +13,16 @@ export function JoinGame(props: JoinGameProps) {
   const [playerName, setPlayerName] = useState('');
 
   async function joinGameAtPosition(position: Position) {
-    const joinGameResult = await joinGame({
-      friendlyName: playerName,
-      gameId: props.gameId,
-      position: position,
-    });
-    storePlayerInfoForGame(joinGameResult);
+    try {
+      const joinGameResult = await joinGame({
+        friendlyName: playerName,
+        gameId: props.gameId,
+        position: position,
+      });
+      storePlayerInfoForGame(joinGameResult);
+    } catch (e) {
+      alert(`Could not join game. Please try again.`);
+    }
   }
 
   function canJoinAtPosition(position: Position) {

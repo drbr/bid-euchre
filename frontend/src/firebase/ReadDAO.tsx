@@ -9,7 +9,7 @@ export type UnsubscribeFn = () => void;
 //   const snapshot = await firebaseDatabase
 //     .ref(`/publicGameConfig/${gameId}`)
 //     .get();
-//   return snapshot.val();
+//   return mapGameConfig(snapshot.val());
 // }
 
 export function subscribeToPublicGameConfig(

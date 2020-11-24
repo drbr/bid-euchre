@@ -27,35 +27,31 @@ export function JoinGame(props: JoinGameProps) {
   }
 
   return (
-    <div>
-      <p>{JSON.stringify(props, null, 2)}</p>
-
-      <GameLayout
-        viewpoint="south"
-        renderPlayerElement={(position) => (
-          <JoinButton
-            playerNameAtPosition={props.playerFriendlyNames[position]}
-            canJoin={canTakeSeat()}
-            seatedHere={props.seatedAt === position}
-            joinGame={() => props.joinGameAtPosition({ position, playerName })}
-          />
-        )}
-        tableCenterElement={
-          props.seatedAt ? (
-            <div>Waiting for others to join the game…</div>
-          ) : (
-            <div>
-              <label>Enter your name and join at an open position:</label>
-              <input
-                autoFocus
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-              />
-            </div>
-          )
-        }
-      />
-    </div>
+    <GameLayout
+      viewpoint="south"
+      renderPlayerElement={(position) => (
+        <JoinButton
+          playerNameAtPosition={props.playerFriendlyNames[position]}
+          canJoin={canTakeSeat()}
+          seatedHere={props.seatedAt === position}
+          joinGame={() => props.joinGameAtPosition({ position, playerName })}
+        />
+      )}
+      tableCenterElement={
+        props.seatedAt ? (
+          <div>Waiting for others to join the game…</div>
+        ) : (
+          <div>
+            <label>Enter your name and join at an open position:</label>
+            <input
+              autoFocus
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+            />
+          </div>
+        )
+      }
+    />
   );
 }
 

@@ -72,6 +72,13 @@ export function GameContainer(props: GameContainerProps) {
     return <GameNotFound />;
   }
 
+  /* Add stuff to the window for debugging */
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  (window as any).gameConfig = gameConfig;
+  (window as any).publicGameState = publicGameState;
+  (window as any).playerInfoFromStorage = playerInfoFromStorage;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
   if (publicGameState === 'gameNotFound') {
     return (
       <JoinGame
@@ -86,31 +93,22 @@ export function GameContainer(props: GameContainerProps) {
       />
     );
   } else {
-    /* Add stuff to the window for debugging */
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    (window as any).gameConfig = gameConfig;
-    (window as any).publicGameState = publicGameState;
-    (window as any).playerInfoFromStorage = playerInfoFromStorage;
-    /* eslint-enable @typescript-eslint/no-explicit-any */
-
     return (
-      <div>
-        <PlayGame
-          gameId={props.gameId}
-          playerId={
-            isSpectator(playerInfoFromStorage)
-              ? null
-              : playerInfoFromStorage.playerId
-          }
-          gameConfig={gameConfig}
-          publicGameState={publicGameState}
-          seatedAt={
-            isSpectator(playerInfoFromStorage)
-              ? 'south'
-              : playerInfoFromStorage.position
-          }
-        />
-      </div>
+      <PlayGame
+        gameId={props.gameId}
+        playerId={
+          isSpectator(playerInfoFromStorage)
+            ? null
+            : playerInfoFromStorage.playerId
+        }
+        gameConfig={gameConfig}
+        publicGameState={publicGameState}
+        seatedAt={
+          isSpectator(playerInfoFromStorage)
+            ? 'south'
+            : playerInfoFromStorage.position
+        }
+      />
     );
   }
 }

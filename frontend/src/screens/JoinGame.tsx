@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import { useState } from 'react';
-import FlexView from 'react-flexview/lib';
 import {
   PlayerFriendlyNames,
   PublicGameConfig,
@@ -9,6 +8,7 @@ import { Position } from '../../../functions/apiContract/database/GameState';
 import { joinGame } from '../firebase/CloudFunctionsClient';
 import { PositionFriendlyNames } from '../uiHelpers/DisplayNames';
 import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
+import { GameLayout } from './GameLayout';
 
 export type JoinGameProps = PublicGameConfig & {
   gameId: string;
@@ -44,42 +44,28 @@ export function JoinGame(props: JoinGameProps) {
     <div>
       <p>{JSON.stringify(props, null, 2)}</p>
 
-      {areSpotsAvailable(props.playerFriendlyNames) ? (
-        <div>
-          <label>Enter your name and join at an open position:</label>
-          <input
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
+      <GameLayout
+        viewpoint="south"
+        renderPlayerElement={(position) => (
+          <JoinButton
+            position={position}
+            config={props}
+            enabled={canJoinAtPosition(position)}
+            joinGame={joinGameAtPosition}
           />
-        </div>
-      ) : null}
-
-      <FlexView column>
-        <JoinButton
-          position="north"
-          config={props}
-          enabled={canJoinAtPosition('north')}
-          joinGame={joinGameAtPosition}
-        />
-        <JoinButton
-          position="south"
-          config={props}
-          enabled={canJoinAtPosition('south')}
-          joinGame={joinGameAtPosition}
-        />
-        <JoinButton
-          position="east"
-          config={props}
-          enabled={canJoinAtPosition('east')}
-          joinGame={joinGameAtPosition}
-        />
-        <JoinButton
-          position="west"
-          config={props}
-          enabled={canJoinAtPosition('west')}
-          joinGame={joinGameAtPosition}
-        />
-      </FlexView>
+        )}
+        tableCenterElement={
+          areSpotsAvailable(props.playerFriendlyNames) ? (
+            <div>
+              <label>Enter your name and join at an open position:</label>
+              <input
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+              />
+            </div>
+          ) : null
+        }
+      />
     </div>
   );
 }

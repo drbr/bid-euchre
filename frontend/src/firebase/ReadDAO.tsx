@@ -18,7 +18,23 @@ export function subscribeToPublicGameConfig(
 ): UnsubscribeFn {
   const ref = firebaseDatabase.ref(`/publicGameConfig/${gameId}`);
   const unsubscribeKey = ref.on('value', (snapshot) =>
-    callback(snapshot.val())
+    callback(mapGameConfig(snapshot.val()))
   );
   return () => ref.off('value', unsubscribeKey);
+}
+
+/**
+ * The database returns null values as nonexistent keys. Map client-side to keys with undefined
+ * values.
+ */
+function mapGameConfig(original: PublicGameConfig): PublicGameConfig {
+  return {
+    gameExists: original.gameExists,
+    playerFriendlyNames: {
+      north: original.playerFriendlyNames?.north,
+      south: original.playerFriendlyNames?.south,
+      east: original.playerFriendlyNames?.east,
+      west: original.playerFriendlyNames?.west,
+    },
+  };
 }

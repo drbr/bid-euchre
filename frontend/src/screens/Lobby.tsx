@@ -1,5 +1,5 @@
 import { useNavigate } from '@reach/router';
-import { makeNewGameAndNavigateThere } from '../uiActions/makeNewGameAndNavigateThere';
+import { makeNewGameAndNavigateThere } from '../uiHelpers/makeNewGameAndNavigateThere';
 
 export function Lobby() {
   const navigate = useNavigate();

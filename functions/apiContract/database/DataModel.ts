@@ -28,10 +28,10 @@ export type DatabaseSchema = {
 export type PublicGameState = {
   score: Record<Partnership, number>;
   currentDealer: Position;
-  bids: Record<Position, Bid>;
+  bids?: Record<Position, Bid>;
   trump?: Suit;
   currentTrickLead: Position;
-  currentTrick: Partial<Record<Position, Card>>;
+  currentTrick?: Partial<Record<Position, Card>>;
   wonTricks: Record<Partnership, number>;
 };
 
@@ -45,7 +45,7 @@ export type PublicGameState = {
  */
 export type PublicGameConfig = {
   gameExists: boolean;
-  playerFriendlyNames: Partial<Record<Position, string>>;
+  playerFriendlyNames: Record<Position, string>;
 };
 
 /**

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 import { useState } from 'react';
 import FlexView from 'react-flexview';
 import {
@@ -44,8 +45,9 @@ export function JoinGame(props: JoinGameProps) {
         ) : (
           <div>
             <label>Enter your name and join at an open position:</label>
-            <input
-              autoFocus
+            <TextField
+              label="Name"
+              variant="outlined"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
             />

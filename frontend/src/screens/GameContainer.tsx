@@ -1,32 +1,84 @@
 import { useEffect, useState } from 'react';
-import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
+import {
+  PublicGameConfig,
+  PublicGameState,
+} from '../../../functions/apiContract/database/DataModel';
 import * as DAO from '../firebase/ReadDAO';
 import { JoinGame } from './JoinGame';
 import { GameNotFound } from './GameNotFound';
+import {
+  PlayerInfoStorage,
+  retrievePlayerInfoForGame,
+  storePlayerInfoForGame,
+} from '../uiHelpers/LocalStorageClient';
 
 export type GameContainerProps = {
   gameId: string;
 };
 
 export function GameContainer(props: GameContainerProps) {
-  const [gameConfig, setGameConfig] = useState<
+  // Mount a fresh component any time the Game ID changes
+  return <GameConfigContainer key={props.gameId} {...props} />;
+}
+
+function GameConfigContainer(props: GameContainerProps) {
+  const [fetchedGameConfig, setFetchedGameConfig] = useState<
     PublicGameConfig | undefined | 'gameNotFound'
   >(undefined);
-
   useEffect(() => {
     return DAO.subscribeToPublicGameConfig(props.gameId, (gameConfig) =>
-      setGameConfig(gameConfig ?? 'gameNotFound')
+      setFetchedGameConfig(gameConfig ?? 'gameNotFound')
     );
   }, [props.gameId]);
 
-  if (gameConfig === undefined) {
-    // Still loading the initial value
+  const [fetchedGameState, setFetchedGameState] = useState<
+    PublicGameState | undefined | 'gameNotFound'
+  >(undefined);
+  useEffect(() => {
+    return DAO.subscribeToPublicGameState(props.gameId, (gameState) =>
+      setFetchedGameState(gameState ?? 'gameNotFound')
+    );
+  }, [props.gameId]);
+
+  const [fetchedPlayerInfo, setFetchedPlayerInfo] = useState<
+    PlayerInfoStorage | 'gameNotFound'
+  >(
+    () => retrievePlayerInfoForGame({ gameId: props.gameId }) || 'gameNotFound'
+  );
+
+  if (fetchedGameConfig === undefined || fetchedGameState === undefined) {
+    // Still loading the initial values
     return <></>;
   }
 
-  if (gameConfig === 'gameNotFound') {
+  if (fetchedGameConfig === 'gameNotFound') {
     return <GameNotFound />;
   }
 
-  return <JoinGame gameId={props.gameId} {...gameConfig} />;
+  if (fetchedGameState === 'gameNotFound') {
+    if (fetchedPlayerInfo === 'gameNotFound') {
+      return (
+        <JoinGame
+          gameId={props.gameId}
+          updatePlayerInfo={(playerInfoWithGameId) => {
+            storePlayerInfoForGame(playerInfoWithGameId);
+            setFetchedPlayerInfo(playerInfoWithGameId);
+          }}
+          {...fetchedGameConfig}
+        />
+      );
+    } else {
+      return <div>Waiting for others to join the game…</div>;
+    }
+  } else {
+    if (fetchedPlayerInfo === 'gameNotFound') {
+      return <div>You are a spectator of the current in-progress game!</div>;
+    } else {
+      return (
+        <div>
+          You are now playing the game! {JSON.stringify(fetchedPlayerInfo)}
+        </div>
+      );
+    }
+  }
 }

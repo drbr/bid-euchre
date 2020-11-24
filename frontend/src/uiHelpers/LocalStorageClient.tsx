@@ -25,7 +25,7 @@ export function storePlayerInfoForGame(
   };
   localStorage.setItem(`game_${params.gameId}`, JSON.stringify(playerInfo));
 }
-//
+
 export function retrievePlayerInfoForGame(params: {
   gameId: string;
 }): PlayerInfoStorage | undefined {

@@ -5,9 +5,14 @@ import { PublicGameConfig } from '../../../functions/apiContract/database/DataMo
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { joinGame } from '../firebase/CloudFunctionsClient';
 import { PositionFriendlyNames } from '../uiHelpers/DisplayNames';
-import { storePlayerInfoForGame } from '../uiHelpers/LocalStorageClient';
+import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
 
-export type JoinGameProps = PublicGameConfig & { gameId: string };
+export type JoinGameProps = PublicGameConfig & {
+  gameId: string;
+  updatePlayerInfo: (
+    playerInfo: PlayerInfoStorage & { gameId: string }
+  ) => void;
+};
 
 export function JoinGame(props: JoinGameProps) {
   const [playerName, setPlayerName] = useState('');
@@ -19,7 +24,7 @@ export function JoinGame(props: JoinGameProps) {
         gameId: props.gameId,
         position: position,
       });
-      storePlayerInfoForGame(joinGameResult);
+      props.updatePlayerInfo(joinGameResult);
     } catch (e) {
       alert(`Could not join game. Please try again.`);
     }

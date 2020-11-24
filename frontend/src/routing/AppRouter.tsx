@@ -1,6 +1,6 @@
 import { Router, RouteComponentProps } from '@reach/router';
 import { Lobby } from '../screens/Lobby';
-import { GameContainer } from '../screens/GameContainer';
+import { GameConfigContainer } from '../screens/GameContainer';
 import { GamePathRouteProps } from './paths';
 
 export function AppRouter() {
@@ -22,6 +22,6 @@ function GameRoute(props: RouteComponentProps & GamePathRouteProps) {
   if (!props.gameId) {
     return <div>No Game ID specified!</div>;
   } else {
-    return <GameContainer gameId={props.gameId} />;
+    return <GameConfigContainer gameId={props.gameId} />;
   }
 }

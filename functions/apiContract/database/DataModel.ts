@@ -45,8 +45,10 @@ export type PublicGameState = {
  */
 export type PublicGameConfig = {
   gameExists: boolean;
-  playerFriendlyNames: Record<Position, string | null>;
+  playerFriendlyNames: PlayerFriendlyNames;
 };
+
+export type PlayerFriendlyNames = Record<Position, string | null>;
 
 /**
  * Player identities list the user IDs for each player in the game, and are thus private to the

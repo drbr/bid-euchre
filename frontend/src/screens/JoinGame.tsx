@@ -1,7 +1,10 @@
 import _ from 'lodash';
 import { useState } from 'react';
 import FlexView from 'react-flexview/lib';
-import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
+import {
+  PlayerFriendlyNames,
+  PublicGameConfig,
+} from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { joinGame } from '../firebase/CloudFunctionsClient';
 import { PositionFriendlyNames } from '../uiHelpers/DisplayNames';
@@ -111,7 +114,7 @@ function JoinButton(props: {
 
 function isNameValid(
   name: string,
-  playerFriendlyNames: Record<Position, string>
+  playerFriendlyNames: PlayerFriendlyNames
 ): boolean {
   if (name === '') {
     return false;
@@ -119,8 +122,6 @@ function isNameValid(
   return _.every(playerFriendlyNames, (v) => v !== name);
 }
 
-function areSpotsAvailable(
-  playerFriendlyNames: Record<Position, string>
-): boolean {
+function areSpotsAvailable(playerFriendlyNames: PlayerFriendlyNames): boolean {
   return !_.every(playerFriendlyNames);
 }

@@ -17,11 +17,6 @@ export type GameContainerProps = {
 };
 
 export function GameContainer(props: GameContainerProps) {
-  // Mount a fresh component any time the Game ID changes
-  return <GameConfigContainer key={props.gameId} {...props} />;
-}
-
-function GameConfigContainer(props: GameContainerProps) {
   const [fetchedGameConfig, setFetchedGameConfig] = useState<
     PublicGameConfig | undefined | 'gameNotFound'
   >(undefined);

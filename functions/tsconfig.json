@@ -10,5 +10,5 @@
     "target": "es2017"
   },
   "compileOnSave": true,
-  "include": ["src", "apiContract"]
+  "include": ["src", "apiContract", "../frontend/src/gameLogic"]
 }

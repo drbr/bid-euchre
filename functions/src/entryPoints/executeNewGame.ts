@@ -1,6 +1,6 @@
 import { NewGameResult } from '../../apiContract/cloudFunctions/NewGame';
 import { generateFriendlyId } from '../databaseHelpers/generateId';
-import * as DAO from '../databaseHelpers/WriteDAO';
+import * as DAO from '../databaseHelpers/BackendDAO';
 
 import { PublicGameConfig } from '../../apiContract/database/DataModel';
 
@@ -15,5 +15,10 @@ export default async function executeNewGame(): Promise<NewGameResult> {
 
 const InitialGameConfig: PublicGameConfig = {
   gameExists: true,
-  playerFriendlyNames: {},
+  playerFriendlyNames: {
+    north: null,
+    south: null,
+    east: null,
+    west: null,
+  },
 };

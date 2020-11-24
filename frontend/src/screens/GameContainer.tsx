@@ -3,7 +3,7 @@ import {
   PublicGameConfig,
   PublicGameState,
 } from '../../../functions/apiContract/database/DataModel';
-import * as DAO from '../firebase/ReadDAO';
+import * as DAO from '../firebase/FrontendDAO';
 import { JoinGame } from './JoinGame';
 import { GameNotFound } from './GameNotFound';
 import {

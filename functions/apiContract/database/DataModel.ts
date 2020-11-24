@@ -12,9 +12,7 @@ export type DatabaseSchema = {
     [gameId: string]: PlayerIdentities;
   };
   playerPrivateGameState: {
-    [gameId: string]: {
-      [playerId: string]: PlayerPrivateGameState;
-    };
+    [gameId: string]: PlayerPrivateGameStates;
   };
 };
 
@@ -30,7 +28,7 @@ export type PublicGameState = {
   currentDealer: Position;
   bids: Record<Position, Bid>;
   trump?: Suit;
-  currentTrickLead: Position;
+  currentTrickLead?: Position;
   currentTrick?: Record<Position, Card | null>;
   wonTricks: Record<Partnership, number>;
 };
@@ -54,7 +52,7 @@ export type PlayerFriendlyNames = Record<Position, string | null>;
  * Player identities list the user IDs for each player in the game, and are thus private to the
  * server.
  */
-export type PlayerIdentities = Partial<Record<Position, string>>;
+export type PlayerIdentities = Record<Position, string | null>;
 
 /**
  * This state is private to an individual player; only that player is allowed to read it while the
@@ -67,4 +65,8 @@ export type PlayerIdentities = Partial<Record<Position, string>>;
 export type PlayerPrivateGameState = {
   position: Position;
   hand: Hand;
+};
+
+export type PlayerPrivateGameStates = {
+  [playerId: string]: PlayerPrivateGameState;
 };

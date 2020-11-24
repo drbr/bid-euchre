@@ -15,5 +15,5 @@ export default async function executeJoinGame(
   await DAO.addPlayerIdToGameAtPosition({ gameId, playerId, position });
   await DAO.setPlayerNameAtPosition({ gameId, friendlyName, position });
 
-  return { playerId };
+  return { playerId, gameId, position, friendlyName };
 }

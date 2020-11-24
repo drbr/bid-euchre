@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
 import * as DAO from '../firebase/ReadDAO';
-import { ConfigureGame } from './ConfigureGame';
+import { JoinGame } from './JoinGame';
 import { GameNotFound } from './GameNotFound';
 
 export type GameContainerProps = {
@@ -28,5 +28,5 @@ export function GameContainer(props: GameContainerProps) {
     return <GameNotFound />;
   }
 
-  return <ConfigureGame gameId={props.gameId} {...gameConfig} />;
+  return <JoinGame gameId={props.gameId} {...gameConfig} />;
 }

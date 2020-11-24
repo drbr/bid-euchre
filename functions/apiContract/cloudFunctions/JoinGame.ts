@@ -6,6 +6,6 @@ export type JoinGameRequest = {
   friendlyName: string;
 };
 
-export type JoinGameResult = {
+export type JoinGameResult = JoinGameRequest & {
   playerId: string;
 };

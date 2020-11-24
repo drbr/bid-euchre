@@ -6,9 +6,9 @@ import { Position } from '../../../functions/apiContract/database/GameState';
 import { joinGame } from '../firebase/CloudFunctionsClient';
 import { PositionFriendlyNames } from '../uiHelpers/DisplayNames';
 
-export type ConfigureGameProps = PublicGameConfig & { gameId: string };
+export type JoinGameProps = PublicGameConfig & { gameId: string };
 
-export function ConfigureGame(props: ConfigureGameProps) {
+export function JoinGame(props: JoinGameProps) {
   const [playerName, setPlayerName] = useState('');
 
   function joinGameAtPosition(position: Position) {

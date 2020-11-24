@@ -27,7 +27,12 @@ export function subscribeToPublicGameConfig(
  * The database returns null values as nonexistent keys. Map client-side to keys with undefined
  * values.
  */
-function mapGameConfig(original: PublicGameConfig): PublicGameConfig {
+function mapGameConfig(
+  original: PublicGameConfig | undefined
+): PublicGameConfig | null {
+  if (!original) {
+    return null;
+  }
   return {
     gameExists: original.gameExists,
     playerFriendlyNames: {

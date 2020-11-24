@@ -9,12 +9,16 @@ import {
   ColorSwatchStyle,
   FooterStyle,
 } from './style/AppStyle';
+import {
+  retrieveColorSchemeId,
+  storeColorSchemeId,
+} from './uiHelpers/LocalStorageClient';
 
 export default function App() {
   const [colorSchemeId, setColorSchemeId] = useState(retrieveColorSchemeId());
 
   function saveAndRenderColorScheme(x: number) {
-    saveColorSchemeId(x);
+    storeColorSchemeId(x);
     setColorSchemeId(x);
   }
 
@@ -26,7 +30,7 @@ export default function App() {
       <AppFooter
         colorScheme={colorSchemeId}
         setColorScheme={saveAndRenderColorScheme}
-      />
+      ></AppFooter>
     </div>
   );
 }
@@ -71,13 +75,4 @@ function ColorSchemePicker(props: ColorSchemePickerProps) {
       ))}
     </FlexView>
   );
-}
-
-function retrieveColorSchemeId(): number {
-  const rawStorageValue = localStorage.getItem('colorSchemeId');
-  return Number(rawStorageValue) || 0;
-}
-
-function saveColorSchemeId(i: number) {
-  localStorage.setItem('colorSchemeId', String(i));
 }

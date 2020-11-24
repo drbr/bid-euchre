@@ -1,9 +1,15 @@
+import { createMuiTheme } from '@material-ui/core/styles';
 import { style } from 'typestyle';
 import { cssClass } from './styleFunctions';
 
-const baseFontSize = 'calc(10px + 2vmin)';
 const headerFontSize = 'calc(10px + 5vmin)';
 const footerFontSize = 'calc(8px + 1vmin)';
+
+export const MaterialUITheme = createMuiTheme({
+  typography: {
+    fontFamily: `"Verdana", "Helvetica", "Arial", sans-serif`,
+  },
+});
 
 export const AppStyle = cssClass('AppContainer', {
   minHeight: '100vh',
@@ -12,8 +18,6 @@ export const AppStyle = cssClass('AppContainer', {
   alignItems: 'center',
   justifyContent: 'center',
   textAlign: 'center',
-  fontFamily: 'Verdana, Helvetica, Arial, sans-serif',
-  fontSize: baseFontSize,
   $nest: {
     h1: {
       fontSize: headerFontSize,
@@ -25,10 +29,6 @@ export const AppStyle = cssClass('AppContainer', {
           textDecoration: 'underline',
         },
       },
-    },
-    button: {
-      fontSize: baseFontSize,
-      padding: '.5vmin',
     },
   },
 });

@@ -1,3 +1,4 @@
+import { MuiThemeProvider } from '@material-ui/core/styles';
 import { useState } from 'react';
 import FlexView from 'react-flexview';
 import { classes } from 'typestyle';
@@ -8,6 +9,7 @@ import {
   ColorSchemes,
   ColorSwatchStyle,
   FooterStyle,
+  MaterialUITheme,
 } from './style/AppStyle';
 import {
   retrieveColorSchemeId,
@@ -23,15 +25,17 @@ export default function App() {
   }
 
   return (
-    <div className={classes(AppStyle, ColorSchemeClasses[colorSchemeId])}>
-      <FlexView grow vAlignContent="center">
-        <AppRouter />
-      </FlexView>
-      <AppFooter
-        colorScheme={colorSchemeId}
-        setColorScheme={saveAndRenderColorScheme}
-      ></AppFooter>
-    </div>
+    <MuiThemeProvider theme={MaterialUITheme}>
+      <div className={classes(AppStyle, ColorSchemeClasses[colorSchemeId])}>
+        <FlexView grow vAlignContent="center">
+          <AppRouter />
+        </FlexView>
+        <AppFooter
+          colorScheme={colorSchemeId}
+          setColorScheme={saveAndRenderColorScheme}
+        ></AppFooter>
+      </div>
+    </MuiThemeProvider>
   );
 }
 

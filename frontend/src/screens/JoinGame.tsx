@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Button from '@material-ui/core/Button';
 import { useState } from 'react';
 import FlexView from 'react-flexview';
 import {
@@ -68,9 +69,13 @@ function JoinButton(props: {
           {props.playerNameAtPosition}
         </div>
       ) : (
-        <button disabled={!props.canJoin} onClick={() => props.joinGame()}>
+        <Button
+          variant="contained"
+          disabled={!props.canJoin}
+          onClick={() => props.joinGame()}
+        >
           Join
-        </button>
+        </Button>
       )}
     </FlexView>
   );

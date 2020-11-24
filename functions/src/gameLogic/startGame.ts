@@ -20,7 +20,6 @@ export async function startGame(props: {
     const playerId = props.playerIdentities[position]!;
     privateGameStates[playerId] = {
       hand: [],
-      position: position,
     };
   }
 

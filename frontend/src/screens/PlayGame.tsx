@@ -7,7 +7,6 @@ import {
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from './GameLayout';
 import * as DAO from '../firebase/FrontendDAO';
-import { mapGameConfig } from '../gameLogic/ModelMappers';
 
 export type PlayGameProps = {
   gameId: string;

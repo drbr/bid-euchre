@@ -5,18 +5,20 @@ import { PublicGameConfig } from '../../../functions/apiContract/database/DataMo
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { joinGame } from '../firebase/CloudFunctionsClient';
 import { PositionFriendlyNames } from '../uiHelpers/DisplayNames';
+import { storePlayerInfoForGame } from '../uiHelpers/LocalStorageClient';
 
 export type JoinGameProps = PublicGameConfig & { gameId: string };
 
 export function JoinGame(props: JoinGameProps) {
   const [playerName, setPlayerName] = useState('');
 
-  function joinGameAtPosition(position: Position) {
-    void joinGame({
+  async function joinGameAtPosition(position: Position) {
+    const joinGameResult = await joinGame({
       friendlyName: playerName,
       gameId: props.gameId,
       position: position,
     });
+    storePlayerInfoForGame(joinGameResult);
   }
 
   function canJoinAtPosition(position: Position) {

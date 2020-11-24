@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import { useState } from 'react';
 import FlexView from 'react-flexview/lib';
-import { JoinGameRequest } from '../../../functions/apiContract/cloudFunctions/JoinGame';
 import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
+import { joinGame } from '../firebase/CloudFunctionsClient';
 import { PositionFriendlyNames } from '../uiHelpers/DisplayNames';
 
 export type ConfigureGameProps = PublicGameConfig & { gameId: string };
@@ -12,12 +12,11 @@ export function ConfigureGame(props: ConfigureGameProps) {
   const [playerName, setPlayerName] = useState('');
 
   function joinGameAtPosition(position: Position) {
-    const request: JoinGameRequest = {
+    void joinGame({
       friendlyName: playerName,
       gameId: props.gameId,
       position: position,
-    };
-    alert(JSON.stringify(request));
+    });
   }
 
   function canJoinAtPosition(position: Position) {

@@ -9,36 +9,38 @@ export type GameLayoutProps = {
 
 export function GameLayout(props: GameLayoutProps) {
   return (
-    // <div className={GridClass}>
-    //   <div className={PlayerTop}>{props.renderPlayerElement('north')}</div>
-    //   <div className={PlayerBottom}>{props.renderPlayerElement('south')}</div>
-    //   <div className={PlayerLeft}>{props.renderPlayerElement('west')}</div>
-    //   <div className={PlayerRight}>{props.renderPlayerElement('east')}</div>
-    //   <div className={Table}>{props.tableCenterElement}</div>
-    // </div>
-
-    <table>
-      <tr>
-        <Cell />
-        <PlayerCell>{props.renderPlayerElement('north')}</PlayerCell>
-        <Cell />
-      </tr>
-      <tr>
-        <PlayerCell>{props.renderPlayerElement('west')}</PlayerCell>
-        <Cell>{props.tableCenterElement}</Cell>
-        <PlayerCell>{props.renderPlayerElement('east')}</PlayerCell>
-      </tr>
-      <tr>
-        <Cell />
-        <PlayerCell>{props.renderPlayerElement('south')}</PlayerCell>
-        <Cell />
-      </tr>
+    <table className={GameLayoutClass}>
+      <tbody>
+        <tr>
+          <Cell />
+          <PlayerCell>{props.renderPlayerElement('north')}</PlayerCell>
+          <Cell />
+        </tr>
+        <tr>
+          <PlayerCell>{props.renderPlayerElement('west')}</PlayerCell>
+          <CenterCell>{props.tableCenterElement}</CenterCell>
+          <PlayerCell>{props.renderPlayerElement('east')}</PlayerCell>
+        </tr>
+        <tr>
+          <Cell />
+          <PlayerCell>{props.renderPlayerElement('south')}</PlayerCell>
+          <Cell />
+        </tr>
+      </tbody>
     </table>
   );
 }
 
 function Cell(props: React.PropsWithChildren<unknown>) {
   return <td style={{ width: '30%', padding: 20 }}>{props.children}</td>;
+}
+
+function CenterCell(props: React.PropsWithChildren<unknown>) {
+  return (
+    <Cell>
+      <div className={CenterCellClass}>{props.children}</div>
+    </Cell>
+  );
 }
 
 function PlayerCell(props: React.PropsWithChildren<unknown>) {
@@ -49,37 +51,16 @@ function PlayerCell(props: React.PropsWithChildren<unknown>) {
   );
 }
 
+const GameLayoutClass = cssClass('GameLayout', {
+  textAlign: 'left',
+});
+
 const PlayerCellClass = cssClass('PlayerCell', {
   border: '2px solid',
   padding: 10,
   height: 100,
-  // width: 200,
 });
 
-// const PlayerTop = cssClass('PlayerTop', {
-//   gridArea: 'top',
-// });
-// const PlayerBottom = cssClass('PlayerBottom', {
-//   gridArea: 'bottom',
-// });
-// const PlayerLeft = cssClass('PlayerLeft', {
-//   gridArea: 'left',
-// });
-// const PlayerRight = cssClass('PlayerRight', {
-//   gridArea: 'right',
-// });
-
-// const Table = cssClass('TableCenter', {
-//   gridArea: 'table',
-// });
-
-// const GridClass = cssClass('GameLayout', {
-//   height: 750,
-//   width: 750,
-//   display: 'grid',
-//   gridTemplateRows: '1fr 1fr 1fr',
-//   gridTemplateColumns: '1fr 1fr 1fr',
-//   gridTemplateAreas: `. top .
-//   left table right
-//   . bottom .`,
-// });
+const CenterCellClass = cssClass('CenterCell', {
+  textAlign: 'center',
+});

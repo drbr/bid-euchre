@@ -11,6 +11,8 @@ import {
   retrievePlayerInfoForGame,
   storePlayerInfoForGame,
 } from '../uiHelpers/LocalStorageClient';
+import { Position } from '../../../functions/apiContract/database/GameState';
+import { joinGame } from '../firebase/CloudFunctionsClient';
 
 export type GameContainerProps = {
   gameId: string;
@@ -41,6 +43,25 @@ export function GameContainer(props: GameContainerProps) {
     () => retrievePlayerInfoForGame({ gameId: props.gameId }) || 'gameNotFound'
   );
 
+  async function joinGameAtPosition(args: {
+    playerName: string;
+    position: Position;
+  }) {
+    const { playerName, position } = args;
+    try {
+      const joinGameResult = await joinGame({
+        friendlyName: playerName,
+        gameId: props.gameId,
+        position: position,
+      });
+
+      storePlayerInfoForGame(joinGameResult);
+      setFetchedPlayerInfo(joinGameResult);
+    } catch (e) {
+      alert(`Could not join game. Please try again.`);
+    }
+  }
+
   if (fetchedGameConfig === undefined || fetchedGameState === undefined) {
     // Still loading the initial values
     return <></>;
@@ -51,20 +72,18 @@ export function GameContainer(props: GameContainerProps) {
   }
 
   if (fetchedGameState === 'gameNotFound') {
-    if (fetchedPlayerInfo === 'gameNotFound') {
-      return (
-        <JoinGame
-          gameId={props.gameId}
-          updatePlayerInfo={(playerInfoWithGameId) => {
-            storePlayerInfoForGame(playerInfoWithGameId);
-            setFetchedPlayerInfo(playerInfoWithGameId);
-          }}
-          {...fetchedGameConfig}
-        />
-      );
-    } else {
-      return <div>Waiting for others to join the game…</div>;
-    }
+    return (
+      <JoinGame
+        gameId={props.gameId}
+        joinGameAtPosition={joinGameAtPosition}
+        seatedAt={
+          fetchedPlayerInfo === 'gameNotFound'
+            ? undefined
+            : fetchedPlayerInfo.position
+        }
+        {...fetchedGameConfig}
+      />
+    );
   } else {
     if (fetchedPlayerInfo === 'gameNotFound') {
       return <div>You are a spectator of the current in-progress game!</div>;

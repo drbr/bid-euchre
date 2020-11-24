@@ -1,42 +1,28 @@
 import _ from 'lodash';
 import { useState } from 'react';
+import FlexView from 'react-flexview';
 import {
   PlayerFriendlyNames,
   PublicGameConfig,
 } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
-import { joinGame } from '../firebase/CloudFunctionsClient';
-import { PositionFriendlyNames } from '../uiHelpers/DisplayNames';
-import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
 import { GameLayout } from './GameLayout';
 
 export type JoinGameProps = PublicGameConfig & {
   gameId: string;
-  updatePlayerInfo: (
-    playerInfo: PlayerInfoStorage & { gameId: string }
-  ) => void;
+  joinGameAtPosition: (args: {
+    playerName: string;
+    position: Position;
+  }) => void;
+  seatedAt?: Position;
 };
 
 export function JoinGame(props: JoinGameProps) {
   const [playerName, setPlayerName] = useState('');
 
-  async function joinGameAtPosition(position: Position) {
-    try {
-      const joinGameResult = await joinGame({
-        friendlyName: playerName,
-        gameId: props.gameId,
-        position: position,
-      });
-      props.updatePlayerInfo(joinGameResult);
-    } catch (e) {
-      alert(`Could not join game. Please try again.`);
-    }
-  }
-
-  function canJoinAtPosition(position: Position) {
+  function canTakeSeat() {
     return (
-      isNameValid(playerName, props.playerFriendlyNames) &&
-      playerName !== props.playerFriendlyNames[position]
+      !props.seatedAt && isNameValid(playerName, props.playerFriendlyNames)
     );
   }
 
@@ -48,14 +34,16 @@ export function JoinGame(props: JoinGameProps) {
         viewpoint="south"
         renderPlayerElement={(position) => (
           <JoinButton
-            position={position}
-            config={props}
-            enabled={canJoinAtPosition(position)}
-            joinGame={joinGameAtPosition}
+            playerNameAtPosition={props.playerFriendlyNames[position]}
+            canJoin={canTakeSeat()}
+            seatedHere={props.seatedAt === position}
+            joinGame={() => props.joinGameAtPosition({ position, playerName })}
           />
         )}
         tableCenterElement={
-          areSpotsAvailable(props.playerFriendlyNames) ? (
+          props.seatedAt ? (
+            <div>Waiting for others to join the game…</div>
+          ) : (
             <div>
               <label>Enter your name and join at an open position:</label>
               <input
@@ -63,7 +51,7 @@ export function JoinGame(props: JoinGameProps) {
                 onChange={(e) => setPlayerName(e.target.value)}
               />
             </div>
-          ) : null
+          )
         }
       />
     </div>
@@ -71,31 +59,24 @@ export function JoinGame(props: JoinGameProps) {
 }
 
 function JoinButton(props: {
-  position: Position;
-  config: PublicGameConfig;
-  enabled: boolean;
-  joinGame: (position: Position) => void;
+  playerNameAtPosition: string | null;
+  canJoin: boolean;
+  seatedHere: boolean;
+  joinGame: () => void;
 }) {
-  const playerFriendlyNames = props.config.playerFriendlyNames || {};
-  const playerNameAtPosition = playerFriendlyNames[props.position];
-  const positionName = PositionFriendlyNames[props.position];
-
-  if (playerNameAtPosition) {
-    return (
-      <div>
-        {positionName}: {playerNameAtPosition}
-      </div>
-    );
-  } else {
-    return (
-      <button
-        disabled={!props.enabled}
-        onClick={() => props.joinGame(props.position)}
-      >
-        {positionName}
-      </button>
-    );
-  }
+  return (
+    <FlexView vAlignContent="center" hAlignContent="center" height="100%">
+      {props.playerNameAtPosition ? (
+        <div style={{ fontWeight: props.seatedHere ? 'bold' : undefined }}>
+          {props.playerNameAtPosition}
+        </div>
+      ) : (
+        <button disabled={!props.canJoin} onClick={() => props.joinGame()}>
+          Join
+        </button>
+      )}
+    </FlexView>
+  );
 }
 
 function isNameValid(
@@ -106,8 +87,4 @@ function isNameValid(
     return false;
   }
   return _.every(playerFriendlyNames, (v) => v !== name);
-}
-
-function areSpotsAvailable(playerFriendlyNames: PlayerFriendlyNames): boolean {
-  return !_.every(playerFriendlyNames);
 }

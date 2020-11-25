@@ -1,5 +1,10 @@
-import { StateNodeConfig } from 'xstate';
-import { BiddingStates } from './BiddingStateMachine';
+import { assign, StateNodeConfig } from 'xstate';
+import { NextPlayer } from '../ModelHelpers';
+import {
+  assignInitialBiddingContext,
+  BiddingStates,
+  determineWinningBidder,
+} from './BiddingStateMachine';
 import { BiddingContext } from './BiddingStateTypes';
 import {
   RoundContext,
@@ -15,30 +20,30 @@ export const RoundStates: StateNodeConfig<
   RoundEvent
 > = {
   key: 'round',
-  initial: 'dealing',
-  entry: 'initContext',
+  initial: 'incrementDealerAndDealHands',
   states: {
-    dealing: {
-      on: {
-        NEXT: {
-          target: 'bidding',
-          cond: (context) => {
-            console.log('Checking the context');
-            return true;
-          },
-        },
+    incrementDealerAndDealHands: {
+      always: {
+        target: 'bidding',
+        actions: assign(incrementDealerAndDealHands),
       },
     },
     bidding: {
-      on: {
-        NEXT: 'thePlay',
-      },
       ...(BiddingStates as StateNodeConfig<
         RoundContext,
         TypedStateSchema<RoundMeta, BiddingContext>,
         RoundEvent
       >),
+      entry: assign(
+        (context) =>
+          (assignInitialBiddingContext(context) as unknown) as RoundContext
+      ),
+      exit: assign((context) =>
+        determineWinningBidder((context as unknown) as BiddingContext)
+      ),
+      onDone: { target: 'nameTrump' },
     },
+    nameTrump: {},
     thePlay: {
       on: {
         NEXT: 'scoring',
@@ -54,3 +59,15 @@ export const RoundStates: StateNodeConfig<
     },
   },
 };
+
+function incrementDealerAndDealHands(context: RoundContext): RoundContext {
+  return {
+    currentDealer: NextPlayer[context.currentDealer] || 'north',
+    hands: {
+      east: [{ rank: '9', suit: 'C' }],
+      north: [],
+      south: [],
+      west: [],
+    },
+  };
+}

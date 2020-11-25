@@ -16,9 +16,7 @@ export type BiddingStateSchema = {
   states: {
     waitForPlayerToBid: TypedStateSchema<BiddingMeta, BiddingContext>;
     checkIfBiddingIsComplete: TypedStateSchema<BiddingMeta, BiddingContext>;
-    waitForPlayerToNameTrump: TypedStateSchema<BiddingMeta, BiddingContext>;
     biddingComplete: TypedStateSchema<BiddingMeta, BiddingContext>;
-    misdeal: TypedStateSchema<BiddingMeta, BiddingContext>;
   };
 };
 

@@ -1,7 +1,10 @@
 import * as _ from 'lodash';
 
 import { assign, StateNodeConfig } from 'xstate';
-import { Position } from '../../../../functions/apiContract/database/GameState';
+import {
+  Bid,
+  Position,
+} from '../../../../functions/apiContract/database/GameState';
 import {
   BiddingContext,
   BiddingEvent,
@@ -17,7 +20,6 @@ export const BiddingStates: StateNodeConfig<
 > = {
   key: 'bidding',
   initial: 'waitForPlayerToBid',
-  entry: assign(assignInitialBiddingContext),
   states: {
     waitForPlayerToBid: {
       on: {
@@ -44,35 +46,24 @@ export const BiddingStates: StateNodeConfig<
           }),
         },
         {
-          cond: function noWinningBidder(context) {
-            return determineWinningBidder(context) === null;
-          },
-          target: 'misdeal',
-        },
-        {
           cond: haveAllBidsBeenMade,
-          target: 'waitForPlayerToNameTrump',
-          actions: assign({
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            awaitedPlayer: (context) => determineWinningBidder(context)!,
-          }),
+          target: 'biddingComplete',
         },
       ],
     },
-    waitForPlayerToNameTrump: {
-      on: {
-        NAME_TRUMP: 'biddingComplete',
-      },
+    biddingComplete: {
+      type: 'final',
     },
-    biddingComplete: { type: 'final' },
-    misdeal: { type: 'final' },
   },
 };
 
+function haveAllBidsBeenMade(context: BiddingContext): boolean {
+  return _.every(context.bids, (bid) => bid !== null);
+}
+
 export function assignInitialBiddingContext(
-  context: BiddingContext
+  parentContext: RoundContext
 ): BiddingContext {
-  const parentContext = (context as unknown) as RoundContext;
   return {
     awaitedPlayer: NextPlayer[parentContext.currentDealer],
     bids: {
@@ -84,13 +75,14 @@ export function assignInitialBiddingContext(
   };
 }
 
-function haveAllBidsBeenMade(context: BiddingContext): boolean {
-  return _.every(context.bids, (bid) => bid !== null);
-}
-
-function determineWinningBidder(context: BiddingContext): Position | null {
+export function determineWinningBidder(
+  context: BiddingContext
+): {
+  winningBidder: Position | undefined;
+  winningBid: Bid;
+} {
   let maxBid = 0;
-  let winningBidder: Position | null = null;
+  let winningBidder: Position | undefined = undefined;
 
   forEachPosition(context.bids, (bid, position) => {
     if (_.isNumber(bid) && bid > maxBid) {
@@ -99,5 +91,6 @@ function determineWinningBidder(context: BiddingContext): Position | null {
     }
   });
 
-  return winningBidder;
+  const winningBid = (winningBidder !== undefined ? maxBid : null) as Bid;
+  return { winningBidder, winningBid };
 }

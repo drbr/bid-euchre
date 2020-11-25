@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { assign, StateNodeConfig } from 'xstate';
+import { assign, MachineOptions, StateNodeConfig } from 'xstate';
 import { Position } from '../../../../functions/apiContract/database/GameState';
 import {
   BiddingContext,
@@ -8,20 +8,7 @@ import {
   BiddingStateSchema,
 } from './BiddingStateTypes';
 import { forEachPosition, NextPlayer } from '../ModelHelpers';
-
-// export function assignInitialBiddingContext(
-//   gameContext: GameContext
-// ): BiddingContext {
-//   return {
-//     // awaitedPlayer: gameContext.
-//     bids: {
-//       north: null,
-//       south: null,
-//       east: null,
-//       west: null,
-//     },
-//   };
-// }
+import { RoundContext } from './RoundStateTypes';
 
 export const BiddingStates: StateNodeConfig<
   BiddingContext,
@@ -30,6 +17,7 @@ export const BiddingStates: StateNodeConfig<
 > = {
   key: 'bidding',
   initial: 'waitForPlayerToBid',
+  entry: 'initContext',
   states: {
     waitForPlayerToBid: {
       on: {
@@ -47,18 +35,18 @@ export const BiddingStates: StateNodeConfig<
     checkIfBiddingIsComplete: {
       always: [
         {
-          cond: (context) => !haveAllBidsBeenMade(context),
+          cond: 'somePlayersHaveNotYetBid',
           target: 'waitForPlayerToBid',
           actions: assign({
             awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
           }),
         },
         {
-          cond: (context) => determineWinningBidder(context) === null,
+          cond: 'noWinningBidder',
           target: 'misdeal',
         },
         {
-          cond: (context) => haveAllBidsBeenMade(context),
+          cond: 'haveAllBidsBeenMade',
           target: 'waitForPlayerToNameTrump',
           actions: assign({
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -77,8 +65,36 @@ export const BiddingStates: StateNodeConfig<
   },
 };
 
+export const BiddingOptions: Partial<
+  MachineOptions<BiddingContext, BiddingEvent>
+> = {
+  guards: {
+    somePlayersHaveNotYetBid: (context) => !haveAllBidsBeenMade(context),
+    noWinningBidder: (context) => determineWinningBidder(context) === null,
+    haveAllBidsBeenMade: (context) => haveAllBidsBeenMade(context),
+  },
+  actions: {
+    initContext: assign(assignInitialBiddingContext),
+  },
+};
+
+export function assignInitialBiddingContext(
+  context: BiddingContext
+): BiddingContext {
+  const parentContext = (context as unknown) as RoundContext;
+  return {
+    awaitedPlayer: NextPlayer[parentContext.currentDealer],
+    bids: {
+      north: null,
+      south: null,
+      east: null,
+      west: null,
+    },
+  };
+}
+
 function haveAllBidsBeenMade(context: BiddingContext): boolean {
-  return _.every(context.bids);
+  return _.every(context.bids, (bid) => bid !== null);
 }
 
 function determineWinningBidder(context: BiddingContext): Position | null {

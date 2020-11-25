@@ -1,6 +1,8 @@
-import { Router, RouteComponentProps } from '@reach/router';
-import { Lobby } from '../screens/Lobby';
+import { RouteComponentProps, Router } from '@reach/router';
+import { StateMachineViz } from '../gameLogic/StateMachineViz';
 import { GameContainer } from '../screens/GameContainer';
+import { Lobby } from '../screens/Lobby';
+import { App } from './App';
 import { GamePathRouteProps } from './paths';
 
 export function AppRouter() {
@@ -10,12 +12,17 @@ export function AppRouter() {
       <LobbyRoute path="/game/" />
       <GameRoute path="/game/:gameId" />
       <LobbyRoute default />
+      <StateMachineRoute path="/stateMachine" />
     </Router>
   );
 }
 
 function LobbyRoute(props: RouteComponentProps) {
-  return <Lobby />;
+  return (
+    <App>
+      <Lobby />
+    </App>
+  );
 }
 
 function GameRoute(props: RouteComponentProps & GamePathRouteProps) {
@@ -23,6 +30,14 @@ function GameRoute(props: RouteComponentProps & GamePathRouteProps) {
     return <div>No Game ID specified!</div>;
   } else {
     // Mount a fresh component any time the Game ID changes
-    return <GameContainer key={props.gameId} gameId={props.gameId} />;
+    return (
+      <App>
+        <GameContainer key={props.gameId} gameId={props.gameId} />
+      </App>
+    );
   }
+}
+
+function StateMachineRoute(props: RouteComponentProps) {
+  return <StateMachineViz />;
 }

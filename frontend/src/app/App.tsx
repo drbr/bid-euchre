@@ -2,7 +2,6 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import { useState } from 'react';
 import FlexView from 'react-flexview';
 import { classes } from 'typestyle';
-import { AppRouter } from './routing/AppRouter';
 import {
   AppStyle,
   ColorSchemeClasses,
@@ -10,13 +9,13 @@ import {
   ColorSwatchStyle,
   FooterStyle,
   MaterialUITheme,
-} from './style/AppStyle';
+} from '../style/AppStyle';
 import {
   retrieveColorSchemeId,
   storeColorSchemeId,
-} from './uiHelpers/LocalStorageClient';
+} from '../uiHelpers/LocalStorageClient';
 
-export default function App() {
+export function App(props: { children?: React.ReactChild }) {
   const [colorSchemeId, setColorSchemeId] = useState(retrieveColorSchemeId());
 
   function saveAndRenderColorScheme(x: number) {
@@ -28,7 +27,7 @@ export default function App() {
     <MuiThemeProvider theme={MaterialUITheme}>
       <div className={classes(AppStyle, ColorSchemeClasses[colorSchemeId])}>
         <FlexView grow vAlignContent="center">
-          <AppRouter />
+          {props.children}
         </FlexView>
         <AppFooter
           colorScheme={colorSchemeId}

@@ -1,4 +1,5 @@
 import { assign, StateNodeConfig } from 'xstate';
+import { deal } from '../deal';
 import { NextPlayer } from '../ModelHelpers';
 import {
   assignInitialBiddingContext,
@@ -20,14 +21,20 @@ export const RoundStates: StateNodeConfig<
   RoundEvent
 > = {
   key: 'round',
-  initial: 'incrementDealerAndDealHands',
+  initial: 'dealHands',
+  entry: assign({
+    currentDealer: (context) => NextPlayer[context.currentDealer] || 'north',
+  }),
   states: {
-    incrementDealerAndDealHands: {
+    dealHands: {
       always: {
         target: 'bidding',
-        actions: assign(incrementDealerAndDealHands),
+        actions: assign({
+          hands: (context) => deal(),
+        }),
       },
     },
+
     bidding: {
       ...(BiddingStates as StateNodeConfig<
         RoundContext,
@@ -43,31 +50,37 @@ export const RoundStates: StateNodeConfig<
       ),
       onDone: { target: 'nameTrump' },
     },
+
+    checkWinningBidder: {
+      always: [
+        {
+          target: 'dealHands',
+          cond: function allPlayersPassed(context) {
+            return context.winningBidder === undefined;
+          },
+        },
+        {
+          target: 'nameTrump',
+        },
+      ],
+    },
+
     nameTrump: {},
+
     thePlay: {
       on: {
         NEXT: 'scoring',
       },
     },
+
     scoring: {
       on: {
         NEXT: 'roundComplete',
       },
     },
+
     roundComplete: {
       type: 'final',
     },
   },
 };
-
-function incrementDealerAndDealHands(context: RoundContext): RoundContext {
-  return {
-    currentDealer: NextPlayer[context.currentDealer] || 'north',
-    hands: {
-      east: [{ rank: '9', suit: 'C' }],
-      north: [],
-      south: [],
-      west: [],
-    },
-  };
-}

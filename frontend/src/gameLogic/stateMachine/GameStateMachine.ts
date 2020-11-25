@@ -28,6 +28,7 @@ export const GameStateMachine = Machine<
     setup: {
       on: { NEXT: 'round' },
     },
+
     round: {
       on: { NEXT: 'round' },
       ...(RoundStates as StateNodeConfig<

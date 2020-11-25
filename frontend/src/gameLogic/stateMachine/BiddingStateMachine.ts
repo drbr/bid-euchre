@@ -34,6 +34,7 @@ export const BiddingStates: StateNodeConfig<
         },
       },
     },
+
     checkIfBiddingIsComplete: {
       always: [
         {
@@ -51,6 +52,7 @@ export const BiddingStates: StateNodeConfig<
         },
       ],
     },
+
     biddingComplete: {
       type: 'final',
     },
@@ -91,6 +93,6 @@ export function determineWinningBidder(
     }
   });
 
-  const winningBid = (winningBidder !== undefined ? maxBid : null) as Bid;
+  const winningBid = (winningBidder !== undefined ? maxBid : 'pass') as Bid;
   return { winningBidder, winningBid };
 }

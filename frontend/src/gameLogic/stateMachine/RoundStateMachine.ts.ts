@@ -1,4 +1,9 @@
-import { assign, StateNodeConfig } from 'xstate';
+import {
+  ActionFunctionMap,
+  assign,
+  ConditionPredicate,
+  StateNodeConfig,
+} from 'xstate';
 import { deal } from '../deal';
 import { NextPlayer } from '../ModelHelpers';
 import {
@@ -82,6 +87,13 @@ export const RoundStates: StateNodeConfig<
     },
   },
 };
+
+const RoundActions: ActionFunctionMap<RoundContext, RoundEvent> = {};
+
+const RoundGuards: Record<
+  string,
+  ConditionPredicate<RoundContext, RoundEvent>
+> = {};
 
 function allPlayersPassed(context: RoundContext): boolean {
   return context.winningBid === 'pass';

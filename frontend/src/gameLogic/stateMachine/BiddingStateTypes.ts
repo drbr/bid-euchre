@@ -21,5 +21,5 @@ export type BiddingStateSchema = {
 };
 
 export type BiddingEvent =
-  | { type: 'PLAYER_BID'; bid: Bid }
-  | { type: 'NAME_TRUMP'; suit: Suit };
+  | { type: 'PLAYER_BID'; bid: Bid; player: Position }
+  | { type: 'NAME_TRUMP'; suit: Suit; player: Position };

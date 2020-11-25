@@ -16,6 +16,7 @@ export const RoundStates: StateNodeConfig<
 > = {
   key: 'round',
   initial: 'dealing',
+  entry: 'initContext',
   states: {
     dealing: {
       on: {

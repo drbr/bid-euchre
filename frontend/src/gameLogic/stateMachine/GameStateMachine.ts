@@ -1,5 +1,4 @@
-import { Machine, MachineOptions, StateNodeConfig } from 'xstate';
-import { BiddingOptions } from './BiddingStateMachine';
+import { Machine, StateNodeConfig } from 'xstate';
 import {
   GameContext,
   GameEvent,
@@ -21,26 +20,21 @@ export const GameStateMachine = Machine<
   GameContext,
   GameStateSchema,
   GameEvent
->(
-  {
-    id: 'Euchre Game',
-    initial: 'setup',
-    context: initialGameContext,
-    states: {
-      setup: {
-        on: { NEXT: 'round' },
-      },
-      round: {
-        on: { NEXT: 'round' },
-        ...(RoundStates as StateNodeConfig<
-          GameContext,
-          TypedStateSchema<GameMeta, RoundContext>,
-          GameEvent
-        >),
-      },
+>({
+  id: 'Euchre Game',
+  initial: 'setup',
+  context: initialGameContext,
+  states: {
+    setup: {
+      on: { NEXT: 'round' },
+    },
+    round: {
+      on: { NEXT: 'round' },
+      ...(RoundStates as StateNodeConfig<
+        GameContext,
+        TypedStateSchema<GameMeta, RoundContext>,
+        GameEvent
+      >),
     },
   },
-  {
-    ...(BiddingOptions as Partial<MachineOptions<GameContext, GameEvent>>),
-  }
-);
+});

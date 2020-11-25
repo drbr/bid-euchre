@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { assign, MachineOptions, StateNodeConfig } from 'xstate';
+import { assign, StateNodeConfig } from 'xstate';
 import { Position } from '../../../../functions/apiContract/database/GameState';
 import {
   BiddingContext,
@@ -17,7 +17,7 @@ export const BiddingStates: StateNodeConfig<
 > = {
   key: 'bidding',
   initial: 'waitForPlayerToBid',
-  entry: 'initContext',
+  entry: assign(assignInitialBiddingContext),
   states: {
     waitForPlayerToBid: {
       on: {
@@ -35,18 +35,22 @@ export const BiddingStates: StateNodeConfig<
     checkIfBiddingIsComplete: {
       always: [
         {
-          cond: 'somePlayersHaveNotYetBid',
+          cond: function somePlayersHaveNotYetBid(context) {
+            return !haveAllBidsBeenMade(context);
+          },
           target: 'waitForPlayerToBid',
           actions: assign({
             awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
           }),
         },
         {
-          cond: 'noWinningBidder',
+          cond: function noWinningBidder(context) {
+            return determineWinningBidder(context) === null;
+          },
           target: 'misdeal',
         },
         {
-          cond: 'haveAllBidsBeenMade',
+          cond: haveAllBidsBeenMade,
           target: 'waitForPlayerToNameTrump',
           actions: assign({
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -62,19 +66,6 @@ export const BiddingStates: StateNodeConfig<
     },
     biddingComplete: { type: 'final' },
     misdeal: { type: 'final' },
-  },
-};
-
-export const BiddingOptions: Partial<
-  MachineOptions<BiddingContext, BiddingEvent>
-> = {
-  guards: {
-    somePlayersHaveNotYetBid: (context) => !haveAllBidsBeenMade(context),
-    noWinningBidder: (context) => determineWinningBidder(context) === null,
-    haveAllBidsBeenMade: (context) => haveAllBidsBeenMade(context),
-  },
-  actions: {
-    initContext: assign(assignInitialBiddingContext),
   },
 };
 

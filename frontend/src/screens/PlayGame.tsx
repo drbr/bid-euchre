@@ -7,6 +7,7 @@ import {
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from './GameLayout';
 import * as DAO from '../firebase/FrontendDAO';
+import { SubmachineGameTest } from './SubmachineTest';
 
 export type PlayGameProps = {
   gameId: string;
@@ -39,13 +40,14 @@ export function PlayGame(props: PlayGameProps) {
       <p>
         {props.playerId ? null : 'You are a spectator of the current game!'}
       </p>
-      <GameLayout
+      {/* <GameLayout
         renderPlayerElement={(position) => (
           <div>{props.gameConfig.playerFriendlyNames[position]}</div>
         )}
         tableCenterElement={null}
         viewpoint={props.seatedAt}
-      />
+      /> */}
+      <SubmachineGameTest />
     </div>
   );
 }

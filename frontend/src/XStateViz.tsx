@@ -1,26 +1,7 @@
-import { Machine, assign } from 'xstate';
-import { useMachine } from '@xstate/react';
 import { useEffect, useState } from 'react';
+import { StateMachine } from 'xstate';
+import { useMachine } from '@xstate/react';
 import { inspect } from '@xstate/inspect';
-
-type StateMachineContext = { count: number };
-
-const toggleMachine = Machine<StateMachineContext>({
-  id: 'foo bar',
-  initial: 'inactive',
-  context: {
-    count: 0,
-  },
-  states: {
-    inactive: {
-      on: { TOGGLE: 'active' },
-    },
-    active: {
-      entry: assign({ count: (ctx) => ctx.count + 1 }),
-      on: { TOGGLE: 'inactive' },
-    },
-  },
-});
 
 let iFrameElement: HTMLIFrameElement | null = null;
 
@@ -35,7 +16,12 @@ function createIFrame() {
   }
 }
 
-export function StateMachineViz() {
+export type XStateVizProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  machine: StateMachine<any, any, any, any>;
+};
+
+export function XStateViz(props: XStateVizProps) {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
@@ -50,13 +36,13 @@ export function StateMachineViz() {
   }, []);
 
   if (initialized) {
-    return <StateMachineInstance />;
+    return <StateMachineInstance {...props} />;
   } else {
     return null;
   }
 }
 
-function StateMachineInstance() {
-  useMachine(toggleMachine, { devTools: true });
+function StateMachineInstance(props: XStateVizProps) {
+  useMachine(props.machine, { devTools: true });
   return <div></div>;
 }

@@ -4,7 +4,7 @@ import { GameContainer } from '../screens/GameContainer';
 import { Lobby } from '../screens/Lobby';
 import { App } from './App';
 import { GamePathRouteProps } from './paths';
-import { EuchreStateMachine } from '../gameLogic/stateMachine/StateMachine';
+import { GameStateMachine } from '../gameLogic/stateMachine/GameStateMachine';
 
 export function AppRouter() {
   return (
@@ -40,5 +40,5 @@ function GameRoute(props: RouteComponentProps & GamePathRouteProps) {
 }
 
 function StateMachineRoute(props: RouteComponentProps) {
-  return <XStateViz machine={EuchreStateMachine} />;
+  return <XStateViz machine={GameStateMachine} />;
 }

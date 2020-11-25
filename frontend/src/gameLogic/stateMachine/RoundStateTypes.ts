@@ -7,11 +7,16 @@ export type RoundContext = {
   hands: Record<Position, Hand>;
 };
 
+export type RoundMeta = unknown;
+
 export type RoundStateSchema = {
   states: {
     dealing: TypedStateSchema<unknown, unknown>;
     bidding: TypedStateSchema<unknown, unknown>;
     thePlay: TypedStateSchema<unknown, unknown>;
     scoring: TypedStateSchema<unknown, unknown>;
+    roundComplete: TypedStateSchema<unknown, unknown>;
   };
 };
+
+export type RoundEvent = { type: 'NEXT' };

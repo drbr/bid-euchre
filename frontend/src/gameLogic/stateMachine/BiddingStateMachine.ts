@@ -9,6 +9,20 @@ import {
 } from './BiddingStateTypes';
 import { forEachPosition, NextPlayer } from '../ModelHelpers';
 
+// export function assignInitialBiddingContext(
+//   gameContext: GameContext
+// ): BiddingContext {
+//   return {
+//     // awaitedPlayer: gameContext.
+//     bids: {
+//       north: null,
+//       south: null,
+//       east: null,
+//       west: null,
+//     },
+//   };
+// }
+
 export const BiddingStates: StateNodeConfig<
   BiddingContext,
   BiddingStateSchema,
@@ -16,15 +30,6 @@ export const BiddingStates: StateNodeConfig<
 > = {
   key: 'bidding',
   initial: 'waitForPlayerToBid',
-  context: {
-    bids: {
-      north: null,
-      south: null,
-      east: null,
-      west: null,
-    },
-    awaitedPlayer: 'north',
-  },
   states: {
     waitForPlayerToBid: {
       on: {

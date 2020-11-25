@@ -38,17 +38,17 @@ export const BiddingStates: StateNodeConfig<
     checkIfBiddingIsComplete: {
       always: [
         {
-          cond: function somePlayersHaveNotYetBid(context) {
-            return !haveAllBidsBeenMade(context);
-          },
+          cond: haveAllBidsBeenMade,
+          target: 'biddingComplete',
+        },
+        {
+          // cond: function somePlayersHaveNotYetBid(context) {
+          //   return !haveAllBidsBeenMade(context);
+          // },
           target: 'waitForPlayerToBid',
           actions: assign({
             awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
           }),
-        },
-        {
-          cond: haveAllBidsBeenMade,
-          target: 'biddingComplete',
         },
       ],
     },

@@ -48,16 +48,14 @@ export const RoundStates: StateNodeConfig<
       exit: assign((context) =>
         determineWinningBidder((context as unknown) as BiddingContext)
       ),
-      onDone: { target: 'nameTrump' },
+      onDone: { target: 'checkWinningBidder' },
     },
 
     checkWinningBidder: {
       always: [
         {
           target: 'dealHands',
-          cond: function allPlayersPassed(context) {
-            return context.winningBidder === undefined;
-          },
+          cond: allPlayersPassed,
         },
         {
           target: 'nameTrump',
@@ -84,3 +82,7 @@ export const RoundStates: StateNodeConfig<
     },
   },
 };
+
+function allPlayersPassed(context: RoundContext): boolean {
+  return context.winningBid === 'pass';
+}

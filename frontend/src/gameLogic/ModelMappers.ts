@@ -9,7 +9,7 @@ import { Position } from '../../../functions/apiContract/database/GameState';
  * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined
  * values.
  */
-export function mapGameConfig(
+export function mapGameConfigFromDatabase(
   original: PublicGameConfig | undefined
 ): PublicGameConfig | null {
   if (!original) {
@@ -17,7 +17,7 @@ export function mapGameConfig(
   }
   return {
     gameExists: original.gameExists,
-    playerFriendlyNames: mapPositionRecord(original.playerFriendlyNames),
+    playerFriendlyNames: mapPositionRecordFromDatabase(original.playerFriendlyNames),
   };
 }
 
@@ -25,7 +25,7 @@ export function mapGameConfig(
  * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined
  * values.
  */
-export function mapPublicGameState(
+export function mapPublicGameStateFromDatabase(
   original: PublicGameState | undefined
 ): PublicGameState | null {
   if (!original) {
@@ -34,15 +34,15 @@ export function mapPublicGameState(
   return {
     score: original.score,
     currentDealer: original.currentDealer,
-    bids: mapPositionRecord(original.bids),
+    bids: mapPositionRecordFromDatabase(original.bids),
     trump: original.trump,
     currentTrickLead: original.currentTrickLead,
-    currentTrick: mapPositionRecord(original.currentTrick),
+    currentTrick: mapPositionRecordFromDatabase(original.currentTrick),
     wonTricksThisRound: original.wonTricksThisRound,
   };
 }
 
-export function mapPrivateGameState(
+export function mapPrivateGameStateFromDatabase(
   original: PlayerPrivateGameState | undefined
 ): PlayerPrivateGameState | null {
   if (!original) {
@@ -53,7 +53,7 @@ export function mapPrivateGameState(
   };
 }
 
-export function mapPositionRecord<T>(
+export function mapPositionRecordFromDatabase<T>(
   original: Record<Position, T | null> | null | undefined
 ): Record<Position, T | null> {
   if (!original) {

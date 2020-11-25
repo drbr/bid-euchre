@@ -1,6 +1,6 @@
 import {
-  mapGameConfig,
-  mapPositionRecord,
+  mapGameConfigFromDatabase,
+  mapPositionRecordFromDatabase,
 } from '../../../frontend/src/gameLogic/ModelMappers';
 import {
   PlayerIdentities,
@@ -55,7 +55,7 @@ export async function getPublicGameConfig(props: {
   const snapshot = await firebaseDatabaseAdminClient
     .ref(`/publicGameConfig/${props.gameId}`)
     .once('value');
-  return mapGameConfig(snapshot.val());
+  return mapGameConfigFromDatabase(snapshot.val());
 }
 
 export async function getPlayerIdentities(props: {
@@ -64,7 +64,7 @@ export async function getPlayerIdentities(props: {
   const snapshot = await firebaseDatabaseAdminClient
     .ref(`/playerIdentities/${props.gameId}`)
     .once('value');
-  return mapPositionRecord(snapshot.val());
+  return mapPositionRecordFromDatabase(snapshot.val());
 }
 
 export async function setPublicGameState(props: {

@@ -14,6 +14,8 @@ export async function startGame(props: {
 }): Promise<void> {
   const privateGameStates: PlayerPrivateGameStates = {};
 
+  
+
   for (const pos in props.playerIdentities) {
     const position = pos as Position;
     const playerId = props.playerIdentities[position]!;

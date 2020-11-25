@@ -4,9 +4,9 @@ import {
   PublicGameState,
 } from '../../../functions/apiContract/database/DataModel';
 import {
-  mapGameConfig,
-  mapPrivateGameState,
-  mapPublicGameState,
+  mapGameConfigFromDatabase,
+  mapPrivateGameStateFromDatabase,
+  mapPublicGameStateFromDatabase,
 } from '../gameLogic/ModelMappers';
 import { firebaseDatabase } from './FirebaseWebClientInFrontend';
 
@@ -18,7 +18,7 @@ export function subscribeToPublicGameConfig(
 ): UnsubscribeFn {
   const ref = firebaseDatabase.ref(`/publicGameConfig/${gameId}`);
   const unsubscribeKey = ref.on('value', (snapshot) =>
-    callback(mapGameConfig(snapshot.val()))
+    callback(mapGameConfigFromDatabase(snapshot.val()))
   );
   return () => ref.off('value', unsubscribeKey);
 }
@@ -29,7 +29,7 @@ export function subscribeToPublicGameState(
 ): UnsubscribeFn {
   const ref = firebaseDatabase.ref(`/publicGameState/${gameId}`);
   const unsubscribeKey = ref.on('value', (snapshot) =>
-    callback(mapPublicGameState(snapshot.val()))
+    callback(mapPublicGameStateFromDatabase(snapshot.val()))
   );
   return () => ref.off('value', unsubscribeKey);
 }
@@ -42,7 +42,7 @@ export function subscribeToPrivateGameState(
     `/playerPrivateGameState/${params.gameId}/${params.playerId}`
   );
   const unsubscribeKey = ref.on('value', (snapshot) =>
-    callback(mapPrivateGameState(snapshot.val()))
+    callback(mapPrivateGameStateFromDatabase(snapshot.val()))
   );
   return () => ref.off('value', unsubscribeKey);
 }

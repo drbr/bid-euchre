@@ -4,7 +4,7 @@ import { GameContainer } from '../screens/GameContainer';
 import { Lobby } from '../screens/Lobby';
 import { App } from './App';
 import { GamePathRouteProps } from './paths';
-import { EuchreStateMachine } from '../gameLogic/StateMachine';
+import { EuchreStateMachine } from '../gameLogic/stateMachine/StateMachine';
 
 export function AppRouter() {
   return (

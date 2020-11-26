@@ -1,10 +1,10 @@
-import { AnyEventObject } from 'xstate';
+import { State, Typestate } from 'xstate';
 import { Partnership } from '../../../../functions/apiContract/database/GameState';
 import { TypedStateSchema } from './TypedStateInterfaces';
 
 export type GameContext = {
   score: Record<Partnership, number>;
-  events: ReadonlyArray<AnyEventObject>;
+  eventCount: number;
 };
 
 export type GameMeta = unknown;
@@ -22,3 +22,10 @@ export type GameStateSchema = {
 };
 
 export type GameEvent = { type: 'NEXT' };
+
+export type GameState = State<
+  GameContext,
+  GameEvent,
+  GameStateSchema,
+  Typestate<GameContext>
+>;

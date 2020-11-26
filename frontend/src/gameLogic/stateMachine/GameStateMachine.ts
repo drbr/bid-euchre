@@ -14,12 +14,12 @@ const initialGameContext: GameContext = {
     eastwest: 0,
     northsouth: 0,
   },
-  events: [],
+  eventCount: 0,
 };
 
 const GameActions: ActionFunctionMap<GameContext, GameEvent> = {
   addEventToContext: assign({
-    events: (context, event) => context.events.concat(event),
+    eventCount: (context, event) => context.eventCount + 1,
   }),
 };
 

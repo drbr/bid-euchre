@@ -1,28 +1,22 @@
+import { forEachPosition } from '../../../frontend/src/gameLogic/ModelHelpers';
 import {
   PlayerIdentities,
   PlayerPrivateGameStates,
   PublicGameConfig,
   PublicGameState,
 } from '../../apiContract/database/DataModel';
-import { Position } from '../../apiContract/database/GameState';
 import * as DAO from '../databaseHelpers/BackendDAO';
 
-export async function startGame(props: {
+export async function initializeGameStates(props: {
   gameId: string;
   playerIdentities: PlayerIdentities;
   gameConfig: PublicGameConfig;
 }): Promise<void> {
   const privateGameStates: PlayerPrivateGameStates = {};
 
-  
-
-  for (const pos in props.playerIdentities) {
-    const position = pos as Position;
-    const playerId = props.playerIdentities[position]!;
-    privateGameStates[playerId] = {
-      hand: [],
-    };
-  }
+  forEachPosition(props.playerIdentities, (playerId) => {
+    privateGameStates[playerId!] = { hand: [] };
+  });
 
   await Promise.all([
     DAO.setPublicGameState({

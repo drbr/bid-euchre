@@ -5,7 +5,7 @@ import * as DAO from '../databaseHelpers/BackendDAO';
 import { PublicGameConfig } from '../../apiContract/database/DataModel';
 
 export default async function executeNewGame(): Promise<NewGameResult> {
-  const publicGameConfig = await DAO.createPublicGameConfig({
+  const publicGameConfig = await DAO.transactionallyCreatePublicGameConfig({
     value: InitialGameConfig,
     generateKey: generateFriendlyId,
   });

@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import { ID_COLLISION_ERROR } from './databaseHelpers/CrudHelpers';
 import executeJoinGame from './entryPoints/executeJoinGame';
 import executeNewGame from './entryPoints/executeNewGame';
+import executeSendGameEvent from './entryPoints/executeSendGameEvent';
 
 export const newGame = functions.https.onCall(() => {
   return executeNewGame();
@@ -25,7 +26,5 @@ export const joinGame = functions.https.onCall((data) => {
 export const sendGameEvent = functions.https.onCall((data) => {
   try {
     return executeSendGameEvent(data);
-  } catch (e) {
-    
-  }
-})
+  } catch (e) {}
+});

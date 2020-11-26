@@ -2,6 +2,7 @@ import {
   mapGameConfigFromDatabase,
   mapPositionRecordFromDatabase,
 } from '../../../frontend/src/gameLogic/ModelMappers';
+import { GameState } from '../../../frontend/src/gameLogic/stateMachine/GameStateTypes';
 import {
   PlayerIdentities,
   PlayerPrivateGameStates,
@@ -13,7 +14,7 @@ import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot'
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
 import { transactionallyCreateChildNode } from './CrudHelpers';
 
-export async function createPublicGameConfig(props: {
+export async function transactionallyCreatePublicGameConfig(props: {
   value: PublicGameConfig;
   generateKey: () => string;
 }): Promise<TypedDataSnapshot<PublicGameConfig>> {
@@ -24,7 +25,16 @@ export async function createPublicGameConfig(props: {
   });
 }
 
-export async function addPlayerIdToGameAtPosition(props: {
+export async function getPublicGameConfig(props: {
+  gameId: string;
+}): Promise<PublicGameConfig | null> {
+  const snapshot = await firebaseDatabaseAdminClient
+    .ref(`/publicGameConfig/${props.gameId}`)
+    .once('value');
+  return mapGameConfigFromDatabase(snapshot.val());
+}
+
+export async function transactionallyAddPlayerIdentityToGameAtPosition(props: {
   gameId: string;
   playerId: string;
   position: Position;
@@ -35,6 +45,15 @@ export async function addPlayerIdToGameAtPosition(props: {
     generateKey: () => props.position,
     tries: 1,
   });
+}
+
+export async function getPlayerIdentities(props: {
+  gameId: string;
+}): Promise<PlayerIdentities> {
+  const snapshot = await firebaseDatabaseAdminClient
+    .ref(`/playerIdentities/${props.gameId}`)
+    .once('value');
+  return mapPositionRecordFromDatabase(snapshot.val());
 }
 
 export async function setPlayerNameAtPosition(props: {
@@ -49,24 +68,6 @@ export async function setPlayerNameAtPosition(props: {
     .set(props.friendlyName);
 }
 
-export async function getPublicGameConfig(props: {
-  gameId: string;
-}): Promise<PublicGameConfig | null> {
-  const snapshot = await firebaseDatabaseAdminClient
-    .ref(`/publicGameConfig/${props.gameId}`)
-    .once('value');
-  return mapGameConfigFromDatabase(snapshot.val());
-}
-
-export async function getPlayerIdentities(props: {
-  gameId: string;
-}): Promise<PlayerIdentities> {
-  const snapshot = await firebaseDatabaseAdminClient
-    .ref(`/playerIdentities/${props.gameId}`)
-    .once('value');
-  return mapPositionRecordFromDatabase(snapshot.val());
-}
-
 export async function setPublicGameState(props: {
   gameId: string;
   gameState: PublicGameState;
@@ -74,6 +75,16 @@ export async function setPublicGameState(props: {
   return await firebaseDatabaseAdminClient
     .ref(`/publicGameState/${props.gameId}`)
     .set(props.gameState);
+}
+
+export async function setPublicGameStateJson(props: {
+  gameId: string;
+  gameState: GameState;
+}): Promise<void> {
+  const jsonString = JSON.stringify(props.gameState);
+  return await firebaseDatabaseAdminClient
+    .ref(`/publicGameStateJson/${props.gameId}`)
+    .set(jsonString);
 }
 
 export async function setPlayerPrivateGameStates(props: {

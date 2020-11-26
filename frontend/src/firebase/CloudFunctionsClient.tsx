@@ -14,15 +14,11 @@ const callJoinGame = firebaseFunctions.httpsCallable('joinGame');
 const callSendGameEvent = firebaseFunctions.httpsCallable('sendGameEvent');
 
 export function newGame(): Promise<NewGameResult> {
-  return firebaseFunctions
-    .httpsCallable('newGame')()
-    .then((result) => result.data);
+  return callNewGame().then((result) => result.data);
 }
 
 export function joinGame(params: JoinGameRequest): Promise<JoinGameResult> {
-  return firebaseFunctions
-    .httpsCallable('joinGame')(params)
-    .then((result) => result.data);
+  return callJoinGame(params).then((result) => result.data);
 }
 
 export function sendGameEvent(

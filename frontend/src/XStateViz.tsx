@@ -35,6 +35,10 @@ export function XStateViz(props: XStateVizProps) {
     setInitialized(true);
   }, []);
 
+  useEffect(() => {
+    document.title = 'State Machine';
+  });
+
   if (initialized) {
     return <StateMachineInstance {...props} />;
   } else {

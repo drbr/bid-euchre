@@ -18,6 +18,7 @@ export async function initializeGameStates(props: {
     privateGameStates[playerId!] = { hand: [] };
   });
 
+  // TODO: Use ref.update
   await Promise.all([
     DAO.setPublicGameState({
       gameId: props.gameId,

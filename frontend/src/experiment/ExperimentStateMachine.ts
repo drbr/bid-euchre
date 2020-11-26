@@ -62,7 +62,7 @@ export const ExperimentStateMachine = Machine<
   {
     id: 'experimentalStateMachine',
     type: 'parallel',
-    strict: true,
+    // strict: true,
     context: { value: 0, events: [] },
     states: {
       recordEvents: {
@@ -102,3 +102,14 @@ export const ExperimentStateMachine = Machine<
     services: ExperimentServices,
   }
 );
+
+// const initial = ExperimentStateMachine.initialState;
+// const maybeIncremented = ExperimentStateMachine.transition(
+//   initial,
+//   ('eventHasNoEffect' as unknown) as ExperimentEvent
+// );
+// console.log('Are the states the same?');
+// console.log(`Objects: ${initial === maybeIncremented}`);
+// console.log(
+//   `JSON: ${JSON.stringify(initial) === JSON.stringify(maybeIncremented)}`
+// );

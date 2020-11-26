@@ -1,7 +1,16 @@
+import * as functions from 'firebase-functions';
+import * as _ from 'lodash';
+import { mapPositions } from '../../../frontend/src/gameLogic/ModelHelpers';
+import { GameEvent } from '../../../frontend/src/gameLogic/stateMachine/GameStateTypes';
 import {
   SendGameEventRequest,
   SendGameEventResult,
 } from '../../apiContract/cloudFunctions/SendGameEvent';
+import {
+  getPlayerIdentities,
+  transactionallySetPublicGameStateJson,
+} from '../databaseHelpers/BackendDAO';
+import { transitionStateMachine } from '../gameLogic/BackendStateMachine';
 
 /**
  * Thrown if the user is not in the game
@@ -15,14 +24,38 @@ export class USER_NOT_AUTHORIZED_ERROR {}
  */
 export class STALE_STATE_ERROR {}
 
+/**
+ * Thrown if the state machine does not accept the event.
+ */
+export class INVALID_STATE_TRANSITION_ERROR {}
+
 export default async function executeSendGameEvent(
   request: SendGameEventRequest
 ): Promise<SendGameEventResult> {
-  // Validate that the user ID is in the game
-  // In a transaction:
-  // Pull up the current state
-  // Check if the user is in the correct position –
-  // this might better be part of the state machine's conditions though
-  // Transition the machine
-  // Save it
+  const { event, existingEventCount, gameId, playerId } = request;
+
+  const playerIdentities = await getPlayerIdentities({ gameId });
+  const playerIds = mapPositions(playerIdentities, (pid) => pid);
+  const playerIsPartOfThisGame = _.includes(playerIds, playerId);
+  if (!playerIsPartOfThisGame) {
+    throw new USER_NOT_AUTHORIZED_ERROR();
+  }
+
+  await transactionallySetPublicGameStateJson({
+    gameId,
+    transactionUpdate: (current) => {
+      if (current && current.context.eventCount !== existingEventCount) {
+        functions.logger.error('Stale state: event count mismatch');
+        throw new STALE_STATE_ERROR();
+      }
+
+      try {
+        const nextState = transitionStateMachine(current, event as GameEvent);
+        return nextState;
+      } catch (e) {
+        functions.logger.error(e);
+        throw new INVALID_STATE_TRANSITION_ERROR();
+      }
+    },
+  });
 }

@@ -12,7 +12,10 @@ import {
 import { Position } from '../../apiContract/database/GameState';
 import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
-import { transactionallyCreateChildNode } from './CrudHelpers';
+import {
+  transactionallyCreateChildNode,
+  transactionallySetNode,
+} from './CrudHelpers';
 
 export async function transactionallyCreatePublicGameConfig(props: {
   value: PublicGameConfig;
@@ -77,14 +80,18 @@ export async function setPublicGameState(props: {
     .set(props.gameState);
 }
 
-export async function setPublicGameStateJson(props: {
+export async function transactionallySetPublicGameStateJson(props: {
   gameId: string;
-  gameState: GameState;
+  transactionUpdate: (current: GameState | null) => GameState | undefined;
 }): Promise<void> {
-  const jsonString = JSON.stringify(props.gameState);
-  return await firebaseDatabaseAdminClient
-    .ref(`/publicGameStateJson/${props.gameId}`)
-    .set(jsonString);
+  await transactionallySetNode<string>({
+    path: `/publicGameStateJson/${props.gameId}`,
+    transactionUpdate: (currentJson) => {
+      const current = currentJson ? JSON.parse(currentJson) : null;
+      const maybeGameState = props.transactionUpdate(current);
+      return maybeGameState ? JSON.stringify(maybeGameState) : undefined;
+    },
+  });
 }
 
 export async function setPlayerPrivateGameStates(props: {

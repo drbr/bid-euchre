@@ -8,6 +8,11 @@ import {
  */
 export class USER_NOT_AUTHORIZED_ERROR {}
 
+/**
+ * Thrown if there are 
+ */
+export class STALE_STATE_ERROR {}
+
 export default async function executeSendGameEvent(
   request: SendGameEventRequest
 ): Promise<SendGameEventResult> {

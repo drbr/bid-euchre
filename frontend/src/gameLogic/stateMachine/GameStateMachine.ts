@@ -5,7 +5,7 @@ import {
   GameMeta,
   GameStateSchema,
 } from './GameStateTypes';
-import { RoundStates } from './RoundStateMachine.ts';
+import { RoundStates } from './RoundStateMachine';
 import { RoundContext } from './RoundStateTypes';
 import { TypedStateSchema } from './TypedStateInterfaces';
 

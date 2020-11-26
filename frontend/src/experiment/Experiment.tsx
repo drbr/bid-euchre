@@ -23,10 +23,11 @@ export function Experiment() {
   }, []);
 
   const [manualState, setManualState] = useState(
-    machine.resolveState(State.create(persistedState))
+    // machine.resolveState(State.create(persistedState))
+    machine.initialState
   );
   const [machineState, sendToMachine] = useMachine(machine, {
-    state: persistedState,
+    // state: persistedState,
     actions: {
       uiAlert: uiAlertAction,
       uiAlertEffect: asEffect(uiAlertAction),

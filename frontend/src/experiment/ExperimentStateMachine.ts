@@ -9,13 +9,19 @@ import { TypedStateSchema } from '../gameLogic/stateMachine/TypedStateInterfaces
 
 export type ExperimentContext = {
   value: number;
+  events: ReadonlyArray<ExperimentEvent>;
 };
 
 export type ExperimentMeta = unknown;
 
 export type ExperimentStateSchema = {
   states: {
-    count: TypedStateSchema<ExperimentMeta, ExperimentContext>;
+    recordEvents: TypedStateSchema<ExperimentMeta, ExperimentContext>;
+    runExperiment: {
+      states: {
+        count: TypedStateSchema<ExperimentMeta, ExperimentContext>;
+      };
+    };
   };
 };
 
@@ -30,6 +36,9 @@ export const ExperimentActions: ActionFunctionMap<
   }),
   decrement: assign({
     value: (context) => context.value - 1,
+  }),
+  addEventToContext: assign({
+    events: (context, event) => (context.events || []).concat(event),
   }),
 };
 
@@ -52,24 +61,37 @@ export const ExperimentStateMachine = Machine<
 >(
   {
     id: 'experimentalStateMachine',
-    initial: 'count',
-    context: { value: 0 },
+    type: 'parallel',
+    strict: true,
+    context: { value: 0, events: [] },
     states: {
-      count: {
+      recordEvents: {
         on: {
-          addOne: {
-            target: 'count',
-            actions: ['increment'],
+          '*': {
+            actions: 'addEventToContext',
           },
-          subtractOne: {
-            target: 'count',
-            actions: [
-              'decrement',
-              {
-                type: 'uiAlertEffect',
-                string: 'Decrement transition via UI Alert Effect',
+        },
+      },
+      runExperiment: {
+        initial: 'count',
+        states: {
+          count: {
+            on: {
+              addOne: {
+                target: 'count',
+                actions: ['increment'],
               },
-            ],
+              subtractOne: {
+                target: 'count',
+                actions: [
+                  'decrement',
+                  {
+                    type: 'uiAlertEffect',
+                    string: 'Decrement transition via UI Alert Effect',
+                  },
+                ],
+              },
+            },
           },
         },
       },

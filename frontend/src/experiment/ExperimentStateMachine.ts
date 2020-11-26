@@ -13,7 +13,7 @@ export type ExperimentStateSchema = {
   };
 };
 
-export type ExperimentEvent = { type: 'poke' };
+export type ExperimentEvent = { type: 'addOne' } | { type: 'subtractOne' };
 
 export const ExperimentActions: ActionFunctionMap<
   ExperimentContext,
@@ -21,6 +21,9 @@ export const ExperimentActions: ActionFunctionMap<
 > = {
   increment: assign({
     value: (context) => context.value + 1,
+  }),
+  decrement: assign({
+    value: (context) => context.value - 1,
   }),
 };
 
@@ -36,9 +39,13 @@ export const ExperimentStateMachine = Machine<
     states: {
       count: {
         on: {
-          poke: {
+          addOne: {
             target: 'count',
             actions: 'increment',
+          },
+          subtractOne: {
+            target: 'count',
+            actions: 'decrement',
           },
         },
       },

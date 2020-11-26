@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useMachine } from '@xstate/react';
+import { useEffect, useState } from 'react';
+import FlexView from 'react-flexview/lib';
+import { useEventSender, EventSender } from './EventSender';
 import {
   ExperimentEvent,
   ExperimentStateMachine,
@@ -7,30 +10,48 @@ import {
 const machine = ExperimentStateMachine;
 
 export function Experiment() {
-  const [state, setState] = useState(machine.initialState);
+  useEffect(() => {
+    document.title = 'Experiment';
+  }, []);
 
-  // const [state, send] = useMachine(machine);
-  const [actionText, setActionText] = useState('{"type":"poke"}');
-
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  (window as any).machineState = state;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  const [manualState, setManualState] = useState(machine.initialState);
+  const [machineState, sendToMachine] = useMachine(machine);
 
   function applyEventToMachine(event: ExperimentEvent) {
-    const incrementedState = machine.transition(state, event);
-    setState(incrementedState);
+    sendToMachine(event);
+
+    const incrementedState = machine.transition(manualState, event);
+    setManualState(incrementedState);
   }
+
+  const addOneActionSend = useEventSender(
+    { type: 'addOne' },
+    applyEventToMachine
+  );
+  const subtractOneActionSend = useEventSender(
+    { type: 'subtractOne' },
+    applyEventToMachine
+  );
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  (window as any).machineState = machineState;
+  (window as any).manualState = manualState;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return (
     <div style={{ padding: 20 }}>
-      <input
-        value={actionText}
-        onChange={(e) => setActionText(e.target.value)}
-      />
-      <button onClick={() => applyEventToMachine(JSON.parse(actionText))}>
-        Send
-      </button>
-      <DebugJSON json={state} />
+      <EventSender {...addOneActionSend} />
+      <EventSender {...subtractOneActionSend} />
+      <FlexView>
+        <FlexView column grow>
+          <h3>Machine State</h3>
+          <DebugJSON json={machineState} />
+        </FlexView>
+        <FlexView column grow>
+          <h3>Manual State</h3>
+          <DebugJSON json={manualState} />
+        </FlexView>
+      </FlexView>
     </div>
   );
 }

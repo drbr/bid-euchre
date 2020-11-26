@@ -36,9 +36,8 @@ export const ExperimentActions: ActionFunctionMap<
 export const uiAlertAction: ActionFunction<
   ExperimentContext,
   ExperimentEvent
-> = (context, event) => {
-  const str = JSON.stringify(event, null, 2);
-  alert(str);
+> = (context, event, meta) => {
+  alert(meta.action.string);
 };
 
 export const ExperimentServices: Record<
@@ -64,7 +63,13 @@ export const ExperimentStateMachine = Machine<
           },
           subtractOne: {
             target: 'count',
-            actions: ['decrement', 'uiAlert'],
+            actions: [
+              'decrement',
+              {
+                type: 'uiAlertEffect',
+                string: 'Decrement transition via UI Alert Effect',
+              },
+            ],
           },
         },
       },

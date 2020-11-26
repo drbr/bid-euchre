@@ -16,9 +16,11 @@ function createIFrame() {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyStateMachine = StateMachine<any, any, any, any>;
+
 export type XStateVizProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  machine: StateMachine<any, any, any, any>;
+  machine: AnyStateMachine;
 };
 
 export function XStateViz(props: XStateVizProps) {

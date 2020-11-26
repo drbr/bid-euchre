@@ -1,6 +1,7 @@
 import { asEffect, useMachine } from '@xstate/react';
 import { useEffect, useState } from 'react';
 import FlexView from 'react-flexview/lib';
+import { State } from 'xstate';
 import { useEventSender, EventSender } from './EventSender';
 import {
   ExperimentEvent,
@@ -9,13 +10,21 @@ import {
 } from './ExperimentStateMachine';
 
 const machine = ExperimentStateMachine;
+const machineWithActions = machine.withConfig({
+  actions: {
+    uiAlert: uiAlertAction,
+    uiAlertEffect: asEffect(uiAlertAction),
+  },
+});
 
 export function Experiment() {
   useEffect(() => {
     document.title = 'Experiment';
   }, []);
 
-  const [manualState, setManualState] = useState(machine.initialState);
+  const [manualState, setManualState] = useState(
+    machine.resolveState(State.create(persistedState))
+  );
   const [machineState, sendToMachine] = useMachine(machine, {
     state: persistedState,
     actions: {
@@ -27,7 +36,7 @@ export function Experiment() {
   function applyEventToMachine(event: ExperimentEvent) {
     sendToMachine(event);
 
-    const incrementedState = machine.transition(manualState, event);
+    const incrementedState = machineWithActions.transition(manualState, event);
     setManualState(incrementedState);
   }
 
@@ -82,7 +91,8 @@ const persistedState = JSON.parse(`
 {
   "actions": [
     {
-      "type": "uiAlertEffect"
+      "type": "uiAlertEffect",
+      "string": "Decrement transition via UI Alert Effect"
     }
   ],
   "activities": {},
@@ -90,7 +100,7 @@ const persistedState = JSON.parse(`
   "events": [],
   "value": "count",
   "context": {
-    "value": -1
+    "value": 0
   },
   "_event": {
     "name": "subtractOne",
@@ -115,7 +125,7 @@ const persistedState = JSON.parse(`
     "events": [],
     "value": "count",
     "context": {
-      "value": 0
+      "value": 1
     },
     "_event": {
       "name": "addOne",

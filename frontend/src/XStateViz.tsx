@@ -38,7 +38,7 @@ export function XStateViz(props: XStateVizProps) {
   }, []);
 
   useEffect(() => {
-    document.title = 'State Machine';
+    document.title = props.machine.id;
   });
 
   if (initialized) {

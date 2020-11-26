@@ -23,11 +23,11 @@ export function Experiment() {
   }, []);
 
   const [manualState, setManualState] = useState(
-    // machine.resolveState(State.create(persistedState))
-    machine.initialState
+    machine.resolveState(State.create(persistedState))
+    // machine.initialState
   );
   const [machineState, sendToMachine] = useMachine(machine, {
-    // state: persistedState,
+    state: persistedState,
     actions: {
       uiAlert: uiAlertAction,
       uiAlertEffect: asEffect(uiAlertAction),
@@ -90,65 +90,76 @@ function DebugJSON(props: { json: any }) {
 
 const persistedState = JSON.parse(`
 {
-  "actions": [
-    {
-      "type": "uiAlertEffect",
-      "string": "Decrement transition via UI Alert Effect"
-    }
-  ],
+  "actions": [],
   "activities": {},
   "meta": {},
   "events": [],
-  "value": "count",
+  "value": {
+    "recordEvents": {},
+    "runExperiment": "count"
+  },
   "context": {
-    "value": 0
+    "value": 1,
+    "events": [
+      {
+        "type": "addOne"
+      }
+    ]
   },
   "_event": {
-    "name": "subtractOne",
+    "name": "addOne",
     "data": {
-      "type": "subtractOne"
+      "type": "addOne"
     },
     "$$type": "scxml",
     "type": "external"
   },
-  "_sessionid": null,
+  "_sessionid": "x:1",
   "event": {
-    "type": "subtractOne"
+    "type": "addOne"
   },
   "historyValue": {
-    "current": "count",
-    "states": {}
+    "current": {
+      "recordEvents": {},
+      "runExperiment": "count"
+    },
+    "states": {
+      "runExperiment": {
+        "current": "count",
+        "states": {}
+      }
+    }
   },
   "history": {
     "actions": [],
     "activities": {},
     "meta": {},
     "events": [],
-    "value": "count",
+    "value": {
+      "recordEvents": {},
+      "runExperiment": "count"
+    },
     "context": {
-      "value": 1
+      "value": 0,
+      "events": []
     },
     "_event": {
-      "name": "addOne",
+      "name": "xstate.init",
       "data": {
-        "type": "addOne"
+        "type": "xstate.init"
       },
       "$$type": "scxml",
       "type": "external"
     },
-    "_sessionid": null,
+    "_sessionid": "x:1",
     "event": {
-      "type": "addOne"
-    },
-    "historyValue": {
-      "current": "count",
-      "states": {}
+      "type": "xstate.init"
     },
     "children": {},
-    "done": false,
-    "changed": true
+    "done": false
   },
   "children": {},
   "done": false,
   "changed": true
-}`);
+}
+`);

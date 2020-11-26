@@ -21,3 +21,11 @@ export const joinGame = functions.https.onCall((data) => {
     }
   }
 });
+
+export const sendGameEvent = functions.https.onCall((data) => {
+  try {
+    return executeSendGameEvent(data);
+  } catch (e) {
+    
+  }
+})

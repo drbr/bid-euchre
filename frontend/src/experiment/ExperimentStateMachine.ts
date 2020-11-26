@@ -60,7 +60,7 @@ export const ExperimentStateMachine = Machine<
   ExperimentEvent
 >(
   {
-    id: 'experimentalStateMachine',
+    id: 'experimentStateMachine',
     type: 'parallel',
     // strict: true,
     context: { value: 0, events: [] },

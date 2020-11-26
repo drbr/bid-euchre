@@ -38,7 +38,9 @@ function GameRoute(props: RouteComponentProps & GamePathRouteProps) {
   if (!props.gameId) {
     return <div>No Game ID specified!</div>;
   } else {
-    // Mount a fresh component any time the Game ID changes
+    // Mount a fresh component any time the Game ID changes.
+    // There used to be a reason for this, but I'm not sure anymore why.
+    // It's likely fine to remove it, but it's safer to keep it in.
     return (
       <App>
         <GameContainer key={props.gameId} gameId={props.gameId} />

@@ -4,20 +4,23 @@ import {
   PublicGameState,
 } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
+import { GameState } from './stateMachine/GameStateTypes';
 
 /**
  * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined
  * values.
  */
 export function mapGameConfigFromDatabase(
-  original: PublicGameConfig | undefined
+  original: PublicGameConfig | null | undefined
 ): PublicGameConfig | null {
   if (!original) {
     return null;
   }
   return {
     gameExists: original.gameExists,
-    playerFriendlyNames: mapPositionRecordFromDatabase(original.playerFriendlyNames),
+    playerFriendlyNames: mapPositionRecordFromDatabase(
+      original.playerFriendlyNames
+    ),
   };
 }
 
@@ -26,7 +29,7 @@ export function mapGameConfigFromDatabase(
  * values.
  */
 export function mapPublicGameStateFromDatabase(
-  original: PublicGameState | undefined
+  original: PublicGameState | null | undefined
 ): PublicGameState | null {
   if (!original) {
     return null;
@@ -42,8 +45,14 @@ export function mapPublicGameStateFromDatabase(
   };
 }
 
+export function mapPublicGameStateJsonFromDatabase(
+  original: string | null | undefined
+): GameState {
+  return original ? JSON.parse(original) : null;
+}
+
 export function mapPrivateGameStateFromDatabase(
-  original: PlayerPrivateGameState | undefined
+  original: PlayerPrivateGameState | null | undefined
 ): PlayerPrivateGameState | null {
   if (!original) {
     return null;

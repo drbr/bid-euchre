@@ -48,6 +48,10 @@ export type PublicGameState = {
  * This state can be read by anyone (players and observers).
  */
 export type PublicGameConfig = {
+  /**
+   * We need to initialize with at least one non-null value so the database will actually create the
+   * entry
+   */
   gameExists: boolean;
   playerFriendlyNames: PlayerFriendlyNames;
 };

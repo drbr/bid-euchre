@@ -7,42 +7,67 @@ import {
   mapGameConfigFromDatabase,
   mapPrivateGameStateFromDatabase,
   mapPublicGameStateFromDatabase,
+  mapPublicGameStateJsonFromDatabase,
 } from '../gameLogic/ModelMappers';
+import { GameState } from '../gameLogic/stateMachine/GameStateTypes';
+import { Subscription, UnsubscribeFn } from '../uiHelpers/useObservedState';
 import { firebaseDatabase } from './FirebaseWebClientInFrontend';
 
-export type UnsubscribeFn = () => void;
+export type GameIdParams = { gameId: string };
 
-export function subscribeToPublicGameConfig(
-  gameId: string,
-  callback: (gameConfig: PublicGameConfig | null) => void
+function subscribeToDatabase<D, T>(
+  path: string,
+  callback: (data: T | null) => void,
+  mapper: (value: D | null | undefined) => T | null
 ): UnsubscribeFn {
-  const ref = firebaseDatabase.ref(`/publicGameConfig/${gameId}`);
-  const unsubscribeKey = ref.on('value', (snapshot) =>
-    callback(mapGameConfigFromDatabase(snapshot.val()))
-  );
+  const ref = firebaseDatabase.ref(path);
+  const unsubscribeKey = ref.on('value', (snapshot) => {
+    const mapped = mapper(snapshot.val());
+    callback(mapped);
+  });
   return () => ref.off('value', unsubscribeKey);
 }
 
-export function subscribeToPublicGameState(
-  gameId: string,
-  callback: (gameConfig: PublicGameState | null) => void
-): UnsubscribeFn {
-  const ref = firebaseDatabase.ref(`/publicGameState/${gameId}`);
-  const unsubscribeKey = ref.on('value', (snapshot) =>
-    callback(mapPublicGameStateFromDatabase(snapshot.val()))
+export const subscribeToPublicGameConfig: Subscription<
+  GameIdParams,
+  PublicGameConfig
+> = ({ gameId }, callback) => {
+  return subscribeToDatabase(
+    `/publicGameConfig/${gameId}`,
+    callback,
+    mapGameConfigFromDatabase
   );
-  return () => ref.off('value', unsubscribeKey);
-}
+};
 
-export function subscribeToPrivateGameState(
-  params: { gameId: string; playerId: string },
-  callback: (gameConfig: PlayerPrivateGameState | null) => void
-): UnsubscribeFn {
-  const ref = firebaseDatabase.ref(
-    `/playerPrivateGameState/${params.gameId}/${params.playerId}`
+export const subscribeToPublicGameState: Subscription<
+  GameIdParams,
+  PublicGameState
+> = ({ gameId }, callback) => {
+  return subscribeToDatabase(
+    `/publicGameState/${gameId}`,
+    callback,
+    mapPublicGameStateFromDatabase
   );
-  const unsubscribeKey = ref.on('value', (snapshot) =>
-    callback(mapPrivateGameStateFromDatabase(snapshot.val()))
+};
+
+export const subscribeToPublicGameStateJson: Subscription<
+  GameIdParams,
+  GameState
+> = ({ gameId }, callback) => {
+  return subscribeToDatabase(
+    `/publicGameStateJson/${gameId}`,
+    callback,
+    mapPublicGameStateJsonFromDatabase
   );
-  return () => ref.off('value', unsubscribeKey);
-}
+};
+
+export const subscribeToPrivateGameState: Subscription<
+  { gameId: string; playerId: string },
+  PlayerPrivateGameState
+> = ({ gameId, playerId }, callback) => {
+  return subscribeToDatabase(
+    `/playerPrivateGameState/${gameId}/${playerId}`,
+    callback,
+    mapPrivateGameStateFromDatabase
+  );
+};

@@ -25,6 +25,13 @@ export type XStateVizProps = {
   machine: AnyStateMachine;
 };
 
+/**
+ * Renders the XState Inspector in a manner similar to the XState Visualizer (with a self-contained
+ * state machine), rather than connecting to an instance of the machine already running in an app.
+ *
+ * The iframe is set up to take up the whole page, so it's suggested that this be rendered in its
+ * own route or something similar.
+ */
 export function XStateViz(props: XStateVizProps) {
   const [initialized, setInitialized] = useState(false);
 

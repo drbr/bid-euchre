@@ -1,4 +1,4 @@
-import { Machine, StateNodeConfig } from 'xstate';
+import { ActionFunctionMap, assign, Machine, StateNodeConfig } from 'xstate';
 import {
   GameContext,
   GameEvent,
@@ -14,6 +14,13 @@ const initialGameContext: GameContext = {
     eastwest: 0,
     northsouth: 0,
   },
+  events: [],
+};
+
+const GameActions: ActionFunctionMap<GameContext, GameEvent> = {
+  addEventToContext: assign({
+    events: (context, event) => context.events.concat(event),
+  }),
 };
 
 export const GameStateMachine = Machine<
@@ -23,21 +30,37 @@ export const GameStateMachine = Machine<
 >(
   {
     id: 'EuchreStateMachine',
-    initial: 'setup',
+    type: 'parallel',
+    strict: true,
     context: initialGameContext,
     states: {
-      setup: {
-        on: { NEXT: 'round' },
+      runGame: {
+        id: 'runGame',
+        initial: 'setup',
+        states: {
+          setup: {
+            on: { NEXT: 'round' },
+          },
+          round: {
+            on: { NEXT: 'round' },
+            ...(RoundStates as StateNodeConfig<
+              GameContext,
+              TypedStateSchema<GameMeta, RoundContext>,
+              GameEvent
+            >),
+          },
+        },
       },
-      round: {
-        on: { NEXT: 'round' },
-        ...(RoundStates as StateNodeConfig<
-          GameContext,
-          TypedStateSchema<GameMeta, RoundContext>,
-          GameEvent
-        >),
+      recordEvents: {
+        on: {
+          '*': {
+            actions: 'addEventToContext',
+          },
+        },
       },
     },
   },
-  {}
+  {
+    actions: GameActions,
+  }
 );

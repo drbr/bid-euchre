@@ -6,10 +6,7 @@ import {
   SendGameEventRequest,
   SendGameEventResult,
 } from '../../apiContract/cloudFunctions/SendGameEvent';
-import {
-  getPlayerIdentities,
-  transactionallySetPublicGameStateJson,
-} from '../databaseHelpers/BackendDAO';
+import * as DAO from '../databaseHelpers/BackendDAO';
 import { transitionStateMachine } from '../gameLogic/BackendStateMachine';
 
 /**
@@ -34,14 +31,14 @@ export default async function executeSendGameEvent(
 ): Promise<SendGameEventResult> {
   const { event, existingEventCount, gameId, playerId } = request;
 
-  const playerIdentities = await getPlayerIdentities({ gameId });
+  const playerIdentities = await DAO.getPlayerIdentities({ gameId });
   const playerIds = mapPositions(playerIdentities, (pid) => pid);
   const playerIsPartOfThisGame = _.includes(playerIds, playerId);
   if (!playerIsPartOfThisGame) {
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
-  await transactionallySetPublicGameStateJson({
+  await DAO.transactionallySetPublicGameStateJson({
     gameId,
     transactionUpdate: (current) => {
       if (current && current.context.eventCount !== existingEventCount) {
@@ -58,4 +55,6 @@ export default async function executeSendGameEvent(
       }
     },
   });
+
+  await DAO.pushGameEvent({ gameId, event });
 }

@@ -1,3 +1,4 @@
+import { AnyEventObject } from 'xstate';
 import {
   mapGameConfigFromDatabase,
   mapPositionRecordFromDatabase,
@@ -92,6 +93,16 @@ export async function transactionallySetPublicGameStateJson(props: {
       return maybeGameState ? JSON.stringify(maybeGameState) : undefined;
     },
   });
+}
+
+export async function pushGameEvent(props: {
+  gameId: string;
+  event: AnyEventObject;
+}): Promise<void> {
+  const newRef = firebaseDatabaseAdminClient
+    .ref(`/gameEventsJson/${props.gameId}`)
+    .push();
+  return await newRef.set(JSON.stringify(props.event));
 }
 
 export async function setPlayerPrivateGameStates(props: {

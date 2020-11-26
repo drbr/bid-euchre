@@ -17,6 +17,15 @@ path /publicGameConfig/{gameId} is PublicGameConfig {
   read() { true }
 }
 
+path /publicGameStateJson/{gameId} is String {
+  read() { true }
+}
+
+// Game events are (for now) private to the server
+path /gameEventsJson/{gameId} is GameEvents {
+  read() { false }
+}
+
 // Player identities are private to the server
 path /playerIdentities/{gameId} is Map<Position, String> {
   read() { false }
@@ -42,6 +51,8 @@ type PublicGameConfig {
   gameExists: Boolean,
   playerFriendlyNames: Map<Position, String>,
 }
+
+type GameEvents extends String[] {}
 
 type PlayerPrivateGameState {
   hand: Card[],

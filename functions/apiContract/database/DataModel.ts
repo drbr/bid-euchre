@@ -8,6 +8,9 @@ export type DatabaseSchema = {
   publicGameStateJson: {
     [gameId: string]: string;
   };
+  gameEventsJson: {
+    [gameId: string]: string[];
+  };
   publicGameConfig: {
     [gameId: string]: PublicGameConfig;
   };

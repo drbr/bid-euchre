@@ -22,7 +22,7 @@ export const GameStateMachine = Machine<
   GameEvent
 >(
   {
-    id: 'EuchreGame',
+    id: 'EuchreStateMachine',
     initial: 'setup',
     context: initialGameContext,
     states: {
@@ -39,6 +39,5 @@ export const GameStateMachine = Machine<
       },
     },
   },
-  {
-  }
+  {}
 );

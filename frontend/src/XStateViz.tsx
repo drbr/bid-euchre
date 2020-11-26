@@ -11,6 +11,8 @@ function createIFrame() {
     iframe.setAttribute('id', 'xstate');
     iframe.setAttribute('height', '100%');
     iframe.setAttribute('width', '100%');
+    iframe.setAttribute('style', 'position: absolute; border: 0;');
+
     document.body.appendChild(iframe);
     iFrameElement = iframe;
   }

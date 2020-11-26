@@ -1,4 +1,10 @@
-import { ActionFunctionMap, assign, Machine } from 'xstate';
+import {
+  ActionFunction,
+  ActionFunctionMap,
+  assign,
+  Machine,
+  ServiceConfig,
+} from 'xstate';
 import { TypedStateSchema } from '../gameLogic/stateMachine/TypedStateInterfaces';
 
 export type ExperimentContext = {
@@ -27,6 +33,19 @@ export const ExperimentActions: ActionFunctionMap<
   }),
 };
 
+export const uiAlertAction: ActionFunction<
+  ExperimentContext,
+  ExperimentEvent
+> = (context, event) => {
+  const str = JSON.stringify(event, null, 2);
+  alert(str);
+};
+
+export const ExperimentServices: Record<
+  string,
+  ServiceConfig<ExperimentContext, ExperimentEvent>
+> = {};
+
 export const ExperimentStateMachine = Machine<
   ExperimentContext,
   ExperimentStateSchema,
@@ -41,11 +60,11 @@ export const ExperimentStateMachine = Machine<
         on: {
           addOne: {
             target: 'count',
-            actions: 'increment',
+            actions: ['increment'],
           },
           subtractOne: {
             target: 'count',
-            actions: 'decrement',
+            actions: ['decrement', 'uiAlert'],
           },
         },
       },
@@ -53,5 +72,6 @@ export const ExperimentStateMachine = Machine<
   },
   {
     actions: ExperimentActions,
+    services: ExperimentServices,
   }
 );

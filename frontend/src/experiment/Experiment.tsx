@@ -1,10 +1,11 @@
-import { useMachine } from '@xstate/react';
+import { asEffect, useMachine } from '@xstate/react';
 import { useEffect, useState } from 'react';
 import FlexView from 'react-flexview/lib';
 import { useEventSender, EventSender } from './EventSender';
 import {
   ExperimentEvent,
   ExperimentStateMachine,
+  uiAlertAction,
 } from './ExperimentStateMachine';
 
 const machine = ExperimentStateMachine;
@@ -15,7 +16,13 @@ export function Experiment() {
   }, []);
 
   const [manualState, setManualState] = useState(machine.initialState);
-  const [machineState, sendToMachine] = useMachine(machine);
+  const [machineState, sendToMachine] = useMachine(machine, {
+    state: persistedState,
+    actions: {
+      uiAlert: uiAlertAction,
+      uiAlertEffect: asEffect(uiAlertAction),
+    },
+  });
 
   function applyEventToMachine(event: ExperimentEvent) {
     sendToMachine(event);
@@ -70,3 +77,67 @@ function DebugJSON(props: { json: any }) {
     </p>
   );
 }
+
+const persistedState = JSON.parse(`
+{
+  "actions": [
+    {
+      "type": "uiAlertEffect"
+    }
+  ],
+  "activities": {},
+  "meta": {},
+  "events": [],
+  "value": "count",
+  "context": {
+    "value": -1
+  },
+  "_event": {
+    "name": "subtractOne",
+    "data": {
+      "type": "subtractOne"
+    },
+    "$$type": "scxml",
+    "type": "external"
+  },
+  "_sessionid": null,
+  "event": {
+    "type": "subtractOne"
+  },
+  "historyValue": {
+    "current": "count",
+    "states": {}
+  },
+  "history": {
+    "actions": [],
+    "activities": {},
+    "meta": {},
+    "events": [],
+    "value": "count",
+    "context": {
+      "value": 0
+    },
+    "_event": {
+      "name": "addOne",
+      "data": {
+        "type": "addOne"
+      },
+      "$$type": "scxml",
+      "type": "external"
+    },
+    "_sessionid": null,
+    "event": {
+      "type": "addOne"
+    },
+    "historyValue": {
+      "current": "count",
+      "states": {}
+    },
+    "children": {},
+    "done": false,
+    "changed": true
+  },
+  "children": {},
+  "done": false,
+  "changed": true
+}`);

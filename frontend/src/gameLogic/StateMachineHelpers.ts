@@ -11,7 +11,15 @@ export function transitionStateMachine(
   event: GameEvent
 ): GameState {
   const stateObj = prev ? prev.hydratedState : undefined;
-  return GameStateMachine.transition(stateObj, event);
+  const nextState = GameStateMachine.transition(stateObj, event);
+
+  // Manually add the previous event count into the state object so the client can verify
+  // that it didn't skip an update. One would think that the event count always increments by 1,
+  // but the machine increments the count by more than 1 for some transitions.
+  nextState.context.previousEventCount =
+    prev?.hydratedState.context.eventCount || null;
+
+  return nextState;
 }
 
 /**

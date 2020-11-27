@@ -18,6 +18,7 @@ const initialGameContext: GameContext = {
     northsouth: 0,
   },
   eventCount: 0,
+  previousEventCount: null,
 };
 
 const GameActions: ActionFunctionMap<GameContext, GameEvent> = {

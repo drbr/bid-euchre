@@ -14,13 +14,13 @@ export type ObservedState<T> = T | 'loading' | 'gameNotFound';
  * @param params These are memoized individually within the hook.
  * @param subscription This should be a constant object, otherwise it will cause
  * subscribe/unsubscribe churn. Memoize it with `useCallback` if necessary.
- * @param shouldUpdate This should be a constant object, otherwise it will cause
+ * @param onChange This should be a constant object, otherwise it will cause
  * subscribe/unsubscribe churn. Memoize it with `useCallback` if necessary.
  */
 export function useObservedState<P extends Record<string, unknown>, T>(
   params: P,
   subscription: Subscription<P, T>,
-  shouldUpdate?: (prev: T, next: T) => boolean
+  onChange?: (prev: T, next: T) => void
 ): ObservedState<T> {
   const [thing, setThing] = useState<T | 'loading' | 'gameNotFound'>('loading');
 
@@ -40,10 +40,11 @@ export function useObservedState<P extends Record<string, unknown>, T>(
           return 'gameNotFound';
         } else if (prev === 'loading' || prev === 'gameNotFound') {
           return data;
-        } else if (!shouldUpdate) {
-          return data;
         } else {
-          return shouldUpdate(prev, data) ? data : prev;
+          if (onChange) {
+            onChange(prev, data);
+          }
+          return data;
         }
       })
     );
@@ -54,6 +55,6 @@ export function useObservedState<P extends Record<string, unknown>, T>(
         unsubscribeFn();
       }
     };
-  }, [memoizedParams, subscription, shouldUpdate]);
+  }, [memoizedParams, subscription, onChange]);
   return thing;
 }

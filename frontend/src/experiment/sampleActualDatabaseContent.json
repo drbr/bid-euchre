@@ -19,14 +19,6 @@
     }
   },
   "gameMachineStateJson": {
-    "4834-ievdl": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":\"setup\",\"recordEvents\":{}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false}"
-  },
-  "playerPrivateGameState": {
-    "4834-ievdl": {
-      "gpdHngwf1R8iumKrY_3C_": "placeholder",
-      "GYohNvQC2DUBg-GmeffnQ": "placeholder",
-      "Jj9FnsRSzPP0yxgDWahEl": "placeholder",
-      "rCtAJ1KXYG-Yzu8k9gugY": "placeholder"
-    }
+    "4834-ievdl": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":\"setup\",\"recordEvents\":{}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false}"
   }
 }

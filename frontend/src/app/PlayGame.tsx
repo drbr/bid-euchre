@@ -26,7 +26,7 @@ export function PlayGame(props: PlayGameProps) {
   const gameState = useObservedState(
     { gameId },
     DAO.subscribeToGameMachineState,
-    onGameStateUpdate
+    onGameStateChange
   );
 
   const privateGameState = useObservedState(
@@ -114,24 +114,22 @@ export function PlayGame(props: PlayGameProps) {
   );
 }
 
-/**
- * This is actually passed in as `shouldUpdate`, but we're just using it to log some info on update,
- * so we always return true.
- */
-function onGameStateUpdate(prev: GameState, next: GameState) {
-  const prevCount = prev.context.eventCount;
+function onGameStateChange(prev: GameState, next: GameState) {
+  const actualPrevCount = prev.context.eventCount;
+  const expectedPrevCount = next.context.previousEventCount || 0;
   const nextCount = next.context.eventCount;
-  console.log(next.value);
-  if (nextCount > prevCount + 1) {
+  console.debug('Applying new game state received from the database');
+  console.debug(next);
+  if (actualPrevCount !== expectedPrevCount) {
     console.warn(
-      `Possible error in state machine; trying to update game state from event count ${prevCount} to ${nextCount}`
+      `Possible error in state transition: previous local state had event count ${actualPrevCount}, ` +
+        `new state has previous eventCount ${expectedPrevCount} and current count ${nextCount}`
     );
-    console.log('Previous state:');
-    console.log(prev);
-    console.log('Next state:');
-    console.log(next);
+    console.debug('Previous state:');
+    console.debug(prev);
+    console.debug('Next state:');
+    console.debug(next);
   }
-  return true; // to satisfy the `shouldUpdate` interface
 }
 
 const privateGameStateSubscription: Subscription<

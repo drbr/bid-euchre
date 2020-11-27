@@ -5,6 +5,7 @@ import { TypedStateSchema } from './TypedStateInterfaces';
 export type GameContext = {
   score: Record<Partnership, number>;
   eventCount: number;
+  previousEventCount: number | null;
 };
 
 export type GameMeta = unknown;

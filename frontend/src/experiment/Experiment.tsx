@@ -30,11 +30,11 @@ export function Experiment() {
   }, []);
 
   const [manualState, setManualState] = useState(
-    machine.resolveState(State.create(persistedState))
+    machine.resolveState(State.create(persistedExperimentState))
     // machine.initialState
   );
   const [machineState, sendToMachine] = useMachine(machine, {
-    state: persistedState,
+    state: persistedExperimentState,
     actions: {
       uiAlert: uiAlertAction,
       uiAlertEffect: asEffect(uiAlertAction),
@@ -98,7 +98,7 @@ function DebugJSON(props: { json: any }) {
   );
 }
 
-const persistedState = JSON.parse(`
+const persistedExperimentState = JSON.parse(`
 {
   "actions": [],
   "activities": {},

@@ -1,13 +1,16 @@
 import FlexView from 'react-flexview/lib';
 import { AnyEventObject } from 'xstate';
-import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
+import {
+  PlayerPrivateGameState,
+  PublicGameConfig,
+} from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { sendGameEvent } from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
 import { BiddingContext } from '../gameLogic/stateMachine/BiddingStateTypes';
 import { AllContext } from '../gameLogic/stateMachine/GameStateMachine';
 import { GameState } from '../gameLogic/stateMachine/GameStateTypes';
-import { useObservedState } from '../uiHelpers/useObservedState';
+import { Subscription, useObservedState } from '../uiHelpers/useObservedState';
 import { GameLayout } from './GameLayout';
 
 export type PlayGameProps = {
@@ -23,27 +26,13 @@ export function PlayGame(props: PlayGameProps) {
   const gameState = useObservedState(
     { gameId },
     DAO.subscribeToGameMachineState,
-    (prev, next) => {
-      const prevCount = prev.context.eventCount;
-      const nextCount = next.context.eventCount;
-      console.log(next.value);
-      if (nextCount > prevCount + 1) {
-        console.warn(
-          `Possible error in state machine; trying to update game state from event count ${prevCount} to ${nextCount}`
-        );
-        console.log('Previous state:');
-        console.log(prev);
-        console.log('Next state:');
-        console.log(next);
-      }
-      return true;
-    }
+    onGameStateUpdate
   );
 
-  // const privateGameState = useObservedState(
-  //   { gameId, playerId },
-  //   privateGameStateSubscription
-  // );
+  const privateGameState = useObservedState(
+    { gameId, playerId },
+    privateGameStateSubscription
+  );
 
   function sendEventToStateMachine(event: AnyEventObject) {
     void sendGameEvent({
@@ -62,9 +51,9 @@ export function PlayGame(props: PlayGameProps) {
 
   if (
     gameState === 'loading' ||
-    gameState === 'gameNotFound'
-    // privateGameState === 'loading' ||
-    // privateGameState === 'gameNotFound'
+    gameState === 'gameNotFound' ||
+    privateGameState === 'loading' ||
+    privateGameState === 'gameNotFound'
   ) {
     return <div></div>;
   }
@@ -125,14 +114,34 @@ export function PlayGame(props: PlayGameProps) {
   );
 }
 
-// const privateGameStateSubscription: Subscription<
-//   { gameId: string; playerId: string | null },
-//   PlayerPrivateGameState
-// > = (params, callback) => {
-//   if (params.playerId) {
-//     return DAO.subscribeToPrivateGameState(
-//       { gameId: params.gameId, playerId: params.playerId },
-//       callback
-//     );
-//   }
-// };
+/**
+ * This is actually passed in as `shouldUpdate`, but we're just using it to log some info on update,
+ * so we always return true.
+ */
+function onGameStateUpdate(prev: GameState, next: GameState) {
+  const prevCount = prev.context.eventCount;
+  const nextCount = next.context.eventCount;
+  console.log(next.value);
+  if (nextCount > prevCount + 1) {
+    console.warn(
+      `Possible error in state machine; trying to update game state from event count ${prevCount} to ${nextCount}`
+    );
+    console.log('Previous state:');
+    console.log(prev);
+    console.log('Next state:');
+    console.log(next);
+  }
+  return true; // to satisfy the `shouldUpdate` interface
+}
+
+const privateGameStateSubscription: Subscription<
+  { gameId: string; playerId: string | null },
+  PlayerPrivateGameState
+> = (params, callback) => {
+  if (params.playerId) {
+    return DAO.subscribeToPrivateGameState(
+      { gameId: params.gameId, playerId: params.playerId },
+      callback
+    );
+  }
+};

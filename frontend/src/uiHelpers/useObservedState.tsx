@@ -11,9 +11,11 @@ export type ObservedState<T> = T | 'loading' | 'gameNotFound';
 
 /**
  * Subscribe to an "observable" from the DAO and get state updates when it changes.
- * @param subscription
- * @param params These are spread into a useEffect dependency array, so the keys should stay
- * consistent over time.
+ * @param params These are memoized individually within the hook.
+ * @param subscription This should be a constant object, otherwise it will cause
+ * subscribe/unsubscribe churn. Memoize it with `useCallback` if necessary.
+ * @param shouldUpdate This should be a constant object, otherwise it will cause
+ * subscribe/unsubscribe churn. Memoize it with `useCallback` if necessary.
  */
 export function useObservedState<P extends Record<string, unknown>, T>(
   params: P,
@@ -22,37 +24,36 @@ export function useObservedState<P extends Record<string, unknown>, T>(
 ): ObservedState<T> {
   const [thing, setThing] = useState<T | 'loading' | 'gameNotFound'>('loading');
 
-  // Memoize the inputs to prevent subscribe/unsubscribe churn,
-  // because they could have been passed in via new objects or closures.
+  // Memoize the params' individual pieces to prevent subscribe/unsubscribe churn,
+  // because they will have been passed in as an object instead of individual values.
+  // Memoizing the subscription and shouldUpdate is useless here – they need to be
+  // memoized on the client side via useCallback.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const memoizedParams = useMemo(() => params, [...Object.values(params)]);
-  const memoizedSubscription = useMemo(() => subscription, [subscription]);
-  const memoizedShouldUpdate = useMemo(() => shouldUpdate, [shouldUpdate]);
 
   useEffect(() => {
-    console.debug('Subscribing to observed state');
-    console.debug(memoizedSubscription);
-    const unsubscribeFn = memoizedSubscription(memoizedParams, (data) =>
+    console.debug('Subscribing to observable state');
+    console.debug(subscription);
+    const unsubscribeFn = subscription(memoizedParams, (data) =>
       setThing((prev) => {
         if (!data) {
           return 'gameNotFound';
         } else if (prev === 'loading' || prev === 'gameNotFound') {
           return data;
-        } else if (!memoizedShouldUpdate) {
+        } else if (!shouldUpdate) {
           return data;
         } else {
-          return memoizedShouldUpdate(prev, data) ? data : prev;
+          return shouldUpdate(prev, data) ? data : prev;
         }
       })
     );
     return () => {
       console.debug('Unsubscribing from observed state');
-      console.debug(memoizedSubscription);
+      console.debug(subscription);
       if (unsubscribeFn) {
         unsubscribeFn();
       }
     };
-    // return unsubscribeFn;
-  }, [memoizedParams, memoizedSubscription, memoizedShouldUpdate]);
+  }, [memoizedParams, subscription, shouldUpdate]);
   return thing;
 }

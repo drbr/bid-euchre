@@ -16,7 +16,7 @@ export function mapGameConfigFromDatabase(
     return null;
   }
   return {
-    gameExists: original.gameExists,
+    gameStatus: original.gameStatus,
     playerFriendlyNames: mapPositionRecordFromDatabase(
       original.playerFriendlyNames
     ),

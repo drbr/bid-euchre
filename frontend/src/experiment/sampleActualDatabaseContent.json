@@ -9,7 +9,7 @@
   },
   "publicGameConfig": {
     "4834-ievdl": {
-      "gameExists": true,
+      "gameStatus": "inProgress",
       "playerFriendlyNames": {
         "east": "n",
         "north": "p",

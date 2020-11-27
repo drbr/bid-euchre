@@ -31,9 +31,12 @@ export type PublicGameConfig = {
    * We need to initialize with at least one non-null value so the database will actually create the
    * entry
    */
-  gameExists: boolean;
+  gameStatus: GameStatus;
   playerFriendlyNames: PlayerFriendlyNames;
 };
+
+/** The status of the game, as stored in the game config */
+export type GameStatus = 'waitingToStart' | 'inProgress' | 'finished';
 
 export type PlayerFriendlyNames = Record<Position, string | null>;
 

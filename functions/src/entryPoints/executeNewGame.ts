@@ -14,7 +14,7 @@ export default async function executeNewGame(): Promise<NewGameResult> {
 }
 
 const InitialGameConfig: PublicGameConfig = {
-  gameExists: true,
+  gameStatus: 'waitingToStart',
   playerFriendlyNames: {
     north: null,
     south: null,

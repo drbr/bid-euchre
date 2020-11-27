@@ -34,8 +34,16 @@ path /playerPrivateGameState/{gameId}/{playerId} is PlayerPrivateGameState {
 }
 
 type PublicGameConfig {
-  gameExists: Boolean,
+  gameStatus: GameStatus,
   playerFriendlyNames: Map<Position, String>,
+}
+
+type GameStatus extends String {
+  validate() {
+    this === 'waitingToStart' ||
+    this === 'inProgress' ||
+    this === 'finished'
+  }
 }
 
 type GameEvents extends String[] {}

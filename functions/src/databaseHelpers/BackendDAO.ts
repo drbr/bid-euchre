@@ -5,6 +5,7 @@ import {
 } from '../../../frontend/src/gameLogic/ModelMappers';
 import { GameState } from '../../../frontend/src/gameLogic/stateMachine/GameStateTypes';
 import {
+  GameStatus,
   PlayerIdentities,
   PlayerPrivateGameStates,
   PublicGameConfig,
@@ -42,6 +43,27 @@ export async function getPublicGameConfig(props: {
   return mapGameConfigFromDatabase(snapshot.val());
 }
 
+export async function setPlayerNameAtPosition(props: {
+  gameId: string;
+  friendlyName: string;
+  position: Position;
+}): Promise<void> {
+  return await firebaseDatabaseAdminClient
+    .ref(
+      `/publicGameConfig/${props.gameId}/playerFriendlyNames/${props.position}`
+    )
+    .set(props.friendlyName);
+}
+
+export async function setGameStatus(props: {
+  gameId: string;
+  gameStatus: GameStatus;
+}): Promise<void> {
+  return await firebaseDatabaseAdminClient
+    .ref(`/publicGameConfig/${props.gameId}/gameStatus`)
+    .set(props.gameStatus);
+}
+
 export async function transactionallyAddPlayerIdentityToGameAtPosition(props: {
   gameId: string;
   playerId: string;
@@ -62,18 +84,6 @@ export async function getPlayerIdentities(props: {
     .ref(`/playerIdentities/${props.gameId}`)
     .once('value');
   return mapPositionRecordFromDatabase(snapshot.val());
-}
-
-export async function setPlayerNameAtPosition(props: {
-  gameId: string;
-  friendlyName: string;
-  position: Position;
-}): Promise<void> {
-  return await firebaseDatabaseAdminClient
-    .ref(
-      `/publicGameConfig/${props.gameId}/playerFriendlyNames/${props.position}`
-    )
-    .set(props.friendlyName);
 }
 
 export async function transactionallySetGameMachineStateJson(props: {

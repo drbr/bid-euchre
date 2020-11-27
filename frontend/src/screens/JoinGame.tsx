@@ -15,8 +15,9 @@ import {
   storePlayerInfoForGame,
 } from '../uiHelpers/LocalStorageClient';
 
-export type JoinGameProps = PublicGameConfig & {
+export type JoinGameProps = {
   gameId: string;
+  gameConfig: PublicGameConfig;
   setPlayerInfoFromStorage: (x: PlayerInfoStorage) => void;
   seatedAt?: Position;
 };
@@ -24,9 +25,10 @@ export type JoinGameProps = PublicGameConfig & {
 export function JoinGame(props: JoinGameProps) {
   const [playerName, setPlayerName] = useState('');
 
-  function canTakeSeat() {
+  function canTakeAnySeat() {
     return (
-      !props.seatedAt && isNameValid(playerName, props.playerFriendlyNames)
+      !props.seatedAt &&
+      isNameValid(playerName, props.gameConfig.playerFriendlyNames)
     );
   }
 
@@ -35,8 +37,8 @@ export function JoinGame(props: JoinGameProps) {
       viewpoint="south"
       renderPlayerElement={(position) => (
         <JoinButton
-          playerNameAtPosition={props.playerFriendlyNames[position]}
-          canJoin={canTakeSeat()}
+          playerNameAtPosition={props.gameConfig.playerFriendlyNames[position]}
+          canJoin={canTakeAnySeat()}
           seatedHere={props.seatedAt === position}
           joinGame={() =>
             joinGameAtPosition({

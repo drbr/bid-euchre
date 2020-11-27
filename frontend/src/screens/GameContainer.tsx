@@ -21,34 +21,11 @@ export function GameContainer(props: GameContainerProps) {
     DAO.subscribeToPublicGameConfig
   );
 
-  const gameMachineState = useObservedState(
-    { gameId },
-    DAO.subscribeToGameMachineState,
-    (prev, next) => {
-      const prevCount = prev.context.eventCount;
-      const nextCount = next.context.eventCount;
-      console.log(next.value);
-      if (nextCount > prevCount + 1) {
-        console.warn(
-          `Possible error in state machine; trying to update game state from event count ${prevCount} to ${nextCount}`
-        );
-        console.log('Previous state:');
-        console.log(prev);
-        console.log('Next state:');
-        console.log(next);
-      }
-      return true;
-    }
-  );
-
   const [playerInfoFromStorage, setPlayerInfoFromStorage] = useState<
     PlayerInfoStorage | 'gameNotFound'
   >(() => retrievePlayerInfoForGame({ gameId }) || 'gameNotFound');
 
-  if (
-    gameConfig === 'loading' ||
-    gameMachineState === 'loading'
-  ) {
+  if (gameConfig === 'loading') {
     return <></>;
   }
 
@@ -59,22 +36,20 @@ export function GameContainer(props: GameContainerProps) {
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   (window as any).gameConfig = gameConfig;
-  // (window as any).publicGameState = publicGameState;
-  (window as any).gameMachineState = gameMachineState;
   (window as any).playerInfoFromStorage = playerInfoFromStorage;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  if (gameMachineState === 'gameNotFound') {
+  if (gameConfig.gameStatus === 'waitingToStart') {
     return (
       <JoinGame
         gameId={props.gameId}
+        gameConfig={gameConfig}
         setPlayerInfoFromStorage={setPlayerInfoFromStorage}
         seatedAt={
           isSpectator(playerInfoFromStorage)
             ? undefined
             : playerInfoFromStorage.position
         }
-        {...gameConfig}
       />
     );
   } else {
@@ -92,7 +67,6 @@ export function GameContainer(props: GameContainerProps) {
             : playerInfoFromStorage.position
         }
         gameConfig={gameConfig}
-        gameState={gameMachineState}
       />
     );
   }

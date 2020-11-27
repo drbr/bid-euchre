@@ -13,7 +13,6 @@ export async function initializeGameStates(props: {
   gameConfig: PublicGameConfig;
 }): Promise<void> {
   const privateGameStates: PlayerPrivateGameStates = {};
-
   forEachPosition(props.playerIdentities, (playerId) => {
     privateGameStates[playerId!] = {};
   });
@@ -26,6 +25,10 @@ export async function initializeGameStates(props: {
     DAO.transactionallySetGameMachineStateJson({
       gameId: props.gameId,
       transactionUpdate: getInitialMachineState,
+    }),
+    DAO.setGameStatus({
+      gameId: props.gameId,
+      gameStatus: 'inProgress',
     }),
   ]);
 }

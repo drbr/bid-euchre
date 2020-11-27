@@ -1,4 +1,3 @@
-import * as functions from 'firebase-functions';
 import { AnyEventObject } from 'xstate';
 import {
   mapGameConfigFromDatabase,
@@ -86,17 +85,11 @@ export async function transactionallySetPublicGameStateJson(props: {
   gameId: string;
   transactionUpdate: (current: GameState | null) => GameState | undefined;
 }): Promise<void> {
-  functions.logger.debug('DAO starting transactionallySetPublicGameStateJson');
   await transactionallySetNode<string>({
     path: `/publicGameStateJson/${props.gameId}`,
     transactionUpdate: (currentJson) => {
-      functions.logger.debug('DAO in the dao-supplied transaction function');
       const current = currentJson ? JSON.parse(currentJson) : null;
       const maybeGameState = props.transactionUpdate(current);
-      functions.logger.debug('DAO got the state update from the activity');
-      functions.logger.debug(
-        'Updated event count:' + maybeGameState!.context.eventCount
-      );
       return maybeGameState ? JSON.stringify(maybeGameState) : undefined;
     },
   });

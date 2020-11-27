@@ -23,10 +23,8 @@ export async function transactionallySetNode<T>(props: {
     .transaction(transactionUpdate);
 
   if (committed) {
-    functions.logger.debug(`CRUD committed transaction at ${path}`);
     return snapshot;
   } else {
-    functions.logger.debug('CRUD TRANSACTION FAILED');
     throw new TRANSACTION_FAILED_ERROR();
   }
 }

@@ -11,13 +11,13 @@ import executeSendGameEvent, {
   USER_NOT_AUTHORIZED_ERROR,
 } from './entryPoints/executeSendGameEvent';
 
-export const newGame = functions.https.onCall(() => {
-  return executeNewGame();
+export const newGame = functions.https.onCall(async () => {
+  return await executeNewGame();
 });
 
-export const joinGame = functions.https.onCall((data) => {
+export const joinGame = functions.https.onCall(async (data) => {
   try {
-    return executeJoinGame(data);
+    return await executeJoinGame(data);
   } catch (e) {
     if (e instanceof ID_COLLISION_ERROR) {
       throw new functions.https.HttpsError(
@@ -30,9 +30,9 @@ export const joinGame = functions.https.onCall((data) => {
   }
 });
 
-export const sendGameEvent = functions.https.onCall((data) => {
+export const sendGameEvent = functions.https.onCall(async (data) => {
   try {
-    return executeSendGameEvent(data);
+    return await executeSendGameEvent(data);
   } catch (e) {
     if (e instanceof USER_NOT_AUTHORIZED_ERROR) {
       throw new functions.https.HttpsError(

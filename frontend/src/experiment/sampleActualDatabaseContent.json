@@ -1,24 +1,40 @@
 {
+  "gameMachineStateJson": {
+    "7690-emkfv": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":\"setup\",\"recordEvents\":{}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false}"
+  },
   "playerIdentities": {
-    "4834-ievdl": {
-      "east": "gpdHngwf1R8iumKrY_3C_",
-      "north": "GYohNvQC2DUBg-GmeffnQ",
-      "south": "Jj9FnsRSzPP0yxgDWahEl",
-      "west": "rCtAJ1KXYG-Yzu8k9gugY"
+    "7690-emkfv": {
+      "east": "KzZPLF_fJfL80v0i14bmC",
+      "north": "DQzNd7KBgJQtRnNXqNWtm",
+      "south": "gOv_C_PFuvOD_U4nmwvHa",
+      "west": "iPoJTUh_SY3wNX23pKYTs"
     }
   },
-  "publicGameConfig": {
-    "4834-ievdl": {
-      "gameStatus": "inProgress",
-      "playerFriendlyNames": {
-        "east": "n",
-        "north": "p",
-        "south": "o",
-        "west": "me"
+  "playerPrivateGameState": {
+    "7690-emkfv": {
+      "DQzNd7KBgJQtRnNXqNWtm": {
+        "hand": "placeholder"
+      },
+      "KzZPLF_fJfL80v0i14bmC": {
+        "hand": "placeholder"
+      },
+      "gOv_C_PFuvOD_U4nmwvHa": {
+        "hand": "placeholder"
+      },
+      "iPoJTUh_SY3wNX23pKYTs": {
+      "hand": "placeholder"
       }
     }
   },
-  "gameMachineStateJson": {
-    "4834-ievdl": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":\"setup\",\"recordEvents\":{}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false}"
+  "publicGameConfig": {
+    "7690-emkfv": {
+      "gameStatus": "inProgress",
+      "playerFriendlyNames": {
+        "east": "a",
+        "north": "c",
+        "south": "b",
+        "west": "me"
+      }
+    }
   }
 }

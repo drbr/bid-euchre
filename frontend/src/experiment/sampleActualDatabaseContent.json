@@ -1,0 +1,24 @@
+{
+  "playerIdentities": {
+    "4834-ievdl": {
+      "east": "gpdHngwf1R8iumKrY_3C_",
+      "north": "GYohNvQC2DUBg-GmeffnQ",
+      "south": "Jj9FnsRSzPP0yxgDWahEl",
+      "west": "rCtAJ1KXYG-Yzu8k9gugY"
+    }
+  },
+  "publicGameConfig": {
+    "4834-ievdl": {
+      "gameExists": true,
+      "playerFriendlyNames": {
+        "east": "n",
+        "north": "p",
+        "south": "o",
+        "west": "me"
+      }
+    }
+  },
+  "publicGameStateJson": {
+    "4834-ievdl": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":\"setup\",\"recordEvents\":{}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false}"
+  }
+}

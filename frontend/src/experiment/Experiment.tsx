@@ -2,6 +2,8 @@ import { asEffect, useMachine } from '@xstate/react';
 import { useEffect, useState } from 'react';
 import FlexView from 'react-flexview/lib';
 import { State } from 'xstate';
+import { subscribeToEntireDatabase } from '../firebase/FrontendDAO';
+import { useObservedState } from '../uiHelpers/useObservedState';
 import { useEventSender, EventSender } from './EventSender';
 import {
   ExperimentEvent,
@@ -41,6 +43,8 @@ export function Experiment() {
     setManualState(incrementedState);
   }
 
+  const databaseValue = useObservedState({}, subscribeToEntireDatabase);
+
   const addOneActionSend = useEventSender(
     { type: 'addOne' },
     applyEventToMachine
@@ -51,6 +55,7 @@ export function Experiment() {
   );
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
+  (window as any).databaseValue = databaseValue;
   (window as any).machineState = machineState;
   (window as any).manualState = manualState;
   /* eslint-enable @typescript-eslint/no-explicit-any */

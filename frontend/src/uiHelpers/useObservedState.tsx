@@ -17,13 +17,26 @@ export type ObservedState<T> = T | 'loading' | 'gameNotFound';
  */
 export function useObservedState<P extends Record<string, unknown>, T>(
   params: P,
-  subscription: Subscription<P, T>
+  subscription: Subscription<P, T>,
+  shouldUpdate?: (prev: T, next: T) => boolean
 ): ObservedState<T> {
   const [thing, setThing] = useState<T | 'loading' | 'gameNotFound'>('loading');
 
   useEffect(
     () => {
-      return subscription(params, (data) => setThing(data ?? 'gameNotFound'));
+      return subscription(params, (data) =>
+        setThing((prev) => {
+          if (!data) {
+            return 'gameNotFound';
+          } else if (prev === 'loading' || prev === 'gameNotFound') {
+            return data;
+          } else if (!shouldUpdate) {
+            return data;
+          } else {
+            return shouldUpdate(prev, data) ? data : prev;
+          }
+        })
+      );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [subscription, ...Object.values(params)]

@@ -30,6 +30,13 @@ function subscribeToDatabase<D, T>(
   return () => ref.off('value', unsubscribeKey);
 }
 
+export const subscribeToEntireDatabase: Subscription<
+  Record<string, unknown>,
+  unknown
+> = (_, callback) => {
+  return subscribeToDatabase(`/`, callback, (x) => x);
+};
+
 export const subscribeToPublicGameConfig: Subscription<
   GameIdParams,
   PublicGameConfig
@@ -59,7 +66,7 @@ export const subscribeToPublicGameStateJson: Subscription<
   return subscribeToDatabase(
     `/publicGameStateJson/${gameId}`,
     callback,
-    mapPublicGameStateJsonFromDatabase
+    mapPublicGameStateJsonFromDatabase,
   );
 };
 

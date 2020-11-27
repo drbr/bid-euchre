@@ -28,7 +28,22 @@ export function GameContainer(props: GameContainerProps) {
 
   const gameMachineState = useObservedState(
     { gameId },
-    DAO.subscribeToPublicGameStateJson
+    DAO.subscribeToPublicGameStateJson,
+    (prev, next) => {
+      const prevCount = prev.context.eventCount;
+      const nextCount = next.context.eventCount;
+      console.log(next.value);
+      if (nextCount !== prevCount + 1) {
+        console.warn(
+          `Possible error in state machine; trying to update game state from event count ${prevCount} to ${nextCount}`
+        );
+        console.log('Previous state:');
+        console.log(prev);
+        console.log('Next state:');
+        console.log(next);
+      }
+      return true;
+    }
   );
 
   const [playerInfoFromStorage, setPlayerInfoFromStorage] = useState<

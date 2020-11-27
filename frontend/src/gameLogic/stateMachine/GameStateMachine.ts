@@ -1,4 +1,5 @@
 import { ActionFunctionMap, assign, Machine, StateNodeConfig } from 'xstate';
+import { BiddingContext } from './BiddingStateTypes';
 import {
   GameContext,
   GameEvent,
@@ -8,6 +9,8 @@ import {
 import { RoundStates } from './RoundStateMachine';
 import { RoundContext } from './RoundStateTypes';
 import { TypedStateSchema } from './TypedStateInterfaces';
+
+export type AllContext = GameContext & RoundContext & BiddingContext;
 
 const initialGameContext: GameContext = {
   score: {

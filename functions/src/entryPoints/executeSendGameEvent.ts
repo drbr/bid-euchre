@@ -55,6 +55,20 @@ export default async function executeSendGameEvent(
       try {
         functions.logger.debug('EXECUTE about to transition the state machine');
         const nextState = transitionStateMachine(current, event as GameEvent);
+        {
+          functions.logger.debug(
+            `Current state event count: ${current?.context.eventCount}`
+          );
+          functions.logger.debug(
+            `Next state event count: ${nextState?.context.eventCount}`
+          );
+          const areStatesEqual = current === nextState;
+          const areStatesStringEqual =
+            JSON.stringify(current) === JSON.stringify(nextState);
+          functions.logger.debug(
+            `Are states equal? string: ${areStatesEqual} json: ${areStatesStringEqual}`
+          );
+        }
         functions.logger.debug(
           'EXECUTE returning the next state into the transaction framework'
         );

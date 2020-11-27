@@ -42,8 +42,9 @@ export const GameStateMachine = Machine<
         initial: 'setup',
         states: {
           setup: {
-            on: { NEXT: 'round' },
+            on: { NEXT: 'round', PLAYER_BID: 'gotBidFromSetup' },
           },
+          gotBidFromSetup: {},
           round: {
             on: { NEXT: 'round' },
             ...(RoundStates as StateNodeConfig<

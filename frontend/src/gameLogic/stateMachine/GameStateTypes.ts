@@ -14,6 +14,7 @@ export type GameStateSchema = {
     runGame: {
       states: {
         setup: TypedStateSchema<GameMeta, GameContext>;
+        gotBidFromSetup: TypedStateSchema<GameMeta, GameContext>;
         round: TypedStateSchema<GameMeta, GameContext>;
       };
     };
@@ -21,7 +22,7 @@ export type GameStateSchema = {
   };
 };
 
-export type GameEvent = { type: 'NEXT' };
+export type GameEvent = { type: 'NEXT' } | { type: 'PLAYER_BID' };
 
 export type GameState = State<
   GameContext,

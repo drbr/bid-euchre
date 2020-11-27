@@ -7,7 +7,7 @@ import {
   SendGameEventResult,
 } from '../../apiContract/cloudFunctions/SendGameEvent';
 import * as DAO from '../databaseHelpers/BackendDAO';
-import { transitionStateMachine } from '../gameLogic/BackendStateMachine';
+import { transitionStateMachine } from '../../../frontend/src/gameLogic/StateMachineHelpers';
 
 /**
  * Thrown if the user is not in the game

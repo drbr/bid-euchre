@@ -1,10 +1,10 @@
 import { State, StateConfig } from 'xstate';
-import { GameStateMachine } from '../../../frontend/src/gameLogic/stateMachine/GameStateMachine';
+import { GameStateMachine } from './stateMachine/GameStateMachine';
 import {
   GameContext,
   GameEvent,
   GameState,
-} from '../../../frontend/src/gameLogic/stateMachine/GameStateTypes';
+} from './stateMachine/GameStateTypes';
 
 export function transitionStateMachine(
   prev: HydratedState | null,

@@ -17,7 +17,7 @@ import {
   convertStateToJson,
   HydratedState,
   hydrateState,
-} from '../gameLogic/BackendStateMachine';
+} from '../../../frontend/src/gameLogic/StateMachineHelpers';
 import {
   transactionallyCreateChildNode,
   transactionallySetNode,

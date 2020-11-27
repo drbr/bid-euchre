@@ -5,7 +5,7 @@ import {
   PublicGameConfig,
 } from '../../apiContract/database/DataModel';
 import * as DAO from '../databaseHelpers/BackendDAO';
-import { getInitialMachineState } from './BackendStateMachine';
+import { getInitialMachineState } from '../../../frontend/src/gameLogic/StateMachineHelpers';
 
 export async function initializeGameStates(props: {
   gameId: string;

@@ -14,7 +14,9 @@ export async function initializeGameStates(props: {
 }): Promise<void> {
   const privateGameStates: PlayerPrivateGameStates = {};
   forEachPosition(props.playerIdentities, (playerId) => {
-    privateGameStates[playerId!] = {};
+    privateGameStates[playerId!] = {
+      hand: 'placeholder',
+    };
   });
 
   await Promise.all([

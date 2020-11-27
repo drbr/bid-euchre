@@ -35,7 +35,9 @@ export function mapPrivateGameStateFromDatabase(
   if (!original) {
     return null;
   }
-  return {};
+  return {
+    hand: original.hand,
+  };
 }
 
 export function mapPositionRecordFromDatabase<T>(

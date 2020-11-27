@@ -54,7 +54,9 @@ export type PlayerIdentities = Record<Position, string | null>;
  * This object will be created once the game is fully configured; its creation signifies the start
  * of gameplay.
  */
-export type PlayerPrivateGameState = unknown;
+export type PlayerPrivateGameState = {
+  hand: 'placeholder';
+};
 
 export type PlayerPrivateGameStates = {
   [playerId: string]: PlayerPrivateGameState;

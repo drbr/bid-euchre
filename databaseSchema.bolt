@@ -48,7 +48,9 @@ type GameStatus extends String {
 
 type GameEvents extends String[] {}
 
-type PlayerPrivateGameState {}
+type PlayerPrivateGameState {
+  hand: String,
+}
 
 type Position extends String {
   validate() {

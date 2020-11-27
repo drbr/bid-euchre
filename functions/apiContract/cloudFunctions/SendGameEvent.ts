@@ -13,8 +13,11 @@ export type SendGameEventRequest = {
   /**
    * The player ID, as returned by `joinGame`. Used to verify the user's ability to participate in
    * this game and which position they're seated at.
+   *
+   * Ideally this shouldn't be null, but it's possible the client might screw up
+   * and send a game event when it shouldn't.
    */
-  playerId: string;
+  playerId: string | null;
 };
 
 export type SendGameEventResult = void;

@@ -9,13 +9,15 @@ import {
 } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from './GameLayout';
+import { joinGame } from '../firebase/CloudFunctionsClient';
+import {
+  PlayerInfoStorage,
+  storePlayerInfoForGame,
+} from '../uiHelpers/LocalStorageClient';
 
 export type JoinGameProps = PublicGameConfig & {
   gameId: string;
-  joinGameAtPosition: (args: {
-    playerName: string;
-    position: Position;
-  }) => void;
+  setPlayerInfoFromStorage: (x: PlayerInfoStorage) => void;
   seatedAt?: Position;
 };
 
@@ -36,7 +38,14 @@ export function JoinGame(props: JoinGameProps) {
           playerNameAtPosition={props.playerFriendlyNames[position]}
           canJoin={canTakeSeat()}
           seatedHere={props.seatedAt === position}
-          joinGame={() => props.joinGameAtPosition({ position, playerName })}
+          joinGame={() =>
+            joinGameAtPosition({
+              position,
+              playerName,
+              gameId: props.gameId,
+              setPlayerInfoFromStorage: props.setPlayerInfoFromStorage,
+            })
+          }
         />
       )}
       tableCenterElement={
@@ -81,6 +90,28 @@ function JoinButton(props: {
       )}
     </FlexView>
   );
+}
+
+async function joinGameAtPosition(args: {
+  gameId: string;
+  playerName: string;
+  position: Position;
+  setPlayerInfoFromStorage: (x: PlayerInfoStorage) => void;
+}) {
+  const { playerName, position, gameId, setPlayerInfoFromStorage } = args;
+  try {
+    const joinGameResult = await joinGame({
+      friendlyName: playerName,
+      gameId: gameId,
+      position: position,
+    });
+
+    storePlayerInfoForGame(joinGameResult);
+    setPlayerInfoFromStorage(joinGameResult);
+  } catch (e) {
+    // TODO: Change this to an element from the UI library
+    alert(`Could not join game. Please try again.`);
+  }
 }
 
 function isNameValid(

@@ -38,16 +38,26 @@ export default async function executeSendGameEvent(
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
+  functions.logger.debug('EXECUTE made it past the user auth');
+
   await DAO.transactionallySetPublicGameStateJson({
     gameId,
     transactionUpdate: (current) => {
+      functions.logger.debug('EXECUTE got into the transaction update');
+
       if (current && current.context.eventCount !== existingEventCount) {
         functions.logger.error('Stale state: event count mismatch');
         throw new STALE_STATE_ERROR();
       }
 
+      functions.logger.debug('EXECUTE event count does not mismatch');
+
       try {
+        functions.logger.debug('EXECUTE about to transition the state machine');
         const nextState = transitionStateMachine(current, event as GameEvent);
+        functions.logger.debug(
+          'EXECUTE returning the next state into the transaction framework'
+        );
         return nextState;
       } catch (e) {
         functions.logger.error(e);
@@ -55,6 +65,8 @@ export default async function executeSendGameEvent(
       }
     },
   });
+
+  functions.logger.debug('EXECUTE pushing the game event');
 
   await DAO.pushGameEvent({ gameId, event });
 }

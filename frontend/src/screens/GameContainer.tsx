@@ -5,10 +5,7 @@ import { GameNotFound } from './GameNotFound';
 import {
   PlayerInfoStorage,
   retrievePlayerInfoForGame,
-  storePlayerInfoForGame,
 } from '../uiHelpers/LocalStorageClient';
-import { Position } from '../../../functions/apiContract/database/GameState';
-import { joinGame } from '../firebase/CloudFunctionsClient';
 import { PlayGame } from './PlayGame';
 import { useObservedState } from '../uiHelpers/useObservedState';
 
@@ -38,26 +35,6 @@ export function GameContainer(props: GameContainerProps) {
     PlayerInfoStorage | 'gameNotFound'
   >(() => retrievePlayerInfoForGame({ gameId }) || 'gameNotFound');
 
-  async function joinGameAtPosition(args: {
-    playerName: string;
-    position: Position;
-  }) {
-    const { playerName, position } = args;
-    try {
-      const joinGameResult = await joinGame({
-        friendlyName: playerName,
-        gameId: props.gameId,
-        position: position,
-      });
-
-      storePlayerInfoForGame(joinGameResult);
-      setPlayerInfoFromStorage(joinGameResult);
-    } catch (e) {
-      // TODO: Change this to an element from the UI library
-      alert(`Could not join game. Please try again.`);
-    }
-  }
-
   if (
     gameConfig === 'loading' ||
     // publicGameState === 'loading' ||
@@ -82,7 +59,7 @@ export function GameContainer(props: GameContainerProps) {
     return (
       <JoinGame
         gameId={props.gameId}
-        joinGameAtPosition={joinGameAtPosition}
+        setPlayerInfoFromStorage={setPlayerInfoFromStorage}
         seatedAt={
           isSpectator(playerInfoFromStorage)
             ? undefined

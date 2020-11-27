@@ -1,7 +1,7 @@
-import {
-  PublicGameConfig
-} from '../../../functions/apiContract/database/DataModel';
+import { AnyEventObject } from 'xstate';
+import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
+import { sendGameEvent } from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
 import { GameState } from '../gameLogic/stateMachine/GameStateTypes';
 import { useObservedState } from '../uiHelpers/useObservedState';
@@ -28,6 +28,15 @@ export function PlayGame(props: PlayGameProps) {
     }
   );
 
+  function sendEvent(event: AnyEventObject) {
+    void sendGameEvent({
+      event,
+      existingEventCount: props.gameState.context.eventCount,
+      gameId: props.gameId,
+      playerId: props.playerId,
+    });
+  }
+
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   (window as any).privateGameState = privateGameState;
@@ -42,7 +51,14 @@ export function PlayGame(props: PlayGameProps) {
         renderPlayerElement={(position) => (
           <div>{props.gameConfig.playerFriendlyNames[position]}</div>
         )}
-        tableCenterElement={null}
+        tableCenterElement={
+          <div>
+            <p>Event count: {props.gameState.context.eventCount}</p>
+            <button onClick={() => sendEvent({ type: 'NEXT' })}>
+              Send Next Event
+            </button>
+          </div>
+        }
         viewpoint={props.seatedAt}
       />
     </div>

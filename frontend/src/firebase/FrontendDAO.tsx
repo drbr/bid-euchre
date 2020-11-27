@@ -23,6 +23,8 @@ function subscribeToDatabase<D, T>(
   const ref = firebaseDatabase.ref(path);
   const unsubscribeKey = ref.on('value', (snapshot) => {
     const mapped = mapper(snapshot.val());
+    console.debug(`Got a new database value from ${path}`);
+    console.debug(mapped);
     callback(mapped);
   });
   return () => ref.off('value', unsubscribeKey);

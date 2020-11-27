@@ -23,8 +23,10 @@ export async function transactionallySetNode<T>(props: {
     .transaction(transactionUpdate);
 
   if (committed) {
+    functions.logger.debug(`CRUD committed transaction at ${path}`);
     return snapshot;
   } else {
+    functions.logger.debug('CRUD TRANSACTION FAILED');
     throw new TRANSACTION_FAILED_ERROR();
   }
 }
@@ -65,7 +67,7 @@ export async function transactionallyCreateChildNode<T>(props: {
       return snapshot;
     } else {
       tries--;
-      functions.logger.info(
+      functions.logger.debug(
         `ID collision when creating node at ${path}/. Will try ${tries} more times.`
       );
     }

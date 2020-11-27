@@ -1,7 +1,8 @@
 import { RouteComponentProps, Router } from '@reach/router';
 import { XStateViz, XStateVizProps } from '../XStateViz';
-import { GameContainer } from '../screens/GameContainer';
-import { Lobby } from '../screens/Lobby';
+import { GameContainer } from './GameContainer';
+import { Lobby } from './Lobby';
+import { LocalGame } from './LocalGame';
 import { App } from './App';
 import { GamePathRouteProps } from './paths';
 import { GameStateMachine } from '../gameLogic/stateMachine/GameStateMachine';
@@ -15,6 +16,7 @@ export function AppRouter() {
       <LobbyRoute path="/game/" />
       <GameRoute path="/game/:gameId" />
       <LobbyRoute default />
+
       <StateMachineRoute path="/stateMachine" machine={GameStateMachine} />
 
       <ExperimentRoute path="/experiment" />
@@ -22,6 +24,9 @@ export function AppRouter() {
         path="/experimentStateMachine"
         machine={ExperimentStateMachine}
       />
+
+      <LocalGameRoute path="/localGame" />
+      <StateMachineRoute path="/localGame/stateMachine" />
     </Router>
   );
 }
@@ -55,4 +60,12 @@ function StateMachineRoute(props: RouteComponentProps & XStateVizProps) {
 
 function ExperimentRoute(props: RouteComponentProps) {
   return <Experiment />;
+}
+
+function LocalGameRoute(props: RouteComponentProps) {
+  return (
+    <App>
+      <LocalGame />
+    </App>
+  );
 }

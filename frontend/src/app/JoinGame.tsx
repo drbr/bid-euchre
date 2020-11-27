@@ -8,7 +8,7 @@ import {
   PublicGameConfig,
 } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
-import { GameLayout } from './GameLayout';
+import { GameLayout } from '../gameScreens/GameLayout';
 import { joinGame } from '../firebase/CloudFunctionsClient';
 import {
   PlayerInfoStorage,

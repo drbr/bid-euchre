@@ -1,4 +1,4 @@
-import { NewGameSection } from './Lobby';
+import { NewGameSection } from '../app/Lobby';
 
 export function GameNotFound() {
   return (

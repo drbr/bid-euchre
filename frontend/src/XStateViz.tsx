@@ -22,7 +22,8 @@ function createIFrame() {
 export type AnyStateMachine = StateMachine<any, any, any, any>;
 
 export type XStateVizProps = {
-  machine: AnyStateMachine;
+  machine?: AnyStateMachine;
+  title?: string;
 };
 
 /**
@@ -47,17 +48,20 @@ export function XStateViz(props: XStateVizProps) {
   }, []);
 
   useEffect(() => {
-    document.title = props.machine.id;
+    const customTitle = props.title ?? props.machine?.id;
+    if (customTitle) {
+      document.title = customTitle;
+    }
   });
 
-  if (initialized) {
-    return <StateMachineInstance {...props} />;
+  if (initialized && props.machine) {
+    return <StateMachineInstance machine={props.machine} />;
   } else {
     return null;
   }
 }
 
-function StateMachineInstance(props: XStateVizProps) {
+function StateMachineInstance(props: { machine: AnyStateMachine }) {
   useMachine(props.machine, { devTools: true });
   return <div></div>;
 }

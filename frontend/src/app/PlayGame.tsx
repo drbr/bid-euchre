@@ -11,7 +11,7 @@ import { BiddingContext } from '../gameLogic/stateMachine/BiddingStateTypes';
 import { AllContext } from '../gameLogic/stateMachine/GameStateMachine';
 import { GameState } from '../gameLogic/stateMachine/GameStateTypes';
 import { Subscription, useObservedState } from '../uiHelpers/useObservedState';
-import { GameLayout } from './GameLayout';
+import { GameLayout } from '../gameScreens/GameLayout';
 
 export type PlayGameProps = {
   gameId: string;

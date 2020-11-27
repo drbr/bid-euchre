@@ -4,6 +4,7 @@ import {
 } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameState } from './stateMachine/GameStateTypes';
+import { hydrateState } from './StateMachineHelpers';
 
 /**
  * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined
@@ -25,8 +26,8 @@ export function mapGameConfigFromDatabase(
 
 export function mapGameMachineStateFromDatabase(
   original: string | null | undefined
-): GameState {
-  return original ? JSON.parse(original) : null;
+): GameState | null {
+  return original ? hydrateState(original).hydratedState : null;
 }
 
 export function mapPrivateGameStateFromDatabase(

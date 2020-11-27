@@ -14,7 +14,7 @@ import { Position } from '../../apiContract/database/GameState';
 import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
 import {
-  convertStateToJson,
+  serializeState,
   HydratedState,
   hydrateState,
 } from '../../../frontend/src/gameLogic/StateMachineHelpers';
@@ -88,14 +88,16 @@ export async function getPlayerIdentities(props: {
 
 export async function transactionallySetGameMachineStateJson(props: {
   gameId: string;
-  transactionUpdate: (current: HydratedState | null) => GameState | undefined;
+  transactionUpdate: (
+    current: HydratedState<GameState> | null
+  ) => GameState | undefined;
 }): Promise<void> {
   await transactionallySetNode<string>({
     path: `/gameMachineStateJson/${props.gameId}`,
     transactionUpdate: (currentJson) => {
       const current = currentJson ? hydrateState(currentJson) : null;
       const maybeNewState = props.transactionUpdate(current);
-      return maybeNewState ? convertStateToJson(maybeNewState) : undefined;
+      return maybeNewState ? serializeState(maybeNewState) : undefined;
     },
   });
 }

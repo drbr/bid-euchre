@@ -40,17 +40,10 @@ export function PlayGame(props: PlayGameProps) {
     }
   );
 
-  const privateGameState = useObservedState(
-    { gameId, playerId },
-    (params, callback) => {
-      if (params.playerId) {
-        return DAO.subscribeToPrivateGameState(
-          params as { gameId: string; playerId: string },
-          callback
-        );
-      }
-    }
-  );
+  // const privateGameState = useObservedState(
+  //   { gameId, playerId },
+  //   privateGameStateSubscription
+  // );
 
   function sendEventToStateMachine(event: AnyEventObject) {
     void sendGameEvent({
@@ -64,14 +57,14 @@ export function PlayGame(props: PlayGameProps) {
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   (window as any).gameState = gameState;
-  (window as any).privateGameState = privateGameState;
+  // (window as any).privateGameState = privateGameState;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   if (
     gameState === 'loading' ||
-    gameState === 'gameNotFound' ||
-    privateGameState === 'loading' ||
-    privateGameState === 'gameNotFound'
+    gameState === 'gameNotFound'
+    // privateGameState === 'loading' ||
+    // privateGameState === 'gameNotFound'
   ) {
     return <div></div>;
   }
@@ -131,3 +124,15 @@ export function PlayGame(props: PlayGameProps) {
     </div>
   );
 }
+
+// const privateGameStateSubscription: Subscription<
+//   { gameId: string; playerId: string | null },
+//   PlayerPrivateGameState
+// > = (params, callback) => {
+//   if (params.playerId) {
+//     return DAO.subscribeToPrivateGameState(
+//       { gameId: params.gameId, playerId: params.playerId },
+//       callback
+//     );
+//   }
+// };

@@ -34,6 +34,9 @@ export const sendGameEvent = functions.https.onCall(async (data) => {
   try {
     return await executeSendGameEvent(data);
   } catch (e) {
+    functions.logger.debug(
+      'Caught exception in HTTPS error handler for SendGameEvent'
+    );
     if (e instanceof USER_NOT_AUTHORIZED_ERROR) {
       throw new functions.https.HttpsError(
         'permission-denied',

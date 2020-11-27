@@ -10,3 +10,7 @@ export function transitionStateMachine(
 ): GameState {
   return GameStateMachine.transition(prev ?? undefined, event);
 }
+
+export function getInitialMachineState(): GameState {
+  return GameStateMachine.initialState;
+}

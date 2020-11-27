@@ -41,43 +41,16 @@ export default async function executeSendGameEvent(
   await DAO.transactionallySetPublicGameStateJson({
     gameId,
     transactionUpdate: (current) => {
-      functions.logger.debug('EXECUTE got into the transaction update');
-      if (!current) {
-        functions.logger.debug(`EXECUTE current state is ${current}`);
-        throw new STALE_STATE_ERROR();
-      }
-      functions.logger.debug(
-        `EXECUTE Current state value: ${JSON.stringify(current?.value)}`
-      );
-
-      if (current && current.context.eventCount !== existingEventCount) {
+      if (
+        current &&
+        current.hydratedState.context.eventCount !== existingEventCount
+      ) {
         functions.logger.error('Stale state: event count mismatch');
         throw new STALE_STATE_ERROR();
       }
 
       try {
         const nextState = transitionStateMachine(current, event as GameEvent);
-        functions.logger.debug(
-          `EXECUTE Transitioned state value: ${JSON.stringify(
-            nextState?.value
-          )}`
-        );
-
-        // {
-        //   functions.logger.debug(
-        //     `Current state event count: ${current?.context.eventCount}`
-        //   );
-        //   functions.logger.debug(
-        //     `Next state event count: ${nextState?.context.eventCount}`
-        //   );
-        //   const areStatesEqual = current === nextState;
-        //   const areStatesStringEqual =
-        //     JSON.stringify(current) === JSON.stringify(nextState);
-        //   functions.logger.debug(
-        //     `Are states equal? string: ${areStatesEqual} json: ${areStatesStringEqual}`
-        //   );
-        // }
-
         return nextState;
       } catch (e) {
         functions.logger.error(e);

@@ -14,6 +14,11 @@ import { Position } from '../../apiContract/database/GameState';
 import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
 import {
+  convertStateToJson,
+  HydratedState,
+  hydrateState,
+} from '../gameLogic/BackendStateMachine';
+import {
   transactionallyCreateChildNode,
   transactionallySetNode,
 } from './CrudHelpers';
@@ -83,14 +88,14 @@ export async function setPublicGameState(props: {
 
 export async function transactionallySetPublicGameStateJson(props: {
   gameId: string;
-  transactionUpdate: (current: GameState | null) => GameState | undefined;
+  transactionUpdate: (current: HydratedState | null) => GameState | undefined;
 }): Promise<void> {
   await transactionallySetNode<string>({
     path: `/publicGameStateJson/${props.gameId}`,
     transactionUpdate: (currentJson) => {
-      const current = currentJson ? JSON.parse(currentJson) : null;
-      const maybeGameState = props.transactionUpdate(current);
-      return maybeGameState ? JSON.stringify(maybeGameState) : undefined;
+      const current = currentJson ? hydrateState(currentJson) : null;
+      const maybeNewState = props.transactionUpdate(current);
+      return maybeNewState ? convertStateToJson(maybeNewState) : undefined;
     },
   });
 }

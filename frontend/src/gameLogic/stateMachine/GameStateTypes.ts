@@ -22,7 +22,7 @@ export type GameStateSchema = {
   };
 };
 
-export type GameEvent = { type: 'NEXT' } | { type: 'PLAYER_BID' };
+export type GameEvent = { type: 'NEXT' };
 
 export type GameState = State<
   GameContext,

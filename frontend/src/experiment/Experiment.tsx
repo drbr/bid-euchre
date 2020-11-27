@@ -10,6 +10,7 @@ import {
   ExperimentStateMachine,
   uiAlertAction,
 } from './ExperimentStateMachine';
+import { runIsolatedMachine } from './IsolatedMachine';
 
 const machine = ExperimentStateMachine;
 const machineWithActions = machine.withConfig({
@@ -22,6 +23,10 @@ const machineWithActions = machine.withConfig({
 export function Experiment() {
   useEffect(() => {
     document.title = 'Experiment';
+  }, []);
+
+  useEffect(() => {
+    runIsolatedMachine();
   }, []);
 
   const [manualState, setManualState] = useState(

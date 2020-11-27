@@ -6,19 +6,14 @@
  */
 
 path / {
-  read() { true }
   write() { false }
-}
-
-path /publicGameState/{gameId} is PublicGameState {
-  read() { true }
 }
 
 path /publicGameConfig/{gameId} is PublicGameConfig {
   read() { true }
 }
 
-path /publicGameStateJson/{gameId} is String {
+path /gameMachineStateJson/{gameId} is String {
   read() { true }
 }
 
@@ -38,16 +33,6 @@ path /playerPrivateGameState/{gameId}/{playerId} is PlayerPrivateGameState {
   read() { true }
 }
 
-type PublicGameState {
-  score: Map<Partnership, Number>,
-  currentDealer: Position,
-  bids: Map<Position, Bid>,
-  trump: Suit | Null,
-  currentTrickLead: Position,
-  currentTrick: Map<Position, Card | Null>,
-  wonTricksThisRound: Map<Partnership, Number>,
-}
-
 type PublicGameConfig {
   gameExists: Boolean,
   playerFriendlyNames: Map<Position, String>,
@@ -55,34 +40,7 @@ type PublicGameConfig {
 
 type GameEvents extends String[] {}
 
-type PlayerPrivateGameState {
-  hand: Card[],
-}
-
-type Suit extends String {
-  validate() {
-    this === 'C' ||
-    this === 'H' ||
-    this === 'S' ||
-    this === 'D'
-  }
-}
-
-type Rank extends String {
-  validate() {
-    this === '9' ||
-    this === '10' ||
-    this === 'J' ||
-    this === 'Q' ||
-    this === 'K' ||
-    this === 'A'
-  }
-}
-
-type Card {
-  rank: Rank,
-  suit: Suit
-}
+type PlayerPrivateGameState {}
 
 type Position extends String {
   validate() {
@@ -90,27 +48,5 @@ type Position extends String {
     this === 'south' ||
     this === 'east' ||
     this === 'west'
-  }
-}
-
-type Partnership extends String {
-  validate() { this === 'northsouth' || this === 'eastwest' }
-}
-
-type Bid extends String | Number | Null {
-  validate() {
-    this === 1 ||
-    this === 2 ||
-    this === 3 ||
-    this === 4 ||
-    this === 5 ||
-    this === 6 ||
-    this === 12 ||
-    this === 24 ||
-    this === 48 ||
-    this === 96 ||
-    this === 192 ||
-    this === null ||
-    this === 'pass'
   }
 }

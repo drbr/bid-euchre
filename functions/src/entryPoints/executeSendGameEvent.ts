@@ -38,7 +38,7 @@ export default async function executeSendGameEvent(
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
-  await DAO.transactionallySetPublicGameStateJson({
+  await DAO.transactionallySetGameMachineStateJson({
     gameId,
     transactionUpdate: (current) => {
       if (

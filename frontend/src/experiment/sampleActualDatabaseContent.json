@@ -18,7 +18,7 @@
       }
     }
   },
-  "publicGameStateJson": {
+  "gameMachineStateJson": {
     "4834-ievdl": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":\"setup\",\"recordEvents\":{}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false}"
   }
 }

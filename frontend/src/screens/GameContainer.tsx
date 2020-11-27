@@ -21,19 +21,14 @@ export function GameContainer(props: GameContainerProps) {
     DAO.subscribeToPublicGameConfig
   );
 
-  // const publicGameState = useObservedState(
-  //   { gameId },
-  //   DAO.subscribeToPublicGameState
-  // );
-
   const gameMachineState = useObservedState(
     { gameId },
-    DAO.subscribeToPublicGameStateJson,
+    DAO.subscribeToGameMachineState,
     (prev, next) => {
       const prevCount = prev.context.eventCount;
       const nextCount = next.context.eventCount;
       console.log(next.value);
-      if (nextCount !== prevCount + 1) {
+      if (nextCount > prevCount + 1) {
         console.warn(
           `Possible error in state machine; trying to update game state from event count ${prevCount} to ${nextCount}`
         );
@@ -52,7 +47,6 @@ export function GameContainer(props: GameContainerProps) {
 
   if (
     gameConfig === 'loading' ||
-    // publicGameState === 'loading' ||
     gameMachineState === 'loading'
   ) {
     return <></>;

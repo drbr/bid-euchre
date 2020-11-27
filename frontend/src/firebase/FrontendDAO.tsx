@@ -1,13 +1,11 @@
 import {
   PlayerPrivateGameState,
   PublicGameConfig,
-  PublicGameState,
 } from '../../../functions/apiContract/database/DataModel';
 import {
   mapGameConfigFromDatabase,
   mapPrivateGameStateFromDatabase,
-  mapPublicGameStateFromDatabase,
-  mapPublicGameStateJsonFromDatabase,
+  mapGameMachineStateFromDatabase,
 } from '../gameLogic/ModelMappers';
 import { GameState } from '../gameLogic/stateMachine/GameStateTypes';
 import { Subscription, UnsubscribeFn } from '../uiHelpers/useObservedState';
@@ -23,8 +21,6 @@ function subscribeToDatabase<D, T>(
   const ref = firebaseDatabase.ref(path);
   const unsubscribeKey = ref.on('value', (snapshot) => {
     const mapped = mapper(snapshot.val());
-    console.debug(`Got a new database value from ${path}`);
-    console.debug(mapped);
     callback(mapped);
   });
   return () => ref.off('value', unsubscribeKey);
@@ -48,25 +44,14 @@ export const subscribeToPublicGameConfig: Subscription<
   );
 };
 
-export const subscribeToPublicGameState: Subscription<
-  GameIdParams,
-  PublicGameState
-> = ({ gameId }, callback) => {
-  return subscribeToDatabase(
-    `/publicGameState/${gameId}`,
-    callback,
-    mapPublicGameStateFromDatabase
-  );
-};
-
-export const subscribeToPublicGameStateJson: Subscription<
+export const subscribeToGameMachineState: Subscription<
   GameIdParams,
   GameState
 > = ({ gameId }, callback) => {
   return subscribeToDatabase(
-    `/publicGameStateJson/${gameId}`,
+    `/gameMachineStateJson/${gameId}`,
     callback,
-    mapPublicGameStateJsonFromDatabase,
+    mapGameMachineStateFromDatabase
   );
 };
 

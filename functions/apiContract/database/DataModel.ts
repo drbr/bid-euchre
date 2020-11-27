@@ -1,11 +1,7 @@
-import { Card, Hand, Suit } from './Cards';
-import { Position, Bid, Partnership } from './GameState';
+import { Position } from './GameState';
 
 export type DatabaseSchema = {
-  publicGameState: {
-    [gameId: string]: PublicGameState;
-  };
-  publicGameStateJson: {
+  gameMachineStateJson: {
     [gameId: string]: string;
   };
   gameEventsJson: {
@@ -20,23 +16,6 @@ export type DatabaseSchema = {
   playerPrivateGameState: {
     [gameId: string]: PlayerPrivateGameStates;
   };
-};
-
-/**
- * This state represents the game as it progresses, and is managed by the State Machine. Data in the
- * Public Game State is visible to all players as well as observers.
- *
- * This object will be created once the game is fully configured; its creation signifies the start
- * of gameplay.
- */
-export type PublicGameState = {
-  score: Record<Partnership, number>;
-  currentDealer: Position;
-  bids: Record<Position, Bid>;
-  trump?: Suit;
-  currentTrickLead?: Position;
-  currentTrick?: Record<Position, Card | null>;
-  wonTricksThisRound: Record<Partnership, number>;
 };
 
 /**
@@ -72,9 +51,7 @@ export type PlayerIdentities = Record<Position, string | null>;
  * This object will be created once the game is fully configured; its creation signifies the start
  * of gameplay.
  */
-export type PlayerPrivateGameState = {
-  hand: Hand;
-};
+export type PlayerPrivateGameState = unknown;
 
 export type PlayerPrivateGameStates = {
   [playerId: string]: PlayerPrivateGameState;

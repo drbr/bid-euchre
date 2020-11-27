@@ -8,7 +8,6 @@ import {
   PlayerIdentities,
   PlayerPrivateGameStates,
   PublicGameConfig,
-  PublicGameState,
 } from '../../apiContract/database/DataModel';
 import { Position } from '../../apiContract/database/GameState';
 import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot';
@@ -77,21 +76,12 @@ export async function setPlayerNameAtPosition(props: {
     .set(props.friendlyName);
 }
 
-export async function setPublicGameState(props: {
-  gameId: string;
-  gameState: PublicGameState;
-}): Promise<void> {
-  return await firebaseDatabaseAdminClient
-    .ref(`/publicGameState/${props.gameId}`)
-    .set(props.gameState);
-}
-
-export async function transactionallySetPublicGameStateJson(props: {
+export async function transactionallySetGameMachineStateJson(props: {
   gameId: string;
   transactionUpdate: (current: HydratedState | null) => GameState | undefined;
 }): Promise<void> {
   await transactionallySetNode<string>({
-    path: `/publicGameStateJson/${props.gameId}`,
+    path: `/gameMachineStateJson/${props.gameId}`,
     transactionUpdate: (currentJson) => {
       const current = currentJson ? hydrateState(currentJson) : null;
       const maybeNewState = props.transactionUpdate(current);

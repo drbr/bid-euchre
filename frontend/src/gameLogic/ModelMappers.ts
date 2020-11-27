@@ -1,7 +1,6 @@
 import {
   PlayerPrivateGameState,
   PublicGameConfig,
-  PublicGameState,
 } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameState } from './stateMachine/GameStateTypes';
@@ -24,28 +23,7 @@ export function mapGameConfigFromDatabase(
   };
 }
 
-/**
- * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined
- * values.
- */
-export function mapPublicGameStateFromDatabase(
-  original: PublicGameState | null | undefined
-): PublicGameState | null {
-  if (!original) {
-    return null;
-  }
-  return {
-    score: original.score,
-    currentDealer: original.currentDealer,
-    bids: mapPositionRecordFromDatabase(original.bids),
-    trump: original.trump,
-    currentTrickLead: original.currentTrickLead,
-    currentTrick: mapPositionRecordFromDatabase(original.currentTrick),
-    wonTricksThisRound: original.wonTricksThisRound,
-  };
-}
-
-export function mapPublicGameStateJsonFromDatabase(
+export function mapGameMachineStateFromDatabase(
   original: string | null | undefined
 ): GameState {
   return original ? JSON.parse(original) : null;
@@ -57,9 +35,7 @@ export function mapPrivateGameStateFromDatabase(
   if (!original) {
     return null;
   }
-  return {
-    hand: original.hand || [],
-  };
+  return {};
 }
 
 export function mapPositionRecordFromDatabase<T>(

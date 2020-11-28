@@ -23,6 +23,7 @@ export type AnyStateMachine = StateMachine<any, any, any, any>;
 
 export type XStateVizProps = {
   machine?: AnyStateMachine;
+  childrenWithMachine?: JSX.Element;
   title?: string;
 };
 
@@ -36,16 +37,18 @@ export type XStateVizProps = {
 export function XStateViz(props: XStateVizProps) {
   const [initialized, setInitialized] = useState(false);
 
+  const useIFrame = props.childrenWithMachine ? false : true;
+
   useEffect(() => {
     createIFrame();
 
     inspect({
       url: 'https://statecharts.io/inspect',
-      iframe: iFrameElement,
+      iframe: useIFrame ? iFrameElement : false,
     });
 
     setInitialized(true);
-  }, []);
+  }, [useIFrame]);
 
   useEffect(() => {
     const customTitle = props.title ?? props.machine?.id;
@@ -56,6 +59,8 @@ export function XStateViz(props: XStateVizProps) {
 
   if (initialized && props.machine) {
     return <StateMachineInstance machine={props.machine} />;
+  } else if (initialized && props.childrenWithMachine) {
+    return props.childrenWithMachine;
   } else {
     return null;
   }

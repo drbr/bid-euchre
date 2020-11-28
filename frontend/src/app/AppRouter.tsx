@@ -26,7 +26,10 @@ export function AppRouter() {
       />
 
       <LocalGameRoute path="/localGame" />
-      <StateMachineRoute path="/localGame/stateMachine" />
+      <StateMachineRoute
+        path="/localGame/stateMachine"
+        childrenWithMachine={<LocalGameRoute />}
+      />
     </Router>
   );
 }
@@ -55,7 +58,12 @@ function GameRoute(props: RouteComponentProps & GamePathRouteProps) {
 }
 
 function StateMachineRoute(props: RouteComponentProps & XStateVizProps) {
-  return <XStateViz machine={props.machine} />;
+  return (
+    <XStateViz
+      machine={props.machine}
+      childrenWithMachine={props.childrenWithMachine}
+    />
+  );
 }
 
 function ExperimentRoute(props: RouteComponentProps) {

@@ -4,7 +4,7 @@ import { GameStateMachine } from '../gameLogic/stateMachine/GameStateMachine';
 import { GameDisplay } from '../gameScreens/GameDisplay';
 
 export function LocalGame() {
-  const [state, send] = useMachine(GameStateMachine);
+  const [state, send] = useMachine(GameStateMachine, { devTools: true });
 
   return (
     <div>

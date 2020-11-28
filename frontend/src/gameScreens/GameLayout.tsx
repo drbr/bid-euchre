@@ -61,7 +61,7 @@ export function GameLayout(props: GameLayoutProps) {
           <Player>{renderPlayerAtIndex(1)}</Player>
           <Hidden xsDown>
             <Center>
-              <Prompt message={props.promptMessage} />
+              <PromptInGrid message={props.promptMessage} />
             </Center>
           </Hidden>
           <Player>{renderPlayerAtIndex(2)}</Player>
@@ -74,12 +74,12 @@ export function GameLayout(props: GameLayoutProps) {
           {/* on xs devices, display the center below the grid */}
           <Hidden smUp>
             <Grid item xs={12}>
-              <Prompt message={props.promptMessage} />
+              <PromptText message={props.promptMessage} />
             </Grid>
           </Hidden>
         </Grid>
       </Box>
-      <Box p={3}>{props.userActionElement ?? ''}</Box>
+      <Box mt={3}>{props.userActionElement ?? ''}</Box>
     </Container>
   );
 }
@@ -104,17 +104,22 @@ function Center(props: React.PropsWithChildren<unknown>) {
   );
 }
 
-function Prompt(props: { message?: string }) {
-  const messageOrSpacer = props.message ?? PLACEHOLDER;
-
+function PromptInGrid(props: { message?: string }) {
   return (
     <Box>
       <FlexView vAlignContent="center" hAlignContent="center" height={100}>
-        <Typography variant="body1" align="center">
-          {messageOrSpacer}
-        </Typography>
+        <PromptText message={props.message} />
       </FlexView>
     </Box>
+  );
+}
+
+function PromptText(props: { message?: string }) {
+  const messageOrSpacer = props.message ?? PLACEHOLDER;
+  return (
+    <Typography variant="body1" align="center">
+      {messageOrSpacer}
+    </Typography>
   );
 }
 

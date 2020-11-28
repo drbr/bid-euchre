@@ -16,6 +16,8 @@ import {
 } from '../uiHelpers/LocalStorageClient';
 import { UIActions } from '../uiHelpers/UIActions';
 
+const MAX_NAME_LENGTH = 12;
+
 export type JoinGameProps = {
   gameId: string;
   gameConfig: PublicGameConfig;
@@ -24,13 +26,15 @@ export type JoinGameProps = {
 };
 
 export function JoinGame(props: JoinGameProps) {
+  const playerNames = props.gameConfig.playerFriendlyNames;
+
   const [playerName, setPlayerName] = useState('');
 
+  const helperText = nameInvalidHelperText(playerName, playerNames);
+  const nameCanBeUsed = playerName !== '' && !helperText;
+
   function canTakeAnySeat() {
-    return (
-      !props.seatedAt &&
-      isNameValid(playerName, props.gameConfig.playerFriendlyNames)
-    );
+    return !props.seatedAt && nameCanBeUsed;
   }
 
   const promptMessage = props.seatedAt
@@ -42,7 +46,7 @@ export function JoinGame(props: JoinGameProps) {
       seatedAt="south"
       renderPlayerElement={(position) => (
         <JoinButton
-          playerNameAtPosition={props.gameConfig.playerFriendlyNames[position]}
+          playerNameAtPosition={playerNames[position]}
           canJoin={canTakeAnySeat()}
           seatedHere={props.seatedAt === position}
           joinGame={() =>
@@ -62,6 +66,8 @@ export function JoinGame(props: JoinGameProps) {
             <Box p={1} textAlign="center">
               <TextField
                 label="Name"
+                error={!!helperText}
+                helperText={helperText}
                 fullWidth
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
@@ -125,12 +131,17 @@ async function joinGameAtPosition(args: {
   }
 }
 
-function isNameValid(
+function nameInvalidHelperText(
   name: string,
   playerFriendlyNames: PublicGameConfig['playerFriendlyNames']
-): boolean {
-  if (name === '') {
-    return false;
+): string | undefined {
+  if (name.length > MAX_NAME_LENGTH) {
+    return 'The name entered is too long.';
   }
-  return _.every(playerFriendlyNames, (v) => v !== name);
+  if (
+    _.some(playerFriendlyNames, (v) => v?.toLowerCase() === name.toLowerCase())
+  ) {
+    return 'Another player has already joined with that name.';
+  }
+  return undefined;
 }

@@ -1,6 +1,8 @@
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
+import FlexView from 'react-flexview/lib';
 import { Bid } from '../../../functions/apiContract/database/GameState';
 import {
   BiddingContext,
@@ -40,12 +42,25 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
         seatedAt={props.seatedAt}
         awaitedPosition={awaitedPosition}
         renderPlayerElement={(position) => (
-          <PlayerBid
+          <PlayerBidElement
             playerName={props.gameConfig.playerFriendlyNames[position]}
             bid={bids[position]}
           />
         )}
         promptMessage={promptMessage}
+        userActionElement={
+          <FlexView hAlignContent="center" wrap={true}>
+            <BidButton value="pass" />
+            <BidButton value={1} />
+            <BidButton value={2} />
+            <BidButton value={3} />
+            <BidButton value={4} />
+            <BidButton value={5} />
+            <BidButton value={6} />
+            <BidButton value={12} />
+            <BidButton value={24} />
+          </FlexView>
+        }
       />
       <Box flexDirection="column" p={3}>
         <button
@@ -97,7 +112,16 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
   );
 }
 
-function PlayerBid(props: { playerName: string; bid: Bid }) {
+function BidButton(props: { value: Bid; text?: string }) {
+  const buttonText = props.text || props.value;
+  return (
+    <Box p={1}>
+      <Button variant="contained">{buttonText}</Button>
+    </Box>
+  );
+}
+
+function PlayerBidElement(props: { playerName: string; bid: Bid }) {
   const translatedBid =
     props.bid === 'pass'
       ? 'Pass'

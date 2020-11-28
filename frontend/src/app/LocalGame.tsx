@@ -2,9 +2,13 @@ import { useMachine } from '@xstate/react';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { GameStateMachine } from '../gameLogic/stateMachine/GameStateMachine';
 import { GameDisplay } from '../gameScreens/GameDisplay';
+import * as LocalGameStates from './LocalGameStates';
 
 export function LocalGame() {
-  const [state, send] = useMachine(GameStateMachine, { devTools: true });
+  const [state, send] = useMachine(GameStateMachine, {
+    devTools: true,
+    state: LocalGameStates.freshGame,
+  });
 
   return (
     <div>

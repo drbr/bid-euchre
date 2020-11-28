@@ -1,6 +1,6 @@
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { useState } from 'react';
-import FlexView from 'react-flexview';
+import FlexView from 'react-flexview/lib';
 import { classes } from 'typestyle';
 import {
   AppStyle,
@@ -26,9 +26,7 @@ export function App(props: { children?: React.ReactChild }) {
   return (
     <MuiThemeProvider theme={MaterialUITheme}>
       <div className={classes(AppStyle, ColorSchemeClasses[colorSchemeId])}>
-        <FlexView grow vAlignContent="center">
-          {props.children}
-        </FlexView>
+        <FlexView grow>{props.children}</FlexView>
         <AppFooter
           colorScheme={colorSchemeId}
           setColorScheme={saveAndRenderColorScheme}

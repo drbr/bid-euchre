@@ -1,8 +1,11 @@
 import _ from 'lodash';
+import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import FlexView from 'react-flexview/lib';
 import { useState } from 'react';
-import FlexView from 'react-flexview';
 import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from '../gameScreens/GameLayout';
@@ -30,6 +33,10 @@ export function JoinGame(props: JoinGameProps) {
     );
   }
 
+  const promptMessage = props.seatedAt
+    ? 'Waiting for others to join the game…'
+    : 'Enter your name and join at any open position.';
+
   return (
     <GameLayout
       seatedAt="south"
@@ -48,19 +55,19 @@ export function JoinGame(props: JoinGameProps) {
           }
         />
       )}
-      tableCenterElement={
-        props.seatedAt ? (
-          <div>Waiting for others to join the game…</div>
-        ) : (
-          <div>
-            <label>Enter your name and join at an open position:</label>
-            <TextField
-              label="Name"
-              variant="outlined"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-            />
-          </div>
+      promptMessage={promptMessage}
+      userActionElement={
+        props.seatedAt ? null : (
+          <Paper>
+            <Box p={1} textAlign="center">
+              <TextField
+                label="Name"
+                fullWidth
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+              />
+            </Box>
+          </Paper>
         )
       }
     />
@@ -74,14 +81,17 @@ function JoinButton(props: {
   joinGame: () => void;
 }) {
   return (
-    <FlexView vAlignContent="center" hAlignContent="center" height="100%">
+    <FlexView vAlignContent="center" hAlignContent="center" height={36}>
       {props.playerNameAtPosition ? (
-        <div style={{ fontWeight: props.seatedHere ? 'bold' : undefined }}>
+        <Typography
+          variant={props.seatedHere ? 'h6' : 'body1'}
+          // fontWeight={props.seatedHere ? 'bold' : undefined}
+        >
           {props.playerNameAtPosition}
-        </div>
+        </Typography>
       ) : (
         <Button
-          variant="contained"
+          fullWidth
           disabled={!props.canJoin}
           onClick={() => props.joinGame()}
         >

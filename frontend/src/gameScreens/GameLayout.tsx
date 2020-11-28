@@ -1,21 +1,19 @@
 import Box from '@material-ui/core/Box';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import React from 'react';
+import FlexView from 'react-flexview/lib';
 import { Position } from '../../../functions/apiContract/database/GameState';
-import { cssClass } from '../style/styleFunctions';
-
 
 export type GameLayoutProps = {
   seatedAt: Position | null;
   awaitedPosition?: Position;
-  renderPlayerElement: (
-    position: Position,
-    awaited: boolean
-  ) => React.ReactNode;
-  tableCenterElement: React.ReactNode;
+  renderPlayerElement: (position: Position) => React.ReactNode;
+  promptMessage?: string;
+  userActionElement?: React.ReactNode;
 };
 
 /**
@@ -41,20 +39,19 @@ export function GameLayout(props: GameLayoutProps) {
       : false;
 
     return (
-      <Card>
+      <Paper>
         <Box bgcolor={awaited ? '#ea78157a' : undefined}>
-          <CardContent>
-            {props.renderPlayerElement(position, awaited)}
-          </CardContent>
+          {/* <CardContent>{props.renderPlayerElement(position)}</CardContent> */}
+          <Box p={1}>{props.renderPlayerElement(position)}</Box>
         </Box>
-      </Card>
+      </Paper>
     );
   }
 
   return (
-    <Container maxWidth="md">
-      <div className={GameLayoutClass}>
-        <Grid container spacing={2}>
+    <Container maxWidth="sm" fixed>
+      <Box mt={3} textAlign="left">
+        <Grid container spacing={2} alignItems="center">
           {/* top row */}
           <Spacer />
           <Player>{renderPlayerAtIndex(0)}</Player>
@@ -63,7 +60,9 @@ export function GameLayout(props: GameLayoutProps) {
           {/* middle row */}
           <Player>{renderPlayerAtIndex(1)}</Player>
           <Hidden xsDown>
-            <Center>{props.tableCenterElement}</Center>
+            <Center>
+              <Prompt message={props.promptMessage} />
+            </Center>
           </Hidden>
           <Player>{renderPlayerAtIndex(2)}</Player>
 
@@ -75,11 +74,12 @@ export function GameLayout(props: GameLayoutProps) {
           {/* on xs devices, display the center below the grid */}
           <Hidden smUp>
             <Grid item xs={12}>
-              {props.tableCenterElement}
+              <Prompt message={props.promptMessage} />
             </Grid>
           </Hidden>
         </Grid>
-      </div>
+      </Box>
+      <Box p={3}>{props.userActionElement ?? ''}</Box>
     </Container>
   );
 }
@@ -104,6 +104,18 @@ function Center(props: React.PropsWithChildren<unknown>) {
   );
 }
 
-const GameLayoutClass = cssClass('GameLayout', {
-  textAlign: 'left',
-});
+function Prompt(props: { message?: string }) {
+  const messageOrSpacer = props.message ?? PLACEHOLDER;
+
+  return (
+    <Box>
+      <FlexView vAlignContent="center" hAlignContent="center" height={100}>
+        <Typography variant="body1" align="center">
+          {messageOrSpacer}
+        </Typography>
+      </FlexView>
+    </Box>
+  );
+}
+
+export const PLACEHOLDER = '\u200b';

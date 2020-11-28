@@ -2,7 +2,7 @@ import { Position } from '../../../functions/apiContract/database/GameState';
 import { cssClass } from '../style/styleFunctions';
 
 export type GameLayoutProps = {
-  viewpoint: Position;
+  seatedAt: Position | null;
   renderPlayerElement: (position: Position) => React.ReactNode;
   tableCenterElement: React.ReactNode;
 };
@@ -15,7 +15,8 @@ const positionsByViewpoint: Record<Position, ReadonlyArray<Position>> = {
 };
 
 export function GameLayout(props: GameLayoutProps) {
-  const positionsInOrder = positionsByViewpoint[props.viewpoint];
+  // Spectators view the game from South
+  const positionsInOrder = positionsByViewpoint[props.seatedAt || 'south'];
 
   return (
     <table className={GameLayoutClass}>

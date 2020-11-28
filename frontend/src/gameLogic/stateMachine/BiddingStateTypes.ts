@@ -1,4 +1,4 @@
-import { Suit } from '../../../../functions/apiContract/database/Cards';
+import { State, Typestate } from 'xstate';
 import {
   Position,
   Bid,
@@ -18,10 +18,17 @@ export type BiddingStatesGeneric<T> = {
   biddingComplete: T;
 };
 
+export type BiddingStateNames = keyof BiddingStatesGeneric<unknown>;
+
 export type BiddingStateSchema = {
   states: BiddingStatesGeneric<TypedStateSchema<BiddingMeta, BiddingContext>>;
 };
 
-export type BiddingEvent =
-  | { type: 'PLAYER_BID'; bid: Bid; player: Position }
-  | { type: 'NAME_TRUMP'; suit: Suit; player: Position };
+export type BiddingEvent = { type: 'PLAYER_BID'; bid: Bid; position: Position };
+
+export type BiddingState = State<
+  BiddingContext,
+  BiddingEvent,
+  BiddingStateSchema,
+  Typestate<BiddingContext>
+>;

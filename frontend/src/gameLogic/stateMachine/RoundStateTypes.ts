@@ -1,3 +1,4 @@
+import { State, Typestate } from 'xstate';
 import { Hand, Suit } from '../../../../functions/apiContract/database/Cards';
 import {
   Bid,
@@ -25,8 +26,17 @@ export type RoundStatesGeneric<T> = {
   roundComplete: T;
 };
 
+export type RoundStateNames = keyof RoundStatesGeneric<unknown>;
+
 export type RoundStateSchema = {
   states: RoundStatesGeneric<TypedStateSchema<RoundMeta, RoundContext>>;
 };
 
 export type RoundEvent = { type: 'NEXT' };
+
+export type RoundState = State<
+  RoundContext,
+  RoundEvent,
+  RoundStateSchema,
+  Typestate<RoundContext>
+>;

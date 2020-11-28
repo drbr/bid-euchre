@@ -39,34 +39,29 @@ export function GameContainer(props: GameContainerProps) {
   (window as any).playerInfoFromStorage = playerInfoFromStorage;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
+  const seatedAt = isSpectator(playerInfoFromStorage)
+    ? null
+    : playerInfoFromStorage.position;
+  const playerId = isSpectator(playerInfoFromStorage)
+    ? null
+    : playerInfoFromStorage.playerId;
+
   if (gameConfig.gameStatus === 'waitingToStart') {
     return (
       <JoinGame
         gameId={props.gameId}
         gameConfig={gameConfig}
+        seatedAt={seatedAt}
         setPlayerInfoFromStorage={setPlayerInfoFromStorage}
-        seatedAt={
-          isSpectator(playerInfoFromStorage)
-            ? undefined
-            : playerInfoFromStorage.position
-        }
       />
     );
   } else {
     return (
       <PlayGame
         gameId={props.gameId}
-        playerId={
-          isSpectator(playerInfoFromStorage)
-            ? null
-            : playerInfoFromStorage.playerId
-        }
-        seatedAt={
-          isSpectator(playerInfoFromStorage)
-            ? 'south'
-            : playerInfoFromStorage.position
-        }
         gameConfig={gameConfig}
+        seatedAt={seatedAt}
+        playerId={playerId}
       />
     );
   }

@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
 export type UnsubscribeFn = () => void;
@@ -29,7 +30,7 @@ export function useObservedState<P extends Record<string, unknown>, T>(
   // Memoizing the subscription and shouldUpdate is useless here – they need to be
   // memoized on the client side via useCallback.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const memoizedParams = useMemo(() => params, [...Object.values(params)]);
+  const memoizedParams = useMemo(() => params, [..._.values(params)]);
 
   useEffect(() => {
     console.debug('Subscribing to observable state');

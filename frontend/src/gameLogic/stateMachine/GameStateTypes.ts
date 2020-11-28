@@ -16,6 +16,8 @@ export type GameStatesGeneric<T> = {
   round: T;
 };
 
+export type GameStateNames = keyof GameStatesGeneric<unknown>;
+
 export type GameStateSchema = {
   states: {
     runGame: {

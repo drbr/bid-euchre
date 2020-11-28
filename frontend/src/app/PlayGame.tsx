@@ -1,4 +1,3 @@
-import FlexView from 'react-flexview/lib';
 import { AnyEventObject } from 'xstate';
 import {
   PlayerPrivateGameState,
@@ -7,24 +6,22 @@ import {
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { sendGameEvent } from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
-import { BiddingContext } from '../gameLogic/stateMachine/BiddingStateTypes';
-import { AllContext } from '../gameLogic/stateMachine/GameStateMachine';
 import { GameState } from '../gameLogic/stateMachine/GameStateTypes';
-import { Subscription, useObservedState } from '../uiHelpers/useObservedState';
-import { GameLayout } from '../gameScreens/GameLayout';
+import { GameDisplay } from '../gameScreens/GameDisplay';
 import { UIActions } from '../uiHelpers/UIActions';
+import { Subscription, useObservedState } from '../uiHelpers/useObservedState';
 
 export type PlayGameProps = {
   gameId: string;
   playerId: string | null;
   gameConfig: PublicGameConfig;
-  seatedAt: Position;
+  seatedAt: Position | null;
 };
 
 export function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
-  const gameState = useObservedState(
+  const gameMachineState = useObservedState(
     { gameId },
     DAO.subscribeToGameMachineState,
     onGameStateChange
@@ -39,7 +36,7 @@ export function PlayGame(props: PlayGameProps) {
     try {
       await sendGameEvent({
         event,
-        existingEventCount: (gameState as GameState).context.eventCount,
+        existingEventCount: (gameMachineState as GameState).context.eventCount,
         gameId,
         playerId,
       });
@@ -52,70 +49,30 @@ export function PlayGame(props: PlayGameProps) {
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  (window as any).gameState = gameState;
-  // (window as any).privateGameState = privateGameState;
+  (window as any).gameState = gameMachineState;
+  (window as any).privateGameState = privateGameState;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   if (
-    gameState === 'loading' ||
-    gameState === 'gameNotFound' ||
+    gameMachineState === 'loading' ||
+    gameMachineState === 'gameNotFound' ||
     privateGameState === 'loading' ||
     privateGameState === 'gameNotFound'
   ) {
     return <div></div>;
   }
 
-  const bids = ((gameState.context as AllContext) as BiddingContext).bids || {};
-
   return (
     <div>
       <p>
         {props.playerId ? null : 'You are a spectator of the current game!'}
       </p>
-      <GameLayout
-        renderPlayerElement={(position) => (
-          <FlexView column>
-            <div>{props.gameConfig.playerFriendlyNames[position]}</div>
-            <div>{bids[position]}</div>
-          </FlexView>
-        )}
-        tableCenterElement={
-          <FlexView column>
-            <p>Event count: {gameState.context.eventCount}</p>
-            <button onClick={() => sendEventToStateMachine({ type: 'NEXT' })}>
-              Send Next Event
-            </button>
-            <button
-              onClick={() =>
-                sendEventToStateMachine({ type: 'PLAYER_BID', bid: 2 })
-              }
-            >
-              Send Bid Event 2
-            </button>
-            <button
-              onClick={() =>
-                sendEventToStateMachine({ type: 'PLAYER_BID', bid: 3 })
-              }
-            >
-              Send Bid Event 3
-            </button>
-            <button
-              onClick={() =>
-                sendEventToStateMachine({ type: 'PLAYER_BID', bid: 4 })
-              }
-            >
-              Send Bid Event 4
-            </button>
-            <button
-              onClick={() =>
-                sendEventToStateMachine({ type: 'PLAYER_BID', bid: 5 })
-              }
-            >
-              Send Bid Event 5
-            </button>
-          </FlexView>
-        }
-        viewpoint={props.seatedAt}
+      <GameDisplay
+        machineState={gameMachineState}
+        machineContext={gameMachineState.context}
+        sendGameEvent={sendEventToStateMachine}
+        gameConfig={props.gameConfig}
+        seatedAt={props.seatedAt}
       />
     </div>
   );

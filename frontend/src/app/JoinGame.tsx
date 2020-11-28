@@ -20,7 +20,7 @@ export type JoinGameProps = {
   gameId: string;
   gameConfig: PublicGameConfig;
   setPlayerInfoFromStorage: (x: PlayerInfoStorage) => void;
-  seatedAt?: Position;
+  seatedAt: Position | null;
 };
 
 export function JoinGame(props: JoinGameProps) {
@@ -35,7 +35,7 @@ export function JoinGame(props: JoinGameProps) {
 
   return (
     <GameLayout
-      viewpoint="south"
+      seatedAt="south"
       renderPlayerElement={(position) => (
         <JoinButton
           playerNameAtPosition={props.gameConfig.playerFriendlyNames[position]}

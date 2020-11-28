@@ -1,4 +1,4 @@
-import { assign, send, SendAction, StateNodeConfig } from 'xstate';
+import { assign, StateNodeConfig } from 'xstate';
 import { deal } from '../deal';
 import { NextPlayer } from '../ModelHelpers';
 import {
@@ -29,16 +29,21 @@ export const RoundStates: StateNodeConfig<
     waitForDeal: {
       // TODO: Dispatch an action that tells the server to send an "assignHands" event so that
       // we have the event for replay purposes. The server needs to send this event because the
-      // clients aren't supposed to know what the other players' cards are.
-      entry: makeAssignHandsEventSender(),
-      on: {
-        ASSIGN_HANDS: {
-          target: 'bidding',
-          actions: assign({
-            hands: (context, event) => event.hands,
-          }),
-        },
-      },
+      // clients aren't supposed to know what the other players' cards are. Even then, the state
+      // will contain info about the previous event, so we may need a different strategy...
+
+      // entry: makeAssignHandsEventSender(),
+      // on: {
+      //   ASSIGN_HANDS: {
+      //     target: 'bidding',
+      //     actions: assign({
+      //       hands: (context, event) => event.hands,
+      //     }),
+      //   },
+      // },
+
+      entry: assign({ hands: (_, __) => deal() }),
+      always: { target: 'bidding' },
     },
 
     bidding: {
@@ -93,13 +98,13 @@ export const RoundStates: StateNodeConfig<
  * Make an action object that will send an ASSIGN_HANDS event.
  * Each time this function is called, it will create a new random assignment of cards.
  */
-function makeAssignHandsEventSender(): SendAction<
-  RoundContext,
-  RoundEvent,
-  RoundEvent
-> {
-  return send({ type: 'ASSIGN_HANDS', hands: deal() } as RoundEvent);
-}
+// function makeAssignHandsEventSender(): SendAction<
+//   RoundContext,
+//   RoundEvent,
+//   RoundEvent
+// > {
+//   return send({ type: 'ASSIGN_HANDS', hands: deal() } as RoundEvent);
+// }
 
 // const RoundGuards: Record<
 //   string,

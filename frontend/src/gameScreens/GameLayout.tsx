@@ -1,12 +1,28 @@
+import Box from '@material-ui/core/Box';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
+import Hidden from '@material-ui/core/Hidden';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { cssClass } from '../style/styleFunctions';
 
+
 export type GameLayoutProps = {
   seatedAt: Position | null;
-  renderPlayerElement: (position: Position) => React.ReactNode;
+  awaitedPosition?: Position;
+  renderPlayerElement: (
+    position: Position,
+    awaited: boolean
+  ) => React.ReactNode;
   tableCenterElement: React.ReactNode;
 };
 
+/**
+ * Positions in their order on a grid layout when viewed from the keyed position.
+ * This enables us to render the same game from the point of view of each player,
+ * with their opponents in the same relative positions at the table.
+ */
 const positionsByViewpoint: Record<Position, ReadonlyArray<Position>> = {
   north: ['south', 'east', 'west', 'north'],
   south: ['north', 'west', 'east', 'south'],
@@ -18,68 +34,76 @@ export function GameLayout(props: GameLayoutProps) {
   // Spectators view the game from South
   const positionsInOrder = positionsByViewpoint[props.seatedAt || 'south'];
 
+  function renderPlayerAtIndex(i: number) {
+    const position = positionsInOrder[i];
+    const awaited = props.awaitedPosition
+      ? props.awaitedPosition === position
+      : false;
+
+    return (
+      <Card>
+        <Box bgcolor={awaited ? '#ea78157a' : undefined}>
+          <CardContent>
+            {props.renderPlayerElement(position, awaited)}
+          </CardContent>
+        </Box>
+      </Card>
+    );
+  }
+
   return (
-    <table className={GameLayoutClass}>
-      <tbody>
-        <tr>
-          <Cell />
-          <PlayerCell>
-            {props.renderPlayerElement(positionsInOrder[0])}
-          </PlayerCell>
-          <Cell />
-        </tr>
-        <tr>
-          <PlayerCell>
-            {props.renderPlayerElement(positionsInOrder[1])}
-          </PlayerCell>
-          <CenterCell>{props.tableCenterElement}</CenterCell>
-          <PlayerCell>
-            {props.renderPlayerElement(positionsInOrder[2])}
-          </PlayerCell>
-        </tr>
-        <tr>
-          <Cell />
-          <PlayerCell>
-            {props.renderPlayerElement(positionsInOrder[3])}
-          </PlayerCell>
-          <Cell />
-        </tr>
-      </tbody>
-    </table>
+    <Container maxWidth="md">
+      <div className={GameLayoutClass}>
+        <Grid container spacing={2}>
+          {/* top row */}
+          <Spacer />
+          <Player>{renderPlayerAtIndex(0)}</Player>
+          <Spacer />
+
+          {/* middle row */}
+          <Player>{renderPlayerAtIndex(1)}</Player>
+          <Hidden xsDown>
+            <Center>{props.tableCenterElement}</Center>
+          </Hidden>
+          <Player>{renderPlayerAtIndex(2)}</Player>
+
+          {/* bottom row */}
+          <Spacer />
+          <Player>{renderPlayerAtIndex(3)}</Player>
+          <Spacer />
+
+          {/* on xs devices, display the center below the grid */}
+          <Hidden smUp>
+            <Grid item xs={12}>
+              {props.tableCenterElement}
+            </Grid>
+          </Hidden>
+        </Grid>
+      </div>
+    </Container>
   );
 }
 
-function Cell(props: React.PropsWithChildren<unknown>) {
-  return <td style={{ width: '30%', padding: 20 }}>{props.children}</td>;
+function Spacer() {
+  return <Grid item xs={3} sm={4} />;
 }
 
-function CenterCell(props: React.PropsWithChildren<unknown>) {
+function Player(props: React.PropsWithChildren<unknown>) {
   return (
-    <Cell>
-      <div className={CenterCellClass}>{props.children}</div>
-    </Cell>
+    <Grid item xs={6} sm={4}>
+      {props.children}
+    </Grid>
   );
 }
 
-function PlayerCell(props: React.PropsWithChildren<unknown>) {
+function Center(props: React.PropsWithChildren<unknown>) {
   return (
-    <Cell>
-      <div className={PlayerCellClass}>{props.children}</div>
-    </Cell>
+    <Grid item xs={12} sm={4}>
+      {props.children}
+    </Grid>
   );
 }
 
 const GameLayoutClass = cssClass('GameLayout', {
-  width: '100vw',
   textAlign: 'left',
-});
-
-const PlayerCellClass = cssClass('PlayerCell', {
-  border: '2px solid',
-  padding: 10,
-  height: 100,
-});
-
-const CenterCellClass = cssClass('CenterCell', {
-  textAlign: 'center',
 });

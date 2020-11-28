@@ -1,5 +1,5 @@
 import { useMachine } from '@xstate/react';
-import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
+import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { GameStateMachine } from '../gameLogic/stateMachine/GameStateMachine';
 import { GameDisplay } from '../gameScreens/GameDisplay';
 
@@ -24,7 +24,7 @@ export function LocalGame() {
   );
 }
 
-const DummyGameConfig: PublicGameConfig = {
+const DummyGameConfig: InProgressGameConfig = {
   gameStatus: 'inProgress',
   playerFriendlyNames: {
     north: 'Nancy',

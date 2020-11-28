@@ -1,13 +1,15 @@
+import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 import FlexView from 'react-flexview/lib';
+import { Bid } from '../../../functions/apiContract/database/GameState';
 import {
   BiddingContext,
   BiddingEvent,
-  BiddingState,
+  BiddingState
 } from '../gameLogic/stateMachine/BiddingStateTypes';
 import {
   ScopedGameDisplayProps,
-  UnscopedGameDisplayProps,
+  UnscopedGameDisplayProps
 } from './GameDisplay';
 import { GameLayout } from './GameLayout';
 
@@ -27,11 +29,12 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
   return (
     <GameLayout
       seatedAt={props.seatedAt}
+      awaitedPosition={props.machineContext.awaitedPlayer}
       renderPlayerElement={(position) => (
-        <FlexView column>
-          <div>{props.gameConfig.playerFriendlyNames[position]}</div>
-          <div>{bids[position]}</div>
-        </FlexView>
+        <PlayerBid
+          playerName={props.gameConfig.playerFriendlyNames[position]}
+          bid={bids[position]}
+        />
       )}
       tableCenterElement={
         <FlexView column>
@@ -82,5 +85,21 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
         </FlexView>
       }
     />
+  );
+}
+
+function PlayerBid(props: { playerName: string; bid: Bid }) {
+  const translatedBid =
+    props.bid === 'pass' ? 'Pass' : props.bid === null ? '\u00a0' : props.bid;
+
+  return (
+    <>
+      <Typography variant="h6" align="center">
+        {props.playerName}
+      </Typography>
+      <Typography variant="h4" align="center">
+        {translatedBid}
+      </Typography>
+    </>
   );
 }

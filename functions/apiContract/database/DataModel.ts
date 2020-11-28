@@ -32,13 +32,15 @@ export type PublicGameConfig = {
    * entry
    */
   gameStatus: GameStatus;
-  playerFriendlyNames: PlayerFriendlyNames;
+  playerFriendlyNames: Record<Position, string | null>;
 };
 
 /** The status of the game, as stored in the game config */
 export type GameStatus = 'waitingToStart' | 'inProgress' | 'finished';
 
-export type PlayerFriendlyNames = Record<Position, string | null>;
+export type InProgressGameConfig = PublicGameConfig & {
+  playerFriendlyNames: Record<Position, string>;
+};
 
 /**
  * Player identities list the user IDs for each player in the game, and are thus private to the

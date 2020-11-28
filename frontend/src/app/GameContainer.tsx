@@ -8,6 +8,7 @@ import {
 } from '../uiHelpers/LocalStorageClient';
 import { PlayGame } from './PlayGame';
 import { useObservedState } from '../uiHelpers/useObservedState';
+import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 
 export type GameContainerProps = {
   gameId: string;
@@ -59,7 +60,7 @@ export function GameContainer(props: GameContainerProps) {
     return (
       <PlayGame
         gameId={props.gameId}
-        gameConfig={gameConfig}
+        gameConfig={gameConfig as InProgressGameConfig}
         seatedAt={seatedAt}
         playerId={playerId}
       />

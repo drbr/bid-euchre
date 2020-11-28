@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { EventObject, State } from 'xstate';
-import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
+import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import {
   GameContext,
@@ -24,7 +24,7 @@ export type ScopedGameDisplayProps<
 };
 
 export type UnscopedGameDisplayProps = {
-  gameConfig: PublicGameConfig;
+  gameConfig: InProgressGameConfig;
   seatedAt: Position | null;
 };
 

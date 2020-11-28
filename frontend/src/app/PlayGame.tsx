@@ -1,7 +1,7 @@
 import { AnyEventObject } from 'xstate';
 import {
+  InProgressGameConfig,
   PlayerPrivateGameState,
-  PublicGameConfig,
 } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { sendGameEvent } from '../firebase/CloudFunctionsClient';
@@ -14,7 +14,7 @@ import { Subscription, useObservedState } from '../uiHelpers/useObservedState';
 export type PlayGameProps = {
   gameId: string;
   playerId: string | null;
-  gameConfig: PublicGameConfig;
+  gameConfig: InProgressGameConfig;
   seatedAt: Position | null;
 };
 

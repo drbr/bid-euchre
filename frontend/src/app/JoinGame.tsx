@@ -3,10 +3,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { useState } from 'react';
 import FlexView from 'react-flexview';
-import {
-  PlayerFriendlyNames,
-  PublicGameConfig,
-} from '../../../functions/apiContract/database/DataModel';
+import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from '../gameScreens/GameLayout';
 import { joinGame } from '../firebase/CloudFunctionsClient';
@@ -120,7 +117,7 @@ async function joinGameAtPosition(args: {
 
 function isNameValid(
   name: string,
-  playerFriendlyNames: PlayerFriendlyNames
+  playerFriendlyNames: PublicGameConfig['playerFriendlyNames']
 ): boolean {
   if (name === '') {
     return false;

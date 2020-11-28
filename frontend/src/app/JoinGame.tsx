@@ -14,6 +14,7 @@ import {
   PlayerInfoStorage,
   storePlayerInfoForGame,
 } from '../uiHelpers/LocalStorageClient';
+import { UIActions } from '../uiHelpers/UIActions';
 
 export type JoinGameProps = {
   gameId: string;
@@ -111,8 +112,9 @@ async function joinGameAtPosition(args: {
     storePlayerInfoForGame(joinGameResult);
     setPlayerInfoFromStorage(joinGameResult);
   } catch (e) {
-    // TODO: Change this to an element from the UI library
-    alert(`Could not join game. Please try again.`);
+    UIActions.showErrorAlert(e, {
+      message: 'Could not join game. See log for details.',
+    });
   }
 }
 

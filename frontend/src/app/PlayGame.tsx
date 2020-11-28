@@ -12,6 +12,7 @@ import { AllContext } from '../gameLogic/stateMachine/GameStateMachine';
 import { GameState } from '../gameLogic/stateMachine/GameStateTypes';
 import { Subscription, useObservedState } from '../uiHelpers/useObservedState';
 import { GameLayout } from '../gameScreens/GameLayout';
+import { UIActions } from '../uiHelpers/UIActions';
 
 export type PlayGameProps = {
   gameId: string;
@@ -34,13 +35,19 @@ export function PlayGame(props: PlayGameProps) {
     privateGameStateSubscription
   );
 
-  function sendEventToStateMachine(event: AnyEventObject) {
-    void sendGameEvent({
-      event,
-      existingEventCount: (gameState as GameState).context.eventCount,
-      gameId,
-      playerId,
-    });
+  async function sendEventToStateMachine(event: AnyEventObject) {
+    try {
+      await sendGameEvent({
+        event,
+        existingEventCount: (gameState as GameState).context.eventCount,
+        gameId,
+        playerId,
+      });
+    } catch (e) {
+      UIActions.showErrorAlert(e, {
+        message: 'Could not send game event. See log for details.',
+      });
+    }
   }
 
   /* Add stuff to the window for debugging */

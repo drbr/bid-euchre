@@ -11,9 +11,9 @@ export type GameContext = {
 export type GameMeta = unknown;
 
 export type GameStatesGeneric<T> = {
-  setup: T;
-  gotBidFromSetup: T;
+  entry: T;
   round: T;
+  gameComplete: T;
 };
 
 export type GameStateNames = keyof GameStatesGeneric<unknown>;
@@ -27,7 +27,7 @@ export type GameStateSchema = {
   };
 };
 
-export type GameEvent = { type: 'NEXT' };
+export type GameEvent = { type: never };
 
 export type GameState = State<
   GameContext,

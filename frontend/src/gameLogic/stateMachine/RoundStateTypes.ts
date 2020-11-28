@@ -17,7 +17,7 @@ export type RoundContext = {
 export type RoundMeta = unknown;
 
 export type RoundStatesGeneric<T> = {
-  dealHands: T;
+  waitForDeal: T;
   bidding: T;
   checkWinningBidder: T;
   nameTrump: T;
@@ -32,7 +32,9 @@ export type RoundStateSchema = {
   states: RoundStatesGeneric<TypedStateSchema<RoundMeta, RoundContext>>;
 };
 
-export type RoundEvent = { type: 'NEXT' };
+export type RoundEvent =
+  | { type: 'NEXT' }
+  | { type: 'ASSIGN_HANDS'; hands: Record<Position, Hand> };
 
 export type RoundState = State<
   RoundContext,

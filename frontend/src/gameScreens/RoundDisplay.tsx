@@ -37,7 +37,7 @@ export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
         <BiddingDisplay {...((props as unknown) as BiddingDisplayProps)} />
       );
     case 'checkWinningBidder':
-    case 'dealHands':
+    case 'waitForDeal':
     case 'roundComplete':
     case 'scoring':
     case 'thePlay':

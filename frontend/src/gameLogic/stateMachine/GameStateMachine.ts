@@ -23,7 +23,7 @@ const initialGameContext: GameContext = {
 
 const GameActions: ActionFunctionMap<GameContext, GameEvent> = {
   addEventToContext: assign({
-    eventCount: (context, event) => context.eventCount + 1,
+    eventCount: (context) => context.eventCount + 1,
   }),
 };
 
@@ -40,20 +40,19 @@ export const GameStateMachine = Machine<
     states: {
       runGame: {
         id: 'runGame',
-        initial: 'setup',
+        initial: 'entry',
         states: {
-          setup: {
-            on: { NEXT: 'round' },
+          entry: {
+            always: { target: 'round' },
           },
-          gotBidFromSetup: {},
           round: {
-            on: { NEXT: 'round' },
             ...(RoundStates as StateNodeConfig<
               GameContext,
               TypedStateSchema<GameMeta, RoundContext>,
               GameEvent
             >),
           },
+          gameComplete: { type: 'final' },
         },
       },
       recordEvents: {

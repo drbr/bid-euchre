@@ -47,8 +47,8 @@ export function GameDisplay(props: GameDisplayProps): JSX.Element {
   switch (substate) {
     case 'round':
       return <RoundDisplay {...((props as unknown) as RoundDisplayProps)} />;
-    case 'setup':
-    case 'gotBidFromSetup':
+    case 'entry':
+    case 'gameComplete':
       return <TransientState substateName={substate} />;
     default:
       assertUnreachable(substate);

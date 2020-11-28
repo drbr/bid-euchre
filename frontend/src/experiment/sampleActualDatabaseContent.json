@@ -1,6 +1,6 @@
 {
   "gameMachineStateJson": {
-    "7690-emkfv": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":\"setup\",\"recordEvents\":{}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false}"
+    "7690-emkfv": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":\"entry\",\"recordEvents\":{}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false}"
   },
   "playerIdentities": {
     "7690-emkfv": {
@@ -22,7 +22,7 @@
         "hand": "placeholder"
       },
       "iPoJTUh_SY3wNX23pKYTs": {
-      "hand": "placeholder"
+        "hand": "placeholder"
       }
     }
   },

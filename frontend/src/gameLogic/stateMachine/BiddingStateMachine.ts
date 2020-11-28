@@ -25,10 +25,11 @@ export const BiddingStates: StateNodeConfig<
       on: {
         PLAYER_BID: {
           target: 'checkIfBiddingIsComplete',
+          cond: wasBidMadeByAwaitedPlayer,
           actions: assign({
             bids: (context, event) => ({
               ...context.bids,
-              [context.awaitedPlayer]: event.bid,
+              [event.position]: event.bid,
             }),
           }),
         },
@@ -58,6 +59,13 @@ export const BiddingStates: StateNodeConfig<
     },
   },
 };
+
+function wasBidMadeByAwaitedPlayer(
+  context: BiddingContext,
+  event: BiddingEvent
+): boolean {
+  return event.position === context.awaitedPlayer;
+}
 
 function haveAllBidsBeenMade(context: BiddingContext): boolean {
   return _.every(context.bids, (bid) => bid !== null);

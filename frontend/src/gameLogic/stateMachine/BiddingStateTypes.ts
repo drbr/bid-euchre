@@ -12,12 +12,14 @@ export type BiddingContext = {
 
 export type BiddingMeta = unknown;
 
+export type BiddingStatesGeneric<T> = {
+  waitForPlayerToBid: T;
+  checkIfBiddingIsComplete: T;
+  biddingComplete: T;
+};
+
 export type BiddingStateSchema = {
-  states: {
-    waitForPlayerToBid: TypedStateSchema<BiddingMeta, BiddingContext>;
-    checkIfBiddingIsComplete: TypedStateSchema<BiddingMeta, BiddingContext>;
-    biddingComplete: TypedStateSchema<BiddingMeta, BiddingContext>;
-  };
+  states: BiddingStatesGeneric<TypedStateSchema<BiddingMeta, BiddingContext>>;
 };
 
 export type BiddingEvent =

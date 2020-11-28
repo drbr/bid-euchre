@@ -15,16 +15,18 @@ export type RoundContext = {
 
 export type RoundMeta = unknown;
 
+export type RoundStatesGeneric<T> = {
+  dealHands: T;
+  bidding: T;
+  checkWinningBidder: T;
+  nameTrump: T;
+  thePlay: T;
+  scoring: T;
+  roundComplete: T;
+};
+
 export type RoundStateSchema = {
-  states: {
-    dealHands: TypedStateSchema<unknown, RoundContext>;
-    bidding: TypedStateSchema<unknown, RoundContext>;
-    checkWinningBidder: TypedStateSchema<unknown, RoundContext>;
-    nameTrump: TypedStateSchema<unknown, RoundContext>;
-    thePlay: TypedStateSchema<unknown, RoundContext>;
-    scoring: TypedStateSchema<unknown, RoundContext>;
-    roundComplete: TypedStateSchema<unknown, RoundContext>;
-  };
+  states: RoundStatesGeneric<TypedStateSchema<RoundMeta, RoundContext>>;
 };
 
 export type RoundEvent = { type: 'NEXT' };

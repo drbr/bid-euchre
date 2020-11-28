@@ -10,14 +10,16 @@ export type GameContext = {
 
 export type GameMeta = unknown;
 
+export type GameStatesGeneric<T> = {
+  setup: T;
+  gotBidFromSetup: T;
+  round: T;
+};
+
 export type GameStateSchema = {
   states: {
     runGame: {
-      states: {
-        setup: TypedStateSchema<GameMeta, GameContext>;
-        gotBidFromSetup: TypedStateSchema<GameMeta, GameContext>;
-        round: TypedStateSchema<GameMeta, GameContext>;
-      };
+      states: GameStatesGeneric<TypedStateSchema<GameMeta, GameContext>>;
     };
     recordEvents: TypedStateSchema<GameMeta, GameContext>;
   };

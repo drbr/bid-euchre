@@ -13,7 +13,7 @@ import { firebaseDatabase } from './FirebaseWebClientInFrontend';
 
 export type GameIdParams = { gameId: string };
 
-function subscribeToDatabase<D, T>(
+function subscribeToDatabaseNode<D, T>(
   path: string,
   callback: (data: T | null) => void,
   mapper: (value: D | null | undefined) => T | null
@@ -30,14 +30,14 @@ export const subscribeToEntireDatabase: Subscription<
   Record<string, unknown>,
   unknown
 > = (_, callback) => {
-  return subscribeToDatabase(`/`, callback, (x) => x);
+  return subscribeToDatabaseNode(`/`, callback, (x) => x);
 };
 
 export const subscribeToPublicGameConfig: Subscription<
   GameIdParams,
   PublicGameConfig
 > = ({ gameId }, callback) => {
-  return subscribeToDatabase(
+  return subscribeToDatabaseNode(
     `/publicGameConfig/${gameId}`,
     callback,
     mapGameConfigFromDatabase
@@ -48,7 +48,7 @@ export const subscribeToGameMachineState: Subscription<
   GameIdParams,
   GameState
 > = ({ gameId }, callback) => {
-  return subscribeToDatabase(
+  return subscribeToDatabaseNode(
     `/gameMachineStateJson/${gameId}`,
     callback,
     mapGameMachineStateFromDatabase
@@ -59,7 +59,7 @@ export const subscribeToPrivateGameState: Subscription<
   { gameId: string; playerId: string },
   PlayerPrivateGameState
 > = ({ gameId, playerId }, callback) => {
-  return subscribeToDatabase(
+  return subscribeToDatabaseNode(
     `/playerPrivateGameState/${gameId}/${playerId}`,
     callback,
     mapPrivateGameStateFromDatabase

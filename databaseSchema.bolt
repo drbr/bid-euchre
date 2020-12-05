@@ -6,6 +6,7 @@
  */
 
 path / {
+  read() { true } /* REMOVE THIS WHEN GAME IS READY FOR DEPLOYMENT */
   write() { false }
 }
 

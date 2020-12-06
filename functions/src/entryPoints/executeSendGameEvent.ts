@@ -66,6 +66,7 @@ function assertEventsAreInSync(
   eventCountA: number | null,
   eventCountB: number | null
 ) {
+  functions.logger.debug('ASSERTING EVENT COUNTS');
   if (eventCountA === null || eventCountB === null) {
     throw new Error(
       'Event counts in existing states are null, this should never happen!'
@@ -99,7 +100,7 @@ async function runStateMachineAndTransactionallyStoreResult(
     currentState && currentState.hydratedState.context.eventCount;
   assertEventsAreInSync(eventCountFromDatabase, eventCountFromClient);
 
-  let nextState = currentState;
+  let nextState = currentState.hydratedState;
   try {
     nextState = await transitionStateMachineWithInterpreter(
       currentState,
@@ -122,7 +123,7 @@ async function runStateMachineAndTransactionallyStoreResult(
         current && current.hydratedState.context.eventCount;
       assertEventsAreInSync(eventCountFromDatabase, newEventCountFromDatabase);
 
-      return nextState.hydratedState;
+      return nextState;
     },
   });
 }

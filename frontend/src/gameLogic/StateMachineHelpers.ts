@@ -7,7 +7,6 @@ import {
   GameEvent,
   GameState,
 } from './stateMachine/GameStateTypes';
-import { PrivateActionCompleteEventType } from './stateMachine/SpecialEvents';
 
 export function transitionStateMachine(
   prev: HydratedState<GameState> | null,
@@ -30,18 +29,24 @@ export async function transitionStateMachineWithInterpreter(
   event: GameEvent
 ): Promise<GameState> {
   const deferred = new SimpleDeferred<GameState>();
+  let ignoredInitialStateCallback = false;
 
   const machineService = interpret(GameStateMachine, {
     state: prev?.hydratedState,
   })
     .onTransition((state, event) => {
-      // console.log('In state machine transition listener. New state:');
-      // console.log(state);
-      console.log('In state machine transition listener. Event:');
-      console.log(event);
-      if (event.type === PrivateActionCompleteEventType) {
-        deferred.resolve(state);
+      if (ignoredInitialStateCallback) {
+        console.log('In state machine transition listener. New state:');
+        console.log(state);
+        console.log('In state machine transition listener. Event:');
+        console.log(event);
+
+        const hasAnyOutstandingActivities = _.some(state.activities);
+        if (!hasAnyOutstandingActivities) {
+          deferred.resolve(state);
+        }
       }
+      ignoredInitialStateCallback = true;
     })
     .start();
 

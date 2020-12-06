@@ -7,6 +7,7 @@ import {
   GameEvent,
   GameState,
 } from './stateMachine/GameStateTypes';
+import { PrivateActionCompleteEventType } from './stateMachine/SpecialEvents';
 
 export function transitionStateMachine(
   prev: HydratedState<GameState> | null,
@@ -27,22 +28,33 @@ export function transitionStateMachine(
 export async function transitionStateMachineWithInterpreter(
   prev: HydratedState<GameState> | null,
   event: GameEvent
-): Promise<HydratedState<GameState>> {
-  const deferred = new SimpleDeferred<HydratedState<GameState>>();
+): Promise<GameState> {
+  const deferred = new SimpleDeferred<GameState>();
 
   const machineService = interpret(GameStateMachine, {
     state: prev?.hydratedState,
   })
-    .onTransition((state) => {
-      console.log('In state machine transition listener. New state:');
-      console.log(state);
-      // deferred.resolve(state);
+    .onTransition((state, event) => {
+      // console.log('In state machine transition listener. New state:');
+      // console.log(state);
+      console.log('In state machine transition listener. Event:');
+      console.log(event);
+      if (event.type === PrivateActionCompleteEventType) {
+        deferred.resolve(state);
+      }
     })
     .start();
 
   machineService.send(event);
+  const nextState = await deferred.promise;
 
-  return deferred.promise;
+  // Manually add the previous event count into the state object so the client can verify
+  // that it didn't skip an update. One would think that the event count always increments by 1,
+  // but the machine increments the count by more than 1 for some transitions.
+  nextState.context.previousEventCount =
+    prev?.hydratedState.context.eventCount || null;
+
+  return nextState;
 }
 
 /**

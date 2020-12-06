@@ -4,6 +4,7 @@ import {
   Bid,
   Position,
 } from '../../../../functions/apiContract/database/GameState';
+import { PrivateActionCompleteEvent } from './SpecialEvents';
 import { TypedStateSchema } from './TypedStateInterfaces';
 
 export type RoundContext = {
@@ -17,6 +18,7 @@ export type RoundContext = {
 export type RoundMeta = unknown;
 
 export type RoundStatesGeneric<T> = {
+  entry: T;
   waitForDeal: T;
   bidding: T;
   checkWinningBidder: T;
@@ -35,7 +37,7 @@ export type RoundStateSchema = {
 export type RoundEvent =
   | { type: 'NEXT' }
   | { type: 'ASSIGN_HANDS'; hands: Record<Position, Hand> }
-  | { type: 'DONE_DEAL'; hands: Record<Position, Hand> };
+  | PrivateActionCompleteEvent;
 
 export type RoundState = State<
   RoundContext,

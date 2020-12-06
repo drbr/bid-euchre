@@ -21,11 +21,16 @@ export const RoundStates: StateNodeConfig<
   RoundEvent
 > = {
   key: 'round',
-  initial: 'waitForDeal',
+  initial: 'entry',
   entry: assign({
     currentDealer: (context) => NextPlayer[context.currentDealer] || 'north',
   }),
   states: {
+    entry: {
+      on: {
+        NEXT: { target: 'waitForDeal' },
+      },
+    },
     waitForDeal: {
       // TODO: Dispatch an action that tells the server to send an "assignHands" event so that
       // we have the event for replay purposes. The server needs to send this event because the
@@ -46,16 +51,19 @@ export const RoundStates: StateNodeConfig<
       invoke: {
         id: 'dealHands',
         src: (context, event) => (callback, onReceive) => {
-          callback({ type: 'DONE_DEAL', hands: deal() });
+          callback({ type: 'PRIVATE_ACTION_COMPLETE', hands: deal() });
         },
       },
       on: {
-        DONE_DEAL: {
+        PRIVATE_ACTION_COMPLETE: {
           target: 'bidding',
-          actions: assign({
-            hands: (context, event) => event.hands,
-          }),
         },
+        // DONE_DEAL: {
+        //   target: 'bidding',
+        //   actions: assign({
+        //     hands: (context, event) => event.hands,
+        //   }),
+        // },
       },
       // always: { target: 'bidding' },
     },

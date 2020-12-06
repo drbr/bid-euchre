@@ -2,7 +2,6 @@ import { forEachPosition } from '../../../frontend/src/gameLogic/ModelHelpers';
 import {
   PlayerIdentities,
   PlayerPrivateGameStates,
-  PublicGameConfig,
 } from '../../apiContract/database/DataModel';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { getInitialMachineState } from '../../../frontend/src/gameLogic/StateMachineHelpers';
@@ -10,7 +9,6 @@ import { getInitialMachineState } from '../../../frontend/src/gameLogic/StateMac
 export async function initializeGameStates(props: {
   gameId: string;
   playerIdentities: PlayerIdentities;
-  gameConfig: PublicGameConfig;
 }): Promise<void> {
   const privateGameStates: PlayerPrivateGameStates = {};
   forEachPosition(props.playerIdentities, (playerId) => {

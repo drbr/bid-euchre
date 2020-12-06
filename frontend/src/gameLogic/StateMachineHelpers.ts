@@ -27,8 +27,8 @@ export function transitionStateMachine(
 export async function transitionStateMachineWithInterpreter(
   prev: HydratedState<GameState> | null,
   event: GameEvent
-): Promise<GameState> {
-  const deferred = new SimpleDeferred<GameState>();
+): Promise<HydratedState<GameState>> {
+  const deferred = new SimpleDeferred<HydratedState<GameState>>();
 
   const machineService = interpret(GameStateMachine, {
     state: prev?.hydratedState,

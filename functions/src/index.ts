@@ -3,13 +3,24 @@ import {
   ID_COLLISION_ERROR,
   TRANSACTION_FAILED_ERROR,
 } from './databaseHelpers/CrudHelpers';
-import executeJoinGame from './entryPoints/executeJoinGame';
+import executeJoinGame, {
+  GAME_ALREADY_STARTED_ERROR,
+} from './entryPoints/executeJoinGame';
 import executeNewGame from './entryPoints/executeNewGame';
 import executeSendGameEvent, {
   INVALID_STATE_TRANSITION_ERROR,
   STALE_STATE_ERROR,
   USER_NOT_AUTHORIZED_ERROR,
 } from './entryPoints/executeSendGameEvent';
+
+/** Thrown when the game with the given ID does not exist */
+export class GAME_NOT_FOUND_ERROR {}
+
+/**
+ * Thrown when the game status (from the game config) is not the correct value to accept the
+ * attempted action. For example, if a user tries to join a game that has already started.
+ */
+export class INVALID_GAME_STATUS_ERROR {}
 
 export const newGame = functions.https.onCall(async () => {
   return await executeNewGame();
@@ -24,6 +35,16 @@ export const joinGame = functions.https.onCall(async (data) => {
         'already-exists',
         'A player has already joined the game at that position.'
       );
+    } else if (e instanceof GAME_NOT_FOUND_ERROR) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'A game with the given ID has not been created.'
+      );
+    } else if (e instanceof INVALID_GAME_STATUS_ERROR) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'The game with the given ID has already been started; players can no longer join.'
+      );
     } else {
       throw e;
     }
@@ -37,7 +58,17 @@ export const sendGameEvent = functions.https.onCall(async (data) => {
     functions.logger.debug(
       'Caught exception in HTTPS error handler for SendGameEvent'
     );
-    if (e instanceof USER_NOT_AUTHORIZED_ERROR) {
+    if (e instanceof GAME_NOT_FOUND_ERROR) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'A game with the given ID has not been created.'
+      );
+    } else if (e instanceof INVALID_GAME_STATUS_ERROR) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'The game with the given ID has not started yet.'
+      );
+    } else if (e instanceof USER_NOT_AUTHORIZED_ERROR) {
       throw new functions.https.HttpsError(
         'permission-denied',
         'The player is not authorized to update this game.'

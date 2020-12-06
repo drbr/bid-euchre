@@ -88,11 +88,12 @@ export async function getPlayerIdentities(props: {
 
 export async function getGameMachineStateJson(props: {
   gameId: string;
-}): Promise<string | null> {
+}): Promise<HydratedState<GameState> | null> {
   const snapshot = await firebaseDatabaseAdminClient
     .ref(`/gameMachineStateJson/${props.gameId}`)
     .once('value');
-  return snapshot.val();
+  const json = snapshot.val();
+  return json ? hydrateState(json) : null;
 }
 
 export async function transactionallySetGameMachineStateJson(props: {

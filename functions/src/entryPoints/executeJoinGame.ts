@@ -7,12 +7,21 @@ import {
   JoinGameResult,
 } from '../../apiContract/cloudFunctions/JoinGame';
 import { initializeGameStates } from '../gameLogic/initializeGameStates';
+import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
 
 export default async function executeJoinGame(
   request: JoinGameRequest
 ): Promise<JoinGameResult> {
   const { gameId, position, friendlyName } = request;
   const playerId = generateHardToGuessId();
+
+  const gameConfig = await DAO.getPublicGameConfig({ gameId });
+  if (!gameConfig) {
+    throw new GAME_NOT_FOUND_ERROR();
+  }
+  if (gameConfig.gameStatus !== 'waitingToStart') {
+    throw new INVALID_GAME_STATUS_ERROR();
+  }
 
   await DAO.transactionallyAddPlayerIdentityToGameAtPosition({
     gameId,
@@ -23,11 +32,9 @@ export default async function executeJoinGame(
 
   const playerIdentities = await DAO.getPlayerIdentities({ gameId });
   if (_.size(playerIdentities) === 4 && _.every(playerIdentities)) {
-    const gameConfig = await DAO.getPublicGameConfig({ gameId });
     await initializeGameStates({
       gameId,
       playerIdentities,
-      gameConfig: gameConfig!,
     });
   }
 

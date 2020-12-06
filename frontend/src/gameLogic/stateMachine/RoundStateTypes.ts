@@ -34,7 +34,8 @@ export type RoundStateSchema = {
 
 export type RoundEvent =
   | { type: 'NEXT' }
-  | { type: 'ASSIGN_HANDS'; hands: Record<Position, Hand> };
+  | { type: 'ASSIGN_HANDS'; hands: Record<Position, Hand> }
+  | { type: 'DONE_DEAL'; hands: Record<Position, Hand> };
 
 export type RoundState = State<
   RoundContext,

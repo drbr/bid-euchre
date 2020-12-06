@@ -42,8 +42,22 @@ export const RoundStates: StateNodeConfig<
       //   },
       // },
 
-      entry: assign({ hands: (_, __) => deal() }),
-      always: { target: 'bidding' },
+      // entry: assign({ hands: (_, __) => deal() }),
+      invoke: {
+        id: 'dealHands',
+        src: (context, event) => (callback, onReceive) => {
+          callback({ type: 'DONE_DEAL', hands: deal() });
+        },
+      },
+      on: {
+        DONE_DEAL: {
+          target: 'bidding',
+          actions: assign({
+            hands: (context, event) => event.hands,
+          }),
+        },
+      },
+      // always: { target: 'bidding' },
     },
 
     bidding: {

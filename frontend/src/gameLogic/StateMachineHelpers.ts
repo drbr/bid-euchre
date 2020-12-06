@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
-import { EventObject, State, StateConfig, StateValue } from 'xstate';
+import { EventObject, interpret, State, StateConfig, StateValue } from 'xstate';
+import { SimpleDeferred } from './SimpleDeferred';
 import { GameStateMachine } from './stateMachine/GameStateMachine';
 import {
   GameContext,
@@ -21,6 +22,27 @@ export function transitionStateMachine(
     prev?.hydratedState.context.eventCount || null;
 
   return nextState;
+}
+
+export async function transitionStateMachineWithInterpreter(
+  prev: HydratedState<GameState> | null,
+  event: GameEvent
+): Promise<GameState> {
+  const deferred = new SimpleDeferred<GameState>();
+
+  const machineService = interpret(GameStateMachine, {
+    state: prev?.hydratedState,
+  })
+    .onTransition((state) => {
+      console.log('In state machine transition listener. New state:');
+      console.log(state);
+      // deferred.resolve(state);
+    })
+    .start();
+
+  machineService.send(event);
+
+  return deferred.promise;
 }
 
 /**

@@ -86,6 +86,15 @@ export async function getPlayerIdentities(props: {
   return mapPositionRecordFromDatabase(snapshot.val());
 }
 
+export async function getGameMachineStateJson(props: {
+  gameId: string;
+}): Promise<string | null> {
+  const snapshot = await firebaseDatabaseAdminClient
+    .ref(`/gameMachineStateJson/${props.gameId}`)
+    .once('value');
+  return snapshot.val();
+}
+
 export async function transactionallySetGameMachineStateJson(props: {
   gameId: string;
   transactionUpdate: (

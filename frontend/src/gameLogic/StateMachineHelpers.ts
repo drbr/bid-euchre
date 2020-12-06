@@ -1,15 +1,29 @@
 import * as _ from 'lodash';
-import { EventObject, interpret, State, StateConfig, StateValue } from 'xstate';
+import {
+  EventObject,
+  interpret,
+  State,
+  StateConfig,
+  StateValue,
+  Typestate,
+} from 'xstate';
 import { SimpleDeferred } from './SimpleDeferred';
 import { GameStateMachine } from './stateMachine/GameStateMachine';
 import {
   GameContext,
   GameEvent,
   GameState,
+  GameStateSchema,
 } from './stateMachine/GameStateTypes';
 
+export type HydratedGameState = HydratedState<
+  GameContext,
+  GameEvent,
+  GameStateSchema
+>;
+
 export function transitionStateMachine(
-  prev: HydratedState<GameState> | null,
+  prev: HydratedGameState | null,
   event: GameEvent
 ): GameState {
   const stateObj = prev ? prev.hydratedState : undefined;
@@ -25,14 +39,14 @@ export function transitionStateMachine(
 }
 
 export async function transitionStateMachineWithInterpreter(
-  prev: HydratedState<GameState> | null,
+  prev: HydratedGameState | null,
   event: GameEvent
 ): Promise<GameState> {
   const deferred = new SimpleDeferred<GameState>();
   let ignoredInitialStateCallback = false;
 
   const machineService = interpret(GameStateMachine, {
-    state: prev?.hydratedState,
+    state: prev?.stateConfig,
   })
     .onTransition((state, event) => {
       if (ignoredInitialStateCallback) {
@@ -67,15 +81,18 @@ export async function transitionStateMachineWithInterpreter(
  * because it's too easy to send a parsed object into a place that expects a fully-hydrated state
  * instance.
  */
-export type HydratedState<T> = {
-  hydratedState: T;
+export type HydratedState<C, E extends EventObject, S> = {
+  stateConfig: StateConfig<C, E>;
+  hydratedState: State<C, E, S, Typestate<C>>;
 };
 
-export function hydrateState(stateAsJson: string): HydratedState<GameState> {
-  const parsed: StateConfig<GameContext, GameEvent> = JSON.parse(stateAsJson);
-  const createdState = State.create(parsed);
+export function hydrateState(stateAsJson: string): HydratedGameState {
+  const stateConfig: StateConfig<GameContext, GameEvent> = JSON.parse(
+    stateAsJson
+  );
+  const createdState = State.create(stateConfig);
   const hydratedState = GameStateMachine.resolveState(createdState);
-  return { hydratedState: hydratedState };
+  return { stateConfig, hydratedState };
 }
 
 export function serializeState(state: GameState): string {

@@ -15,8 +15,8 @@ import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot'
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
 import {
   serializeState,
-  HydratedState,
   hydrateState,
+  HydratedGameState,
 } from '../../../frontend/src/gameLogic/StateMachineHelpers';
 import {
   transactionallyCreateChildNode,
@@ -88,7 +88,7 @@ export async function getPlayerIdentities(props: {
 
 export async function getGameMachineStateJson(props: {
   gameId: string;
-}): Promise<HydratedState<GameState> | null> {
+}): Promise<HydratedGameState | null> {
   const snapshot = await firebaseDatabaseAdminClient
     .ref(`/gameMachineStateJson/${props.gameId}`)
     .once('value');
@@ -99,7 +99,7 @@ export async function getGameMachineStateJson(props: {
 export async function transactionallySetGameMachineStateJson(props: {
   gameId: string;
   transactionUpdate: (
-    current: HydratedState<GameState> | null
+    current: HydratedGameState | null
   ) => GameState | undefined;
 }): Promise<void> {
   await transactionallySetNode<string>({

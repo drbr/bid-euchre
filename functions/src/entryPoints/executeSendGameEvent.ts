@@ -61,21 +61,33 @@ export default async function executeSendGameEvent(
  * the same event count. Since we transactionally update the event count
  * and the client never touches the state directly, the two event counts
  * being equal should be sufficient to know that the two states are equal.
+ *
+ * @returns a boolean indicating whether some encountered counts were null.
  */
 function assertEventsAreInSync(
   eventCountA: number | null,
-  eventCountB: number | null
-) {
+  eventCountB: number | null,
+  options?: { throwIfNull: boolean }
+): { countsWereNull: boolean } {
+  const throwIfNull = options ? options.throwIfNull : true;
+
   functions.logger.debug('ASSERTING EVENT COUNTS');
   if (eventCountA === null || eventCountB === null) {
-    throw new Error(
-      'Event counts in existing states are null, this should never happen!'
-    );
+    const message =
+      'Event counts in existing states are null, this should never happen!';
+    if (throwIfNull) {
+      throw new Error(message);
+    } else {
+      functions.logger.warn(message);
+      return { countsWereNull: true };
+    }
   }
   if (eventCountA !== eventCountB) {
     functions.logger.error('Stale state: event count mismatch');
     throw new STALE_STATE_ERROR();
   }
+
+  return { countsWereNull: false };
 }
 
 /**
@@ -113,17 +125,37 @@ async function runStateMachineAndTransactionallyStoreResult(
     throw new INVALID_STATE_TRANSITION_ERROR();
   }
 
+  // Sometimes the transaction update will run twice, for mysterious reasons – the first time,
+  // `current` will be undefined, and then the second time it'll be correct. We want to make sure
+  // the event count is in sync, but if it's "wrong" the first time and okay the second time, that's
+  // fine. So this variable helps keep track of that for error logging.
+  let foundNullEventCountsOnLatestAttempt = false;
+
   await DAO.transactionallySetGameMachineStateJson({
     gameId,
     transactionUpdate: (current) => {
       // Now that we've asynchronously computed the new state, make sure that the state from the
       // database hasn't changed. If it has, there's no way we can recover, so we throw an error
-      // immediately.
+      // immediately. If this is the first of possibly multiple transaction attempts, the `current`
+      // might be null, but in that case, it should try again and we don't care about the first
+      // time.
       const newEventCountFromDatabase =
         current && current.hydratedState.context.eventCount;
-      assertEventsAreInSync(eventCountFromDatabase, newEventCountFromDatabase);
+      foundNullEventCountsOnLatestAttempt = assertEventsAreInSync(
+        eventCountFromDatabase,
+        newEventCountFromDatabase,
+        { throwIfNull: false }
+      ).countsWereNull;
 
       return nextState;
     },
   });
+
+  // If we found null event counts but didn't try again and eventually succeed, _then_ throw the
+  // error.
+  if (foundNullEventCountsOnLatestAttempt) {
+    throw new Error(
+      'Fetched null event counts during database transaction but did not recover!'
+    );
+  }
 }

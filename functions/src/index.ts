@@ -3,9 +3,7 @@ import {
   ID_COLLISION_ERROR,
   TRANSACTION_FAILED_ERROR,
 } from './databaseHelpers/CrudHelpers';
-import executeJoinGame, {
-  GAME_ALREADY_STARTED_ERROR,
-} from './entryPoints/executeJoinGame';
+import executeJoinGame from './entryPoints/executeJoinGame';
 import executeNewGame from './entryPoints/executeNewGame';
 import executeSendGameEvent, {
   INVALID_STATE_TRANSITION_ERROR,

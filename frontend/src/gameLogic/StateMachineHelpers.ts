@@ -39,21 +39,19 @@ export function transitionStateMachine(
 }
 
 export async function transitionStateMachineWithInterpreter(
-  prev: HydratedGameState | null,
+  prev: HydratedGameState,
   event: GameEvent
 ): Promise<GameState> {
   const deferred = new SimpleDeferred<GameState>();
   let ignoredInitialStateCallback = false;
 
-  const machineService = interpret(GameStateMachine, {
-    state: prev?.stateConfig,
-  })
+  const machineService = interpret(GameStateMachine)
     .onTransition((state, event) => {
       if (ignoredInitialStateCallback) {
-        console.log('In state machine transition listener. New state:');
-        console.log(state);
-        console.log('In state machine transition listener. Event:');
-        console.log(event);
+        // console.log('In state machine transition listener. New state:');
+        // console.log(state);
+        // console.log('In state machine transition listener. Event:');
+        // console.log(event);
 
         const hasAnyOutstandingActivities = _.some(state.activities);
         if (!hasAnyOutstandingActivities) {
@@ -62,7 +60,7 @@ export async function transitionStateMachineWithInterpreter(
       }
       ignoredInitialStateCallback = true;
     })
-    .start();
+    .start(prev.hydratedState);
 
   machineService.send(event);
   const nextState = await deferred.promise;

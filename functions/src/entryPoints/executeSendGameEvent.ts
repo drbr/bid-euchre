@@ -71,7 +71,6 @@ function assertEventsAreInSync(
 ): { countsWereNull: boolean } {
   const throwIfNull = options ? options.throwIfNull : true;
 
-  functions.logger.debug('ASSERTING EVENT COUNTS');
   if (eventCountA === null || eventCountB === null) {
     const message =
       'Event counts in existing states are null, this should never happen!';
@@ -82,9 +81,14 @@ function assertEventsAreInSync(
       return { countsWereNull: true };
     }
   }
+
   if (eventCountA !== eventCountB) {
     functions.logger.error('Stale state: event count mismatch');
     throw new STALE_STATE_ERROR();
+  } else {
+    functions.logger.debug(
+      `Event counts match: ${eventCountA} == ${eventCountB}`
+    );
   }
 
   return { countsWereNull: false };

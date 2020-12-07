@@ -1,8 +1,11 @@
 import { Position } from './GameState';
 
 export type DatabaseSchema = {
-  gameMachineStateJson: {
-    [gameId: string]: string;
+  gameMachineState: {
+    [gameId: string]: {
+      fullJson: string;
+      publicJson: string;
+    };
   };
   gameEventsJson: {
     [gameId: string]: string[];

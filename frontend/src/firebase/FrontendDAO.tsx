@@ -44,12 +44,12 @@ export const subscribeToPublicGameConfig: Subscription<
   );
 };
 
-export const subscribeToGameMachineState: Subscription<
+export const subscribeToPublicGameMachineState: Subscription<
   GameIdParams,
   GameState
 > = ({ gameId }, callback) => {
   return subscribeToDatabaseNode(
-    `/gameMachineStateJson/${gameId}`,
+    `/gameMachineState/${gameId}/publicJson`,
     callback,
     mapGameMachineStateFromDatabase
   );

@@ -23,7 +23,7 @@ export function PlayGame(props: PlayGameProps) {
 
   const gameMachineState = useObservedState(
     { gameId },
-    DAO.subscribeToGameMachineState,
+    DAO.subscribeToPublicGameMachineState,
     onGameStateChange
   );
 

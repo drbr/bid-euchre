@@ -1,13 +1,19 @@
 import * as functions from 'firebase-functions';
 import * as _ from 'lodash';
 import { mapPositions } from '../../../frontend/src/gameLogic/ModelHelpers';
-import { GameEvent } from '../../../frontend/src/gameLogic/stateMachine/GameStateTypes';
+import {
+  GameEvent,
+  GameState,
+} from '../../../frontend/src/gameLogic/stateMachine/GameStateTypes';
 import {
   SendGameEventRequest,
   SendGameEventResult,
 } from '../../apiContract/cloudFunctions/SendGameEvent';
 import * as DAO from '../databaseHelpers/BackendDAO';
-import { transitionStateMachineWithInterpreter } from '../../../frontend/src/gameLogic/StateMachineHelpers';
+import {
+  serializeAndSanitizeState,
+  transitionStateMachineWithInterpreter,
+} from '../../../frontend/src/gameLogic/StateMachineHelpers';
 import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
 
 /**
@@ -49,10 +55,17 @@ export default async function executeSendGameEvent(
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
-  await runStateMachineAndTransactionallyStoreResult(request);
+  const nextState = await runStateMachineAndTransactionallyStoreResult(request);
 
-  // Once the state is successfully updated, add the event to the server's private record.
-  await DAO.pushGameEvent({ gameId, event });
+  // Once the state is successfully updated, update the sanitized version of the state,
+  // and push the event to the server's private record.
+  await Promise.all([
+    DAO.setPublicGameMachineStateJson({
+      gameId,
+      machineStateJson: serializeAndSanitizeState(nextState),
+    }),
+    DAO.pushGameEvent({ gameId, event }),
+  ]);
 }
 
 /**
@@ -67,17 +80,16 @@ export default async function executeSendGameEvent(
 function assertEventsAreInSync(
   eventCountA: number | null,
   eventCountB: number | null,
-  options?: { throwIfNull: boolean }
+  options: { throwIfNull: boolean }
 ): { countsWereNull: boolean } {
-  const throwIfNull = options ? options.throwIfNull : true;
+  const { throwIfNull } = options;
 
   if (eventCountA === null || eventCountB === null) {
-    const message =
-      'Event counts in existing states are null, this should never happen!';
     if (throwIfNull) {
-      throw new Error(message);
+      throw new Error(
+        'Event counts in existing states are null, this should never happen!'
+      );
     } else {
-      functions.logger.warn(message);
       return { countsWereNull: true };
     }
   }
@@ -85,10 +97,6 @@ function assertEventsAreInSync(
   if (eventCountA !== eventCountB) {
     functions.logger.error('Stale state: event count mismatch');
     throw new STALE_STATE_ERROR();
-  } else {
-    functions.logger.debug(
-      `Event counts match: ${eventCountA} == ${eventCountB}`
-    );
   }
 
   return { countsWereNull: false };
@@ -105,16 +113,18 @@ function assertEventsAreInSync(
  */
 async function runStateMachineAndTransactionallyStoreResult(
   request: SendGameEventRequest
-) {
+): Promise<GameState> {
   const { gameId, event, existingEventCount: eventCountFromClient } = request;
 
-  const currentState = await DAO.getGameMachineStateJson({ gameId });
+  const currentState = await DAO.getFullGameMachineStateJson({ gameId });
   if (!currentState) {
     throw new Error(`No game state found in database for game ID ${gameId}`);
   }
   const eventCountFromDatabase =
     currentState && currentState.hydratedState.context.eventCount;
-  assertEventsAreInSync(eventCountFromDatabase, eventCountFromClient);
+  assertEventsAreInSync(eventCountFromDatabase, eventCountFromClient, {
+    throwIfNull: true,
+  });
 
   let nextState = currentState.hydratedState;
   try {
@@ -129,20 +139,20 @@ async function runStateMachineAndTransactionallyStoreResult(
     throw new INVALID_STATE_TRANSITION_ERROR();
   }
 
-  // Sometimes the transaction update will run twice, for mysterious reasons – the first time,
-  // `current` will be undefined, and then the second time it'll be correct. We want to make sure
-  // the event count is in sync, but if it's "wrong" the first time and okay the second time, that's
-  // fine. So this variable helps keep track of that for error logging.
+  // Sometimes the transaction update will run multiple times, apparently unnecessarily – the first
+  // time, `current` will be undefined, and then the second time it'll be correct. We want to make
+  // sure the event count is in sync, but if it's "wrong" the first time and okay the second time,
+  // that's fine. So this variable helps keep track of that for error logging.
   let foundNullEventCountsOnLatestAttempt = false;
 
-  await DAO.transactionallySetGameMachineStateJson({
+  await DAO.transactionallySetFullGameMachineStateJson({
     gameId,
     transactionUpdate: (current) => {
       // Now that we've asynchronously computed the new state, make sure that the state from the
-      // database hasn't changed. If it has, there's no way we can recover, so we throw an error
-      // immediately. If this is the first of possibly multiple transaction attempts, the `current`
-      // might be null, but in that case, it should try again and we don't care about the first
-      // time.
+      // database hasn't changed by verifying the event count. If it has changed, there's no way we
+      // can recover, so we throw an error immediately. If this is the first of possibly multiple
+      // transaction attempts, the `current` might be null, but in that case, the transaction will
+      // probably try again and the first iteration is ignored.
       const newEventCountFromDatabase =
         current && current.hydratedState.context.eventCount;
       foundNullEventCountsOnLatestAttempt = assertEventsAreInSync(
@@ -162,4 +172,6 @@ async function runStateMachineAndTransactionallyStoreResult(
       'Fetched null event counts during database transaction but did not recover!'
     );
   }
+
+  return nextState;
 }

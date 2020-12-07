@@ -86,30 +86,39 @@ export async function getPlayerIdentities(props: {
   return mapPositionRecordFromDatabase(snapshot.val());
 }
 
-export async function getGameMachineStateJson(props: {
+export async function getFullGameMachineStateJson(props: {
   gameId: string;
 }): Promise<HydratedGameState | null> {
   const snapshot = await firebaseDatabaseAdminClient
-    .ref(`/gameMachineStateJson/${props.gameId}`)
+    .ref(`/gameMachineState/${props.gameId}/fullJson`)
     .once('value');
   const json = snapshot.val();
   return json ? hydrateState(json) : null;
 }
 
-export async function transactionallySetGameMachineStateJson(props: {
+export async function transactionallySetFullGameMachineStateJson(props: {
   gameId: string;
   transactionUpdate: (
     current: HydratedGameState | null
   ) => GameState | undefined;
 }): Promise<void> {
   await transactionallySetNode<string>({
-    path: `/gameMachineStateJson/${props.gameId}`,
+    path: `/gameMachineState/${props.gameId}/fullJson`,
     transactionUpdate: (currentJson) => {
       const current = currentJson ? hydrateState(currentJson) : null;
       const maybeNewState = props.transactionUpdate(current);
       return maybeNewState ? serializeState(maybeNewState) : undefined;
     },
   });
+}
+
+export async function setPublicGameMachineStateJson(props: {
+  gameId: string;
+  machineStateJson: string;
+}): Promise<void> {
+  return await firebaseDatabaseAdminClient
+    .ref(`/gameMachineState/${props.gameId}/publicJson`)
+    .set(props.machineStateJson);
 }
 
 export async function pushGameEvent(props: {

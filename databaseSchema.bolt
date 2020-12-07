@@ -14,7 +14,15 @@ path /publicGameConfig/{gameId} is PublicGameConfig {
   read() { true }
 }
 
-path /gameMachineStateJson/{gameId} is String {
+// The full contents of the current state of the game's state machine
+path /gameMachineState/{gameId}/fullJson is String {
+  read() { false }
+}
+
+// The contents of the current state of the game's state machine, sanitized of info
+// that may reveal player-private information, but still enough to construct the state on the
+// frontend.
+path /gameMachineState/{gameId}/publicJson is String {
   read() { true }
 }
 

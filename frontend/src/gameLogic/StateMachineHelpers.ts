@@ -97,6 +97,23 @@ export function serializeState(state: GameState): string {
   return JSON.stringify(state);
 }
 
+/**
+ * Certain parts of the state aren't safe fur clients to see, because they might expose extra information.
+ * Clients don't need them in order to create the state on their end, so we whitelist the "safe" fields
+ * for sending to the clients.
+ */
+export function serializeAndSanitizeState(state: GameState): string {
+  const sanitized = _.pick(
+    state,
+    'value',
+    'actions',
+    'event',
+    '_event',
+    'context'
+  );
+  return serializeState(sanitized as GameState);
+}
+
 export function getInitialMachineState(): GameState {
   return GameStateMachine.initialState;
 }

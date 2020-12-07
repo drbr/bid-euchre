@@ -27,7 +27,8 @@ export function mapGameConfigFromDatabase(
 export function mapGameMachineStateFromDatabase(
   original: string | null | undefined
 ): GameState | null {
-  console.log(original);
+  console.debug('Received game state from database:');
+  console.debug(original);
   return original ? hydrateState(original).hydratedState : null;
 }
 

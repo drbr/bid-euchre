@@ -7,7 +7,7 @@ import { GameState } from '../../../frontend/src/gameLogic/euchreStateMachine/Ga
 import {
   GameStatus,
   PlayerIdentities,
-  PlayerPrivateGameStates,
+  PlayerPrivateGameStatesJson,
   PublicGameConfig,
 } from '../../apiContract/database/DataModel';
 import { Position } from '../../apiContract/database/GameState';
@@ -133,9 +133,9 @@ export async function pushGameEvent(props: {
 
 export async function setPlayerPrivateGameStates(props: {
   gameId: string;
-  gameStates: PlayerPrivateGameStates;
+  gameStates: PlayerPrivateGameStatesJson;
 }): Promise<void> {
   return await firebaseDatabaseAdminClient
-    .ref(`/playerPrivateGameState/${props.gameId}`)
+    .ref(`/playerPrivateGameStateJson/${props.gameId}`)
     .set(props.gameStates);
 }

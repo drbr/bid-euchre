@@ -16,8 +16,8 @@ export type DatabaseSchema = {
   playerIdentities: {
     [gameId: string]: PlayerIdentities;
   };
-  playerPrivateGameState: {
-    [gameId: string]: PlayerPrivateGameStates;
+  playerPrivateGameStateJson: {
+    [gameId: string]: PlayerPrivateGameStatesJson;
   };
 };
 
@@ -52,17 +52,15 @@ export type InProgressGameConfig = PublicGameConfig & {
 export type PlayerIdentities = Record<Position, string | null>;
 
 /**
- * This state is private to an individual player; only that player is allowed to read it while the
- * game is in progress. Each player has their own separate instance of this state for each game they
- * are a part of.
+ * This state is private to an individual player; only that player is allowed to read it. Each
+ * player has their own separate instance of this state for each game they are a part of, keyed by
+ * Game ID and Player ID. Since a player knows only their own ID, this is "security by obscurity".
  *
- * This object will be created once the game is fully configured; its creation signifies the start
- * of gameplay.
+ * The JSON object represented here is a partial listing of the secret fields from the State Machine
+ * Context, and should be merged back into the context client-side before use.
+ *
+ * This object will exist during a game's `inProgress` phase.
  */
-export type PlayerPrivateGameState = {
-  hand: 'placeholder';
-};
-
-export type PlayerPrivateGameStates = {
-  [playerId: string]: PlayerPrivateGameState;
+export type PlayerPrivateGameStatesJson = {
+  [playerId: string]: string;
 };

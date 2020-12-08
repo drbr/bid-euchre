@@ -1,13 +1,13 @@
-import {
-  PlayerPrivateGameState,
-  PublicGameConfig,
-} from '../../../functions/apiContract/database/DataModel';
+import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
 import {
   mapGameConfigFromDatabase,
   mapPrivateGameStateFromDatabase,
   mapGameMachineStateFromDatabase,
 } from '../gameLogic/ModelMappers';
-import { GameState } from '../gameLogic/euchreStateMachine/GameStateTypes';
+import {
+  GameContext,
+  GameState,
+} from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { Subscription, UnsubscribeFn } from '../uiHelpers/useObservedState';
 import { firebaseDatabase } from './FirebaseWebClientInFrontend';
 
@@ -15,8 +15,8 @@ export type GameIdParams = { gameId: string };
 
 function subscribeToDatabaseNode<D, T>(
   path: string,
-  callback: (data: T | null) => void,
-  mapper: (value: D | null | undefined) => T | null
+  mapper: (value: D | null | undefined) => T | null,
+  callback: (data: T | null) => void
 ): UnsubscribeFn {
   const ref = firebaseDatabase.ref(path);
   const unsubscribeKey = ref.on('value', (snapshot) => {
@@ -39,8 +39,8 @@ export const subscribeToPublicGameConfig: Subscription<
 > = ({ gameId }, callback) => {
   return subscribeToDatabaseNode(
     `/publicGameConfig/${gameId}`,
-    callback,
-    mapGameConfigFromDatabase
+    mapGameConfigFromDatabase,
+    callback
   );
 };
 
@@ -50,18 +50,18 @@ export const subscribeToPublicGameMachineState: Subscription<
 > = ({ gameId }, callback) => {
   return subscribeToDatabaseNode(
     `/gameMachineState/${gameId}/publicJson`,
-    callback,
-    mapGameMachineStateFromDatabase
+    mapGameMachineStateFromDatabase,
+    callback
   );
 };
 
 export const subscribeToPrivateGameState: Subscription<
   { gameId: string; playerId: string },
-  PlayerPrivateGameState
+  Partial<GameContext>
 > = ({ gameId, playerId }, callback) => {
   return subscribeToDatabaseNode(
-    `/playerPrivateGameState/${gameId}/${playerId}`,
-    callback,
-    mapPrivateGameStateFromDatabase
+    `/playerPrivateGameStateJson/${gameId}/${playerId}`,
+    mapPrivateGameStateFromDatabase,
+    callback
   );
 };

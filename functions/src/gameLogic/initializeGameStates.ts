@@ -3,7 +3,7 @@ import { serializeAndSanitizeState } from '../../../frontend/src/gameLogic/state
 import { forEachPosition } from '../../../frontend/src/gameLogic/utils/ModelHelpers';
 import {
   PlayerIdentities,
-  PlayerPrivateGameStates,
+  PlayerPrivateGameStatesJson,
 } from '../../apiContract/database/DataModel';
 import * as DAO from '../databaseHelpers/BackendDAO';
 
@@ -11,11 +11,10 @@ export async function initializeGameStates(props: {
   gameId: string;
   playerIdentities: PlayerIdentities;
 }): Promise<void> {
-  const privateGameStates: PlayerPrivateGameStates = {};
+  const privateGameStates: PlayerPrivateGameStatesJson = {};
   forEachPosition(props.playerIdentities, (playerId) => {
-    privateGameStates[playerId!] = {
-      hand: 'placeholder',
-    };
+    // TODO: Replace this with the actual censored initial state
+    privateGameStates[playerId!] = JSON.stringify({});
   });
 
   const initialMachineState = getInitialMachineState();

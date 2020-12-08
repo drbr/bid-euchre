@@ -38,7 +38,7 @@ path /playerIdentities/{gameId} is Map<Position, String> {
 
 // Player-private game state can be read only by that player.
 // Since a player knows only their own ID, this is "security by obscurity".
-path /playerPrivateGameState/{gameId}/{playerId} is PlayerPrivateGameState {
+path /playerPrivateGameStateJson/{gameId}/{playerId} is String {
   read() { true }
 }
 
@@ -56,10 +56,6 @@ type GameStatus extends String {
 }
 
 type GameEvents extends String[] {}
-
-type PlayerPrivateGameState {
-  hand: String,
-}
 
 type Position extends String {
   validate() {

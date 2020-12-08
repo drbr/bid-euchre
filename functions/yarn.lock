@@ -801,12 +801,11 @@ deep-is@^0.1.3:
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
   integrity sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=
 
-deepdash@^5.3.2:
+deepdash-es@^5.3.2:
   version "5.3.2"
-  resolved "https://registry.yarnpkg.com/deepdash/-/deepdash-5.3.2.tgz#7ae24fbfa94420b6365ec3384a54d52327481019"
-  integrity sha512-Qm2IUr6GsPJQJNATj2g93VvC6n5raH+WtBQw78LNkgxYmlFLV94/l1NcqlsmuPhJV5+GndIsWcPJ6E69kiFIAg==
+  resolved "https://registry.yarnpkg.com/deepdash-es/-/deepdash-es-5.3.2.tgz#05e7e053c870e21a1088fc724806bf260517dfc4"
+  integrity sha512-XVXrfCQf/kS5ScrkZwDOwa6+T2rcGrgLttKiu8byZSYZYSFcAMAB3J/o4y02WqBkNyv4a+uUDhOPMoZi3Ygfgw==
   dependencies:
-    lodash "^4.17.20"
     lodash-es "^4.17.15"
 
 define-properties@^1.1.3:

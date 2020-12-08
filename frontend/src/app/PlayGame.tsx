@@ -1,12 +1,12 @@
 import { AnyEventObject } from 'xstate';
-import {
-  InProgressGameConfig,
-  PlayerPrivateGameState,
-} from '../../../functions/apiContract/database/DataModel';
+import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { sendGameEvent } from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
-import { GameState } from '../gameLogic/euchreStateMachine/GameStateTypes';
+import {
+  GameContext,
+  GameState,
+} from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { GameDisplay } from '../gameScreens/GameDisplay';
 import { UIActions } from '../uiHelpers/UIActions';
 import { Subscription, useObservedState } from '../uiHelpers/useObservedState';
@@ -98,7 +98,7 @@ function onGameStateChange(prev: GameState, next: GameState) {
 
 const privateGameStateSubscription: Subscription<
   { gameId: string; playerId: string | null },
-  PlayerPrivateGameState
+  Partial<GameContext>
 > = (params, callback) => {
   if (params.playerId) {
     return DAO.subscribeToPrivateGameState(

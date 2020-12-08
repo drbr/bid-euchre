@@ -75,9 +75,13 @@ function samplePrivateContextFor(position: Position) {
     theData: {
       canBeNested: {
         arbitrarily: {
-          private_onlyChild: privateOnlyChildPiece,
+          private_onlyChild: {
+            [position]: privateOnlyChildPiece,
+          },
         },
-        private_sibling: privateSiblingPiece,
+        private_sibling: {
+          [position]: privateSiblingPiece,
+        },
       },
     },
   };

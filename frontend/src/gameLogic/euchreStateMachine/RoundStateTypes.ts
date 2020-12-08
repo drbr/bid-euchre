@@ -4,8 +4,8 @@ import {
   Bid,
   Position,
 } from '../../../../functions/apiContract/database/GameState';
-import { PrivateActionCompleteEvent } from './SpecialEvents';
-import { TypedStateSchema } from './TypedStateInterfaces';
+import { PrivateActionCompleteEvent } from '../stateMachineUtils/SpecialEvents';
+import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type RoundContext = {
   currentDealer: Position;

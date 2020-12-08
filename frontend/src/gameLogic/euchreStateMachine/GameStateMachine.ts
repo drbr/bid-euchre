@@ -8,7 +8,7 @@ import {
 } from './GameStateTypes';
 import { RoundStates } from './RoundStateMachine';
 import { RoundContext } from './RoundStateTypes';
-import { TypedStateSchema } from './TypedStateInterfaces';
+import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type AllContext = GameContext & RoundContext & BiddingContext;
 

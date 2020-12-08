@@ -1,3 +1,3 @@
-import { GameStateMachine } from '../gameLogic/stateMachine/GameStateMachine';
+import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 
 export const freshGame = GameStateMachine.initialState;

@@ -10,7 +10,7 @@ import {
   BiddingEvent,
   BiddingStateSchema,
 } from './BiddingStateTypes';
-import { forEachPosition, NextPlayer } from '../ModelHelpers';
+import { forEachPosition, NextPlayer } from '../utils/ModelHelpers';
 import { RoundContext } from './RoundStateTypes';
 
 export const BiddingStates: StateNodeConfig<

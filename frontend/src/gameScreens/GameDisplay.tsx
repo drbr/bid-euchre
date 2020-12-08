@@ -7,8 +7,8 @@ import {
   GameEvent,
   GameState,
   GameStateNames,
-} from '../gameLogic/stateMachine/GameStateTypes';
-import { getScopedValueString } from '../gameLogic/StateMachineHelpers';
+} from '../gameLogic/euchreStateMachine/GameStateTypes';
+import { getScopedValueString } from '../gameLogic/stateMachineUtils/getScopedValue';
 import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
 import { RoundDisplay, RoundDisplayProps } from './RoundDisplay';
 import { TransientState } from './TransientState';

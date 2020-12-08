@@ -6,7 +6,7 @@ import {
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { sendGameEvent } from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
-import { GameState } from '../gameLogic/stateMachine/GameStateTypes';
+import { GameState } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { GameDisplay } from '../gameScreens/GameDisplay';
 import { UIActions } from '../uiHelpers/UIActions';
 import { Subscription, useObservedState } from '../uiHelpers/useObservedState';

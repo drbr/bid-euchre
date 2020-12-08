@@ -1,5 +1,5 @@
-import { GameStateMachine } from '../gameLogic/stateMachine/GameStateMachine';
-import { GameEvent } from '../gameLogic/stateMachine/GameStateTypes';
+import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
+import { GameEvent } from '../gameLogic/euchreStateMachine/GameStateTypes';
 
 const events: GameEvent[] = [];
 

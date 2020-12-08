@@ -1,6 +1,6 @@
 import { assign, StateNodeConfig } from 'xstate';
 import { deal } from '../deal';
-import { NextPlayer } from '../ModelHelpers';
+import { NextPlayer } from '../utils/ModelHelpers';
 import {
   assignInitialBiddingContext,
   BiddingStates,
@@ -13,7 +13,7 @@ import {
   RoundMeta,
   RoundStateSchema,
 } from './RoundStateTypes';
-import { TypedStateSchema } from './TypedStateInterfaces';
+import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export const RoundStates: StateNodeConfig<
   RoundContext,

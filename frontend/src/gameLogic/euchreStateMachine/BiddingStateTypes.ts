@@ -3,7 +3,7 @@ import {
   Position,
   Bid,
 } from '../../../../functions/apiContract/database/GameState';
-import { TypedStateSchema } from './TypedStateInterfaces';
+import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type BiddingContext = {
   bids: Record<Position, Bid>;

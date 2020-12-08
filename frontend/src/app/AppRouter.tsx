@@ -5,7 +5,7 @@ import { Lobby } from './Lobby';
 import { LocalGame } from './LocalGame';
 import { App } from './App';
 import { GamePathRouteProps } from './paths';
-import { GameStateMachine } from '../gameLogic/stateMachine/GameStateMachine';
+import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import { Experiment } from '../experiment/Experiment';
 import { ExperimentStateMachine } from '../experiment/ExperimentStateMachine';
 

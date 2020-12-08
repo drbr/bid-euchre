@@ -1,10 +1,11 @@
-import { forEachPosition } from '../../../frontend/src/gameLogic/ModelHelpers';
+import { getInitialMachineState } from '../../../frontend/src/gameLogic/stateMachineUtils/getInitialMachineState';
+import { serializeAndSanitizeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { forEachPosition } from '../../../frontend/src/gameLogic/utils/ModelHelpers';
 import {
   PlayerIdentities,
   PlayerPrivateGameStates,
 } from '../../apiContract/database/DataModel';
 import * as DAO from '../databaseHelpers/BackendDAO';
-import { getInitialMachineState, serializeAndSanitizeState } from '../../../frontend/src/gameLogic/StateMachineHelpers';
 
 export async function initializeGameStates(props: {
   gameId: string;

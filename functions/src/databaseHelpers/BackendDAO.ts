@@ -3,7 +3,7 @@ import {
   mapGameConfigFromDatabase,
   mapPositionRecordFromDatabase,
 } from '../../../frontend/src/gameLogic/ModelMappers';
-import { GameState } from '../../../frontend/src/gameLogic/stateMachine/GameStateTypes';
+import { GameState } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import {
   GameStatus,
   PlayerIdentities,
@@ -17,7 +17,7 @@ import {
   serializeState,
   hydrateState,
   HydratedGameState,
-} from '../../../frontend/src/gameLogic/StateMachineHelpers';
+} from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import {
   transactionallyCreateChildNode,
   transactionallySetNode,

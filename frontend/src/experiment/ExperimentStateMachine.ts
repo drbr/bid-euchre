@@ -5,7 +5,7 @@ import {
   Machine,
   ServiceConfig,
 } from 'xstate';
-import { TypedStateSchema } from '../gameLogic/stateMachine/TypedStateInterfaces';
+import { TypedStateSchema } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 export type ExperimentContext = {
   value: number;

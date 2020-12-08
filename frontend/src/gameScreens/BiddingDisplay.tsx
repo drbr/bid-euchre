@@ -8,7 +8,7 @@ import {
   BiddingContext,
   BiddingEvent,
   BiddingState,
-} from '../gameLogic/stateMachine/BiddingStateTypes';
+} from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import {
   ScopedGameDisplayProps,
   UnscopedGameDisplayProps,

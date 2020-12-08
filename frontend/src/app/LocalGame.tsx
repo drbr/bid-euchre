@@ -1,6 +1,6 @@
 import { useMachine } from '@xstate/react';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
-import { GameStateMachine } from '../gameLogic/stateMachine/GameStateMachine';
+import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import { GameDisplay } from '../gameScreens/GameDisplay';
 import * as LocalGameStates from './LocalGameStates';
 

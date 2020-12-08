@@ -1,6 +1,6 @@
 import { State, Typestate } from 'xstate';
 import { Partnership } from '../../../../functions/apiContract/database/GameState';
-import { TypedStateSchema } from './TypedStateInterfaces';
+import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type GameContext = {
   score: Record<Partnership, number>;

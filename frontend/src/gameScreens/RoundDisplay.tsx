@@ -4,8 +4,8 @@ import {
   RoundEvent,
   RoundState,
   RoundStateNames,
-} from '../gameLogic/stateMachine/RoundStateTypes';
-import { getScopedValueString } from '../gameLogic/StateMachineHelpers';
+} from '../gameLogic/euchreStateMachine/RoundStateTypes';
+import { getScopedValueString } from '../gameLogic/stateMachineUtils/getScopedValue';
 import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
 import { BiddingDisplay, BiddingDisplayProps } from './BiddingDisplay';
 import {

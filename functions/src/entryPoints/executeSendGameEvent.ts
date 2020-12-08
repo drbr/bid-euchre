@@ -1,20 +1,18 @@
 import * as functions from 'firebase-functions';
 import * as _ from 'lodash';
-import { mapPositions } from '../../../frontend/src/gameLogic/ModelHelpers';
+import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
 import {
   GameEvent,
   GameState,
-} from '../../../frontend/src/gameLogic/stateMachine/GameStateTypes';
+} from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
+import { serializeAndSanitizeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { transitionStateMachineWithInterpreter } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
+import { mapPositions } from '../../../frontend/src/gameLogic/utils/ModelHelpers';
 import {
   SendGameEventRequest,
   SendGameEventResult,
 } from '../../apiContract/cloudFunctions/SendGameEvent';
 import * as DAO from '../databaseHelpers/BackendDAO';
-import {
-  serializeAndSanitizeState,
-  transitionStateMachineWithInterpreter,
-} from '../../../frontend/src/gameLogic/StateMachineHelpers';
-import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
 
 /**
  * Thrown if the user is not in the game

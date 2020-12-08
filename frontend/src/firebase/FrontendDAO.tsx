@@ -7,7 +7,7 @@ import {
   mapPrivateGameStateFromDatabase,
   mapGameMachineStateFromDatabase,
 } from '../gameLogic/ModelMappers';
-import { GameState } from '../gameLogic/stateMachine/GameStateTypes';
+import { GameState } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { Subscription, UnsubscribeFn } from '../uiHelpers/useObservedState';
 import { firebaseDatabase } from './FirebaseWebClientInFrontend';
 

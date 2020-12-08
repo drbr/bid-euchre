@@ -8,7 +8,7 @@
     "@types/lodash": "^4.14.165",
     "@xstate/inspect": "^0.2.0",
     "@xstate/react": "^1.0.3",
-    "deepdash-es": "^5.3.2",
+    "deepdash": "^5.3.2",
     "firebase": "^8.1.1",
     "lodash": "^4.17.20",
     "react": "^17.0.1",
@@ -16,6 +16,7 @@
     "react-flexview": "^6.0.1",
     "react-scripts": "4.0.0-next.98",
     "tslib": "^2.0.3",
+    "type-fest": "^0.20.2",
     "typestyle": "^2.1.0",
     "web-vitals": "^0.2.4",
     "xstate": "^4.14.0"

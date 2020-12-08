@@ -1,3 +1,4 @@
+import { PartialDeep } from 'type-fest';
 import { PlayerIdentities } from '../../../../functions/apiContract/database/DataModel';
 import _ from '../utils/importDeepdash';
 
@@ -10,7 +11,7 @@ export function extractPrivateGameState<C>(
 ): {
   publicGameStateContext: C;
   privateContexts: {
-    [playerId: string]: Partial<C>;
+    [playerId: string]: PartialDeep<C>;
   };
 } {
   // TODO: Temporary implementation!
@@ -23,7 +24,7 @@ export function extractPrivateGameState<C>(
 // Get one copy of the partial private state, merge it with the public state.
 export function mergePublicAndPrivateStates<C>(
   publicContext: C,
-  privateContext: Partial<C>
+  privateContext: PartialDeep<C>
 ): C {
   return _.merge(publicContext, privateContext);
 }

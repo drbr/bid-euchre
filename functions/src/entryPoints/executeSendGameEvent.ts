@@ -5,9 +5,8 @@ import {
   GameEvent,
   GameState,
 } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
-import { sanitizeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { preparePublicAndPrivateStateForStorage } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { transitionStateMachineWithInterpreter } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
-import { mapPositions } from '../../../frontend/src/gameLogic/utils/ModelHelpers';
 import {
   SendGameEventRequest,
   SendGameEventResult,
@@ -47,20 +46,29 @@ export default async function executeSendGameEvent(
 
   // Make sure that the player is participating in this game.
   const playerIdentities = await DAO.getPlayerIdentities({ gameId });
-  const playerIds = mapPositions(playerIdentities, (pid) => pid);
-  const playerIsPartOfThisGame = _.includes(playerIds, playerId);
+  const playerIsPartOfThisGame = _.includes(playerIdentities, playerId);
   if (!playerIsPartOfThisGame) {
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
   const nextState = await runStateMachineAndTransactionallyStoreResult(request);
 
-  // Once the state is successfully updated, update the sanitized version of the state,
+  // Once the state is successfully updated, update the derived versions of the state,
   // and push the event to the server's private record.
+
+  const {
+    publicStateJson,
+    privateContextsJsonByPlayerId,
+  } = preparePublicAndPrivateStateForStorage(nextState, playerIdentities);
+
   await Promise.all([
     DAO.setPublicGameMachineStateJson({
       gameId,
-      machineStateJson: sanitizeState(nextState),
+      machineStateJson: publicStateJson,
+    }),
+    DAO.setPlayerPrivateGameStates({
+      gameId,
+      gameStates: privateContextsJsonByPlayerId,
     }),
     DAO.pushGameEvent({ gameId, event }),
   ]);
@@ -137,7 +145,7 @@ async function runStateMachineAndTransactionallyStoreResult(
     throw new INVALID_STATE_TRANSITION_ERROR();
   }
 
-  // Sometimes the transaction update will run multiple times, apparently unnecessarily – the first
+  // Sometimes the transaction update will run multiple times, seemingly unnecessarily – the first
   // time, `current` will be undefined, and then the second time it'll be correct. We want to make
   // sure the event count is in sync, but if it's "wrong" the first time and okay the second time,
   // that's fine. So this variable helps keep track of that for error logging.
@@ -163,8 +171,8 @@ async function runStateMachineAndTransactionallyStoreResult(
     },
   });
 
-  // If we found null event counts but didn't try again and eventually succeed, _then_ throw the
-  // error.
+  // If we found null event counts but didn't try again and eventually succeed, _then_ something
+  // is wrong and the error should be thrown.
   if (foundNullEventCountsOnLatestAttempt) {
     throw new Error(
       'Fetched null event counts during database transaction but did not recover!'

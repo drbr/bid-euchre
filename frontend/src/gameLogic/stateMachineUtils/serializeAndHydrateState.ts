@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import { PartialDeep } from 'type-fest';
 import { EventObject, State, StateConfig, Typestate } from 'xstate';
 import { GameStateMachine } from '../euchreStateMachine/GameStateMachine';
 import {
@@ -7,6 +8,7 @@ import {
   GameState,
   GameStateSchema,
 } from '../euchreStateMachine/GameStateTypes';
+import { EventCountContext } from './TypedStateInterfaces';
 
 /**
  * Use a special object to store hydrated state so we can type-safely make sure we're requiring it,
@@ -24,6 +26,13 @@ export type HydratedGameState = HydratedState<
   GameStateSchema
 >;
 
+export type StateWithPartialContext = Omit<
+  ReturnType<typeof sanitizeState>,
+  'context'
+> & {
+  context: PartialDeep<GameContext> & EventCountContext;
+};
+
 export function hydrateState(stateAsJson: string): HydratedGameState {
   const stateConfig: StateConfig<GameContext, GameEvent> = JSON.parse(
     stateAsJson
@@ -33,7 +42,7 @@ export function hydrateState(stateAsJson: string): HydratedGameState {
   return { stateConfig, hydratedState };
 }
 
-export function serializeState(state: GameState): string {
+export function serializeState(state: StateWithPartialContext): string {
   return JSON.stringify(state);
 }
 
@@ -42,14 +51,6 @@ export function serializeState(state: GameState): string {
  * Clients don't need them in order to create the state on their end, so we whitelist the "safe" fields
  * for sending to the clients.
  */
-export function serializeAndSanitizeState(state: GameState): string {
-  const sanitized = _.pick(
-    state,
-    'value',
-    'actions',
-    'event',
-    '_event',
-    'context'
-  );
-  return serializeState(sanitized as GameState);
+export function sanitizeState(state: GameState) {
+  return _.pick(state, 'value', 'actions', 'event', '_event', 'context');
 }

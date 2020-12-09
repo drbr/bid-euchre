@@ -1,5 +1,5 @@
 import { PartialDeep } from 'type-fest';
-import { Position } from '../../../../functions/apiContract/database/GameState';
+import { PlayerIdentities } from '../../../../functions/apiContract/database/DataModel';
 import _ from '../utils/importDeepdash';
 import { forEachPosition } from '../utils/ModelHelpers';
 import { EventCountContext } from './TypedStateInterfaces';
@@ -15,7 +15,7 @@ export type PrivateContexts<C> = {
 // We also need to keep the eventCount/previousEventCount in the private contexts.
 export function extractPrivateGameState<C>(
   gameMachineContext: C & EventCountContext,
-  playerIdsByPosition: Record<Position, string>
+  playerIdsByPosition: PlayerIdentities
 ): {
   publicContext: PartialDeep<C> & EventCountContext;
   privateContextsByPlayerId: PrivateContexts<C>;
@@ -46,7 +46,9 @@ export function extractPrivateGameState<C>(
       ..._.pickDeep(privateContextAllPlayers, position),
       ...eventCounts,
     };
-    privateContextsByPlayerId[playerId] = privateContextOnePlayer;
+    if (playerId) {
+      privateContextsByPlayerId[playerId] = privateContextOnePlayer;
+    }
   });
 
   return {

@@ -5,7 +5,7 @@ import {
   GameEvent,
   GameState,
 } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
-import { serializeAndSanitizeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { sanitizeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { transitionStateMachineWithInterpreter } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import { mapPositions } from '../../../frontend/src/gameLogic/utils/ModelHelpers';
 import {
@@ -60,7 +60,7 @@ export default async function executeSendGameEvent(
   await Promise.all([
     DAO.setPublicGameMachineStateJson({
       gameId,
-      machineStateJson: serializeAndSanitizeState(nextState),
+      machineStateJson: sanitizeState(nextState),
     }),
     DAO.pushGameEvent({ gameId, event }),
   ]);

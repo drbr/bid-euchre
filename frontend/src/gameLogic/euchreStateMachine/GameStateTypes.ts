@@ -1,11 +1,12 @@
 import { State, Typestate } from 'xstate';
 import { Partnership } from '../../../../functions/apiContract/database/GameState';
-import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
+import {
+  EventCountContext,
+  TypedStateSchema,
+} from '../stateMachineUtils/TypedStateInterfaces';
 
-export type GameContext = {
+export type GameContext = EventCountContext & {
   score: Record<Partnership, number>;
-  eventCount: number;
-  previousEventCount: number | null;
 };
 
 export type GameMeta = unknown;

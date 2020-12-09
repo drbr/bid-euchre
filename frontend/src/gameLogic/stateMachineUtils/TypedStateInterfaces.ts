@@ -4,3 +4,12 @@ import { StateSchema } from 'xstate';
 export type TypedStateSchema<TMeta, TC = any> = StateSchema<TC> & {
   meta?: TMeta;
 };
+
+/**
+ * State machine context that includes the event count.
+ * We use this to ensure consistency between the client and server.
+ */
+export type EventCountContext = {
+  eventCount: number;
+  previousEventCount: number | null;
+}

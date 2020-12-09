@@ -133,13 +133,19 @@ const SamplePlayerIdentities: Record<Position, string> = {
 };
 
 describe('extractPrivateGameState', () => {
-  test('should return one copy per player ID, with only the private fields and the event counts', () => {
-    const { publicGameStateContext, privateContexts } = extractPrivateGameState(
+  test('should return the public game state with the private fields removed', () => {
+    const { publicContext: publicGameStateContext } = extractPrivateGameState(
       SampleFullContext,
       SamplePlayerIdentities
     );
 
     expect(publicGameStateContext).toEqual(SamplePublicContext);
+  });
+
+  test('should return one private state per player ID, with only the private fields and the event counts', () => {
+    const {
+      privateContextsByPlayerId: privateContexts,
+    } = extractPrivateGameState(SampleFullContext, SamplePlayerIdentities);
 
     forEachPosition(SamplePlayerIdentities, (playerId, position) => {
       const playerPrivateContext = privateContexts[playerId];

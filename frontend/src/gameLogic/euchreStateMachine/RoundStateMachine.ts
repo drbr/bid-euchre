@@ -14,6 +14,8 @@ import {
   RoundStateSchema,
 } from './RoundStateTypes';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
+import { Position } from '../../../../functions/apiContract/database/GameState';
+import { Hand } from '../../../../functions/apiContract/database/Cards';
 
 export const RoundStates: StateNodeConfig<
   RoundContext,
@@ -51,21 +53,20 @@ export const RoundStates: StateNodeConfig<
       invoke: {
         id: 'dealHands',
         src: (context, event) => (callback, onReceive) => {
-          callback({ type: 'PRIVATE_ACTION_COMPLETE', hands: deal() });
+          callback({ type: 'ASSIGN_HANDS', hands: deal() });
+          callback({ type: 'PRIVATE_ACTION_COMPLETE' });
         },
       },
       on: {
         PRIVATE_ACTION_COMPLETE: {
           target: 'bidding',
         },
-        // DONE_DEAL: {
-        //   target: 'bidding',
-        //   actions: assign({
-        //     hands: (context, event) => event.hands,
-        //   }),
-        // },
+        ASSIGN_HANDS: {
+          actions: assign({
+            private_hands: (context, event) => event.hands,
+          }),
+        },
       },
-      // always: { target: 'bidding' },
     },
 
     bidding: {

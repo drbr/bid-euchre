@@ -9,7 +9,7 @@ import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type RoundContext = {
   currentDealer: Position;
-  hands: Record<Position, Hand>;
+  private_hands: Record<Position, Hand>;
   winningBidder?: Position;
   winningBid?: Bid;
   trump?: Suit;

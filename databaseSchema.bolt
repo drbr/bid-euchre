@@ -11,16 +11,16 @@ path / {
   write() { false }
 }
 
-path /games/{gameId}/gameState/fullJson is String {
+path /games/{gameId}/gameStates/fullJson is String {
   read() { false }
 }
 
-path /games/{gameId}/gameState/publicJson is String {
+path /games/{gameId}/gameStates/publicJson is String {
   read() { true }
 }
 
 // Each player can read their own private state only, as long as they know the player ID.
-path /games/{gameId}/gameState/privateContextsJson/{playerId} is String {
+path /games/{gameId}/gameStates/privateContextsJson/{playerId} is String {
   read() { true }
 }
 
@@ -40,6 +40,7 @@ path /gameEvents/{gameId} is String[] {
 }
 
 type GameConfig {
+  gameId: String,
   gameStatus: GameStatus,
   playerFriendlyNames: Map<Position, String>,
 }

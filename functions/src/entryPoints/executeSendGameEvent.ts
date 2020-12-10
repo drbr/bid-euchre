@@ -11,7 +11,6 @@ import {
   SendGameEventResult,
 } from '../../apiContract/cloudFunctions/SendGameEvent';
 import * as DAO from '../databaseHelpers/BackendDAO';
-import { preparePublicAndPrivateStateForStorage } from '../gameLogic/preparePublicAndPrivateStateForStorage';
 
 /**
  * Thrown if the user is not in the game
@@ -35,43 +34,28 @@ export default async function executeSendGameEvent(
 ): Promise<SendGameEventResult> {
   const { event, gameId, playerId } = request;
 
-  // Make sure the game exists and is underway.
-  const gameConfig = await DAO.getGameConfig({ gameId });
-  if (!gameConfig) {
+  // Make sure the game exists, is underway, and the current player is participating in it.
+  const gameInfo = await DAO.getGameInfo({ gameId });
+  if (!gameInfo) {
     throw new GAME_NOT_FOUND_ERROR();
   }
-  if (gameConfig.gameStatus !== 'inProgress') {
+
+  if (gameInfo.gameConfig.gameStatus !== 'inProgress') {
     throw new INVALID_GAME_STATUS_ERROR();
   }
 
-  // Make sure that the player is participating in this game.
-  const playerIdentities = await DAO.getPlayerIdentities({ gameId });
-  const playerIsPartOfThisGame = _.includes(playerIdentities, playerId);
+  const playerIsPartOfThisGame = _.includes(
+    gameInfo.playerIdentities,
+    playerId
+  );
   if (!playerIsPartOfThisGame) {
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
-  const nextState = await runStateMachineAndTransactionallyStoreResult(request);
+  await runStateMachineAndTransactionallyStoreResult(request, gameInfo);
 
-  // Once the state is successfully updated, update the derived versions of the state,
-  // and push the event to the server's private record.
-
-  const {
-    publicStateJson,
-    privateContextsJsonByPlayerId,
-  } = preparePublicAndPrivateStateForStorage(nextState, playerIdentities);
-
-  await Promise.all([
-    DAO.setPublicGameStateJson({
-      gameId,
-      machineStateJson: publicStateJson,
-    }),
-    DAO.setPrivateGameContextsJson({
-      gameId,
-      gameStates: privateContextsJsonByPlayerId,
-    }),
-    DAO.pushGameEvent({ gameId, event }),
-  ]);
+  // Once the state is successfully updated, push the event to the server's private record.
+  await DAO.pushGameEvent({ gameId, event });
 }
 
 /**

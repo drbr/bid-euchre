@@ -1,45 +1,49 @@
 import { AnyEventObject } from 'xstate';
 import {
-  mapGameConfigFromDatabase,
+  mapGameInfoFromDatabase,
+  mapGameStatesFromDatabase,
   mapPositionRecordFromDatabase,
 } from '../../../frontend/src/gameLogic/ModelMappers';
-import { GameState } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import {
+  AllGameInfo,
+  GameStates,
   GameStatus,
   PlayerIdentities,
-  PrivateGameContextsJson,
-  GameConfig,
 } from '../../apiContract/database/DataModel';
 import { Position } from '../../apiContract/database/GameState';
 import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
 import {
-  serializeState,
-  hydrateState,
-  HydratedGameState,
-} from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
-import {
   transactionallyCreateChildNode,
   transactionallySetNode,
 } from './CrudHelpers';
 
-export async function transactionallyCreateGameConfig(props: {
-  value: GameConfig;
-  generateKey: () => string;
-}): Promise<TypedDataSnapshot<GameConfig>> {
+export async function transactionallyCreateGameInfo(props: {
+  value: AllGameInfo;
+  generateGameId: () => string;
+}): Promise<TypedDataSnapshot<AllGameInfo>> {
   return await transactionallyCreateChildNode({
-    generatePath: () => `/games/${props.generateKey()}/gameConfig`,
+    generatePath: () => `/games/${props.generateGameId()}`,
     value: props.value,
   });
 }
 
-export async function getGameConfig(props: {
+export async function getGameInfo(props: {
   gameId: string;
-}): Promise<GameConfig | null> {
+}): Promise<AllGameInfo | null> {
   const snapshot = await firebaseDatabaseAdminClient
-    .ref(`/games/${props.gameId}/gameConfig`)
+    .ref(`/games/${props.gameId}`)
     .once('value');
-  return mapGameConfigFromDatabase(snapshot.val());
+  return mapGameInfoFromDatabase(snapshot.val());
+}
+
+export async function setGameStatus(props: {
+  gameId: string;
+  gameStatus: GameStatus;
+}): Promise<void> {
+  return await firebaseDatabaseAdminClient
+    .ref(`/games/${props.gameId}/gameConfig/gameStatus`)
+    .set(props.gameStatus);
 }
 
 export async function setPlayerNameAtPosition(props: {
@@ -52,15 +56,6 @@ export async function setPlayerNameAtPosition(props: {
       `/games/${props.gameId}/gameConfig/playerFriendlyNames/${props.position}`
     )
     .set(props.friendlyName);
-}
-
-export async function setGameStatus(props: {
-  gameId: string;
-  gameStatus: GameStatus;
-}): Promise<void> {
-  return await firebaseDatabaseAdminClient
-    .ref(`/games/${props.gameId}/gameConfig/gameStatus`)
-    .set(props.gameStatus);
 }
 
 export async function transactionallyAddPlayerIdentityToGameAtPosition(props: {
@@ -85,39 +80,25 @@ export async function getPlayerIdentities(props: {
   return mapPositionRecordFromDatabase(snapshot.val());
 }
 
-export async function getFullGameStateJson(props: {
+export async function getGameStates(props: {
   gameId: string;
-}): Promise<HydratedGameState | null> {
+}): Promise<GameStates | null> {
   const snapshot = await firebaseDatabaseAdminClient
-    .ref(`/games/${props.gameId}/gameState/fullJson`)
+    .ref(`/games/${props.gameId}/gameStates`)
     .once('value');
-  const json = snapshot.val();
-  return json ? hydrateState(json) : null;
+  return mapGameStatesFromDatabase(snapshot.val());
 }
 
-export async function transactionallySetFullGameStateJson(props: {
+export async function transactionallySetGameStates(props: {
   gameId: string;
   transactionUpdate: (
-    current: HydratedGameState | null
-  ) => GameState | undefined;
+    current: GameStates | null | undefined
+  ) => GameStates | undefined;
 }): Promise<void> {
-  await transactionallySetNode<string>({
-    path: `/games/${props.gameId}/gameState/fullJson`,
-    transactionUpdate: (currentJson) => {
-      const current = currentJson ? hydrateState(currentJson) : null;
-      const maybeNewState = props.transactionUpdate(current);
-      return maybeNewState ? serializeState(maybeNewState) : undefined;
-    },
+  await transactionallySetNode<GameStates>({
+    path: `/games/${props.gameId}/gameStates`,
+    transactionUpdate: props.transactionUpdate,
   });
-}
-
-export async function setPublicGameStateJson(props: {
-  gameId: string;
-  machineStateJson: string;
-}): Promise<void> {
-  return await firebaseDatabaseAdminClient
-    .ref(`/games/${props.gameId}/gameState/publicJson`)
-    .set(props.machineStateJson);
 }
 
 export async function pushGameEvent(props: {
@@ -128,13 +109,4 @@ export async function pushGameEvent(props: {
     .ref(`/gameEvents/${props.gameId}`)
     .push();
   return await newRef.set(JSON.stringify(props.event));
-}
-
-export async function setPrivateGameContextsJson(props: {
-  gameId: string;
-  gameStates: PrivateGameContextsJson;
-}): Promise<void> {
-  return await firebaseDatabaseAdminClient
-    .ref(`/games/${props.gameId}/gameState/privateContextsJson`)
-    .set(props.gameStates);
 }

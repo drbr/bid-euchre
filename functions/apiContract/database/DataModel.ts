@@ -9,12 +9,14 @@ export type DatabaseSchema = {
   };
 };
 
+export type GameStates = {
+  fullJson: string;
+  publicJson: string;
+  privateContextsJson: PrivateGameContextsJson;
+};
+
 export type AllGameInfo = {
-  gameState: {
-    fullJson: string;
-    publicJson: string;
-    privateContextsJson: PrivateGameContextsJson;
-  };
+  gameStates: GameStates;
   gameConfig: GameConfig;
   playerIdentities: PlayerIdentities;
 };

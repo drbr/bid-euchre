@@ -2,7 +2,7 @@ import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import {
   mapGameConfigFromDatabase,
   mapPrivateGameStateFromDatabase,
-  mapGameMachineStateFromDatabase,
+  mapPublicGameStateFromDatabase,
 } from '../gameLogic/ModelMappers';
 import {
   GameContext,
@@ -49,8 +49,8 @@ export const subscribeToPublicGameState: Subscription<
   GameState
 > = ({ gameId }, callback) => {
   return subscribeToDatabaseNode(
-    `/games/${gameId}/gameState/publicJson`,
-    mapGameMachineStateFromDatabase,
+    `/games/${gameId}/gameStates/publicJson`,
+    mapPublicGameStateFromDatabase,
     callback
   );
 };
@@ -60,7 +60,7 @@ export const subscribeToPrivateGameState: Subscription<
   Partial<GameContext>
 > = ({ gameId, playerId }, callback) => {
   return subscribeToDatabaseNode(
-    `/games/${gameId}/gameState/privateContextsJson/${playerId}`,
+    `/games/${gameId}/gameStates/privateContextsJson/${playerId}`,
     mapPrivateGameStateFromDatabase,
     callback
   );

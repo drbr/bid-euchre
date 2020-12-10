@@ -1,4 +1,5 @@
 import { getInitialMachineState } from '../../../frontend/src/gameLogic/stateMachineUtils/getInitialMachineState';
+import { serializeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { PlayerIdentities } from '../../apiContract/database/DataModel';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { preparePublicAndPrivateStateForStorage } from './preparePublicAndPrivateStateForStorage';
@@ -7,28 +8,24 @@ export async function initializeGameStates(props: {
   gameId: string;
   playerIdentities: PlayerIdentities;
 }): Promise<void> {
+  const initialMachineState = getInitialMachineState();
+
   const {
     publicStateJson,
     privateContextsJsonByPlayerId,
   } = preparePublicAndPrivateStateForStorage(
-    getInitialMachineState(),
+    initialMachineState,
     props.playerIdentities
   );
 
-  await Promise.all([
-    DAO.transactionallySetFullGameStateJson({
-      gameId: props.gameId,
-      transactionUpdate: getInitialMachineState,
+  await DAO.transactionallySetGameStates({
+    gameId: props.gameId,
+    transactionUpdate: () => ({
+      fullJson: serializeState(initialMachineState),
+      publicJson: publicStateJson,
+      privateContextsJson: privateContextsJsonByPlayerId,
     }),
-    DAO.setPublicGameStateJson({
-      gameId: props.gameId,
-      machineStateJson: publicStateJson,
-    }),
-    DAO.setPrivateGameContextsJson({
-      gameId: props.gameId,
-      gameStates: privateContextsJsonByPlayerId,
-    }),
-  ]);
+  });
 
   await DAO.setGameStatus({
     gameId: props.gameId,

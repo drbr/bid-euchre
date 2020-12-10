@@ -66,8 +66,6 @@ export function mapGameStatesFromDatabase(
 export function mapPublicGameStateConfigFromDatabase(
   original: string | null | undefined
 ): GameStateConfig | null {
-  console.debug('Received game state from database:');
-  console.debug(original);
   return original ? getStateConfigFromJson(original) : null;
 }
 

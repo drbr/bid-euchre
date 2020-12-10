@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
 import { PartialDeep } from 'type-fest';
 import { AnyEventObject } from 'xstate';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
@@ -37,13 +37,13 @@ export function PlayGameContainer(props: PlayGameContainerProps) {
   const fetchedPublicGameStateConfig = useObservedState(
     { gameId },
     DAO.subscribeToPublicGameStateConfig,
-    (prev, next) => onGameContextFetched(prev.context, next.context)
+    onPublicGameStateFetched
   );
 
   const fetchedPrivateGameContext = useObservedState(
     { gameId, playerId },
     privateGameContextSubscription,
-    onGameContextFetched
+    onPrivateGameContextFetched
   );
 
   const [
@@ -67,7 +67,7 @@ export function PlayGameContainer(props: PlayGameContainerProps) {
   }
 
   return (
-    <PlayGameWithKnownState
+    <PlayGameWithKnownStatePure
       gameId={gameId}
       playerId={playerId}
       gameConfig={props.gameConfig}
@@ -81,7 +81,7 @@ type PlayGameProps = PlayGameContainerProps & {
   gameState: GameState;
 };
 
-export function PlayGameWithKnownState(props: PlayGameProps) {
+function PlayGameWithKnownState(props: PlayGameProps) {
   async function sendEventToStateMachine(event: AnyEventObject) {
     try {
       await sendGameEvent({
@@ -118,14 +118,31 @@ export function PlayGameWithKnownState(props: PlayGameProps) {
   );
 }
 
-function onGameContextFetched(
+const PlayGameWithKnownStatePure = memo(PlayGameWithKnownState);
+
+function onPublicGameStateFetched(
+  prev: GameStateConfig,
+  next: GameStateConfig
+) {
+  return onGameContextFetched(prev.context, next.context, 'public');
+}
+
+function onPrivateGameContextFetched(
   prev: EventCountContext,
   next: EventCountContext
+) {
+  return onGameContextFetched(prev, next, 'private');
+}
+
+function onGameContextFetched(
+  prev: EventCountContext,
+  next: EventCountContext,
+  type: string
 ) {
   const actualPrevCount = prev.eventCount;
   const expectedPrevCount = next.previousEventCount || 0;
   const nextCount = next.eventCount;
-  console.debug('Received new game state context from the database');
+  console.debug(`Received new ${type} context from the database`);
   console.debug(next);
   if (actualPrevCount !== expectedPrevCount) {
     console.warn(

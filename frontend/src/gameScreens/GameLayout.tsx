@@ -81,6 +81,7 @@ export function GameLayout(props: GameLayoutProps) {
           </Hidden>
         </Grid>
       </Box>
+      {props.hand ? <Box mt={3}>{JSON.stringify(props.hand)}</Box> : null}
       <Box mt={3}>{props.userActionElement ?? ''}</Box>
     </Container>
   );

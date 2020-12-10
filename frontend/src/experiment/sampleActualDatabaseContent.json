@@ -1,18 +1,22 @@
 {
-  "playerIdentities": {
+  "games": {
     "test-game": {
-      "east": "IPs1eCrRf580e_DIN6k_-",
-      "north": "KoNT5dsHqZchrK0IicjGG",
-      "south": "ltuYMRVsrTXoZk6iYp6I7"
-    }
-  },
-  "publicGameConfig": {
-    "test-game": {
-      "gameStatus": "waitingToStart",
-      "playerFriendlyNames": {
-        "east": "Eddie",
-        "north": "Nancy",
-        "south": "Susan"
+      "gameStates": {
+        "fullJson": "{}",
+        "publicJson": "{}"
+      },
+      "gameConfig": {
+        "gameStatus": "waitingToStart",
+        "playerFriendlyNames": {
+          "east": "Eddie",
+          "north": "Nancy",
+          "south": "Susan"
+        }
+      },
+      "playerIdentities": {
+        "east": "HwULycbL7LakHBMrNdsXf",
+        "north": "h9ZvMEpzbVWAs0IxcxCOu",
+        "south": "ywL1GBB3sd5872oL86xSf"
       }
     }
   }

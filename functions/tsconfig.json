@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "outDir": "lib",
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
+    "importHelpers": true,
     "target": "es2017"
   },
   "compileOnSave": true,

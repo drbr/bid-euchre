@@ -5,13 +5,13 @@ import {
   GameEvent,
   GameState,
 } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
-import { preparePublicAndPrivateStateForStorage } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { transitionStateMachineWithInterpreter } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import {
   SendGameEventRequest,
   SendGameEventResult,
 } from '../../apiContract/cloudFunctions/SendGameEvent';
 import * as DAO from '../databaseHelpers/BackendDAO';
+import { preparePublicAndPrivateStateForStorage } from '../gameLogic/preparePublicAndPrivateStateForStorage';
 
 /**
  * Thrown if the user is not in the game

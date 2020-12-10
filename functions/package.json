@@ -22,6 +22,7 @@
     "firebase-functions": "^3.11.0",
     "lodash": "^4.17.20",
     "nanoid": "^3.1.18",
+    "tslib": "^2.0.3",
     "type-fest": "^0.20.2",
     "xstate": "^4.14.0"
   },

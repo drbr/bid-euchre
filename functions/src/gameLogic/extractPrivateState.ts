@@ -1,8 +1,8 @@
 import { PartialDeep } from 'type-fest';
-import { PlayerIdentities } from '../../../../functions/apiContract/database/DataModel';
-import _ from '../utils/importDeepdash';
-import { forEachPosition } from '../utils/ModelHelpers';
-import { EventCountContext } from './TypedStateInterfaces';
+import { PlayerIdentities } from '../../apiContract/database/DataModel';
+import _ from './importDeepdash';
+import { forEachPosition } from '../../../frontend/src/gameLogic/utils/ModelHelpers';
+import { EventCountContext } from '../../../frontend/src/gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 export const PRIVATE_PREFIX = /\.?private_/;
 
@@ -25,11 +25,6 @@ export function extractPrivateGameState<C>(
     previousEventCount: gameMachineContext.previousEventCount,
   };
 
-  // First, get the public version by removing the private stuff
-  // Next, get the private "template" by keeping only the private stuff
-  // Finally, turn the template into four actual things by keeping only the leaf node
-  //    for each position
-  // Add the event context back in.
   const publicContext = {
     ..._.omitDeep(gameMachineContext, PRIVATE_PREFIX),
     ...eventCounts,
@@ -42,11 +37,11 @@ export function extractPrivateGameState<C>(
 
   const privateContextsByPlayerId: PrivateContexts<C> = {};
   forEachPosition(playerIdsByPosition, (playerId, position) => {
-    const privateContextOnePlayer = {
-      ..._.pickDeep(privateContextAllPlayers, position),
-      ...eventCounts,
-    };
     if (playerId) {
+      const privateContextOnePlayer = {
+        ..._.pickDeep(privateContextAllPlayers, position),
+        ...eventCounts,
+      };
       privateContextsByPlayerId[playerId] = privateContextOnePlayer;
     }
   });
@@ -55,12 +50,4 @@ export function extractPrivateGameState<C>(
     publicContext,
     privateContextsByPlayerId,
   };
-}
-
-// Get one copy of the partial private state, merge it with the public state.
-export function mergePublicAndPrivateStates<C>(
-  publicContext: PartialDeep<C> & EventCountContext,
-  privateContext: PartialDeep<C> & EventCountContext
-): C {
-  return _.merge(publicContext, privateContext) as C;
 }

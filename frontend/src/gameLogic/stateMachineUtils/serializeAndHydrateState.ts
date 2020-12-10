@@ -1,7 +1,6 @@
 import * as _ from 'lodash';
 import { PartialDeep } from 'type-fest';
 import { EventObject, State, StateConfig, Typestate } from 'xstate';
-import { PlayerIdentities } from '../../../../functions/apiContract/database/DataModel';
 import { GameStateMachine } from '../euchreStateMachine/GameStateMachine';
 import {
   GameContext,
@@ -9,7 +8,6 @@ import {
   GameState,
   GameStateSchema,
 } from '../euchreStateMachine/GameStateTypes';
-import { extractPrivateGameState } from './extractPrivateState';
 import { EventCountContext } from './TypedStateInterfaces';
 
 /**
@@ -53,35 +51,8 @@ export function serializeState(state: StateWithPartialContext): string {
  * Clients don't need them in order to create the state on their end, so we whitelist the "safe" fields
  * for sending to the clients.
  */
-function sanitizeState(state: GameState) {
+export function sanitizeState(state: GameState) {
   return _.pick(state, 'value', 'actions', 'event', '_event', 'context');
 }
 
-/**
- * Sanitizes the state and breaks it apart into "public state" and "private contexts".
- * The JSON objects returned by this method are in formats safe to send to clients.
- *
- * @param state
- * @param playerIdentities
- */
-export function preparePublicAndPrivateStateForStorage(
-  state: GameState,
-  playerIdentities: PlayerIdentities
-) {
-  const sanitizedState = sanitizeState(state);
 
-  const { publicContext, privateContextsByPlayerId } = extractPrivateGameState(
-    state.context,
-    playerIdentities
-  );
-
-  const publicState = { ...sanitizedState, context: publicContext };
-  const publicStateJson = serializeState(publicState);
-
-  const privateContextsJsonByPlayerId = _.mapValues(
-    privateContextsByPlayerId,
-    (context) => JSON.stringify(context)
-  );
-
-  return { publicStateJson, privateContextsJsonByPlayerId };
-}

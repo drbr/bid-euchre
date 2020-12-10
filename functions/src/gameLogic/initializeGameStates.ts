@@ -1,7 +1,7 @@
 import { getInitialMachineState } from '../../../frontend/src/gameLogic/stateMachineUtils/getInitialMachineState';
-import { preparePublicAndPrivateStateForStorage } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { PlayerIdentities } from '../../apiContract/database/DataModel';
 import * as DAO from '../databaseHelpers/BackendDAO';
+import { preparePublicAndPrivateStateForStorage } from './preparePublicAndPrivateStateForStorage';
 
 export async function initializeGameStates(props: {
   gameId: string;

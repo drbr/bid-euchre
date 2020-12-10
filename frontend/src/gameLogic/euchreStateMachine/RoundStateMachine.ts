@@ -14,8 +14,6 @@ import {
   RoundStateSchema,
 } from './RoundStateTypes';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
-import { Position } from '../../../../functions/apiContract/database/GameState';
-import { Hand } from '../../../../functions/apiContract/database/Cards';
 
 export const RoundStates: StateNodeConfig<
   RoundContext,
@@ -58,13 +56,13 @@ export const RoundStates: StateNodeConfig<
         },
       },
       on: {
-        PRIVATE_ACTION_COMPLETE: {
-          target: 'bidding',
-        },
         ASSIGN_HANDS: {
           actions: assign({
             private_hands: (context, event) => event.hands,
           }),
+        },
+        PRIVATE_ACTION_COMPLETE: {
+          target: 'bidding',
         },
       },
     },

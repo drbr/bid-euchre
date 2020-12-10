@@ -1,22 +1,30 @@
 {
   "games": {
     "test-game": {
-      "gameStates": {
-        "fullJson": "{}",
-        "publicJson": "{}"
-      },
       "gameConfig": {
-        "gameStatus": "waitingToStart",
+        "gameStatus": "inProgress",
         "playerFriendlyNames": {
           "east": "Eddie",
           "north": "Nancy",
-          "south": "Susan"
+          "south": "Susan",
+          "west": "West"
         }
+      },
+      "gameStates": {
+        "fullJson": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":{\"round\":\"entry\"},\"recordEvents\":{}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null,\"currentDealer\":\"north\"},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false,\"changed\":true}",
+        "privateContextsJson": {
+          "HwULycbL7LakHBMrNdsXf": "{\"eventCount\":0,\"previousEventCount\":null}",
+          "g_c2S3z-nZ9cFNadOBOu4": "{\"eventCount\":0,\"previousEventCount\":null}",
+          "h9ZvMEpzbVWAs0IxcxCOu": "{\"eventCount\":0,\"previousEventCount\":null}",
+          "ywL1GBB3sd5872oL86xSf": "{\"eventCount\":0,\"previousEventCount\":null}"
+        },
+        "publicJson": "{\"value\":{\"runGame\":{\"round\":\"entry\"},\"recordEvents\":{}},\"actions\":[],\"event\":{\"type\":\"xstate.init\"},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null,\"currentDealer\":\"north\"}}"
       },
       "playerIdentities": {
         "east": "HwULycbL7LakHBMrNdsXf",
         "north": "h9ZvMEpzbVWAs0IxcxCOu",
-        "south": "ywL1GBB3sd5872oL86xSf"
+        "south": "ywL1GBB3sd5872oL86xSf",
+        "west": "g_c2S3z-nZ9cFNadOBOu4"
       }
     }
   }

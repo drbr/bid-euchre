@@ -5,7 +5,7 @@ import { GameStateMachine } from '../euchreStateMachine/GameStateMachine';
 import { GameEvent, GameState } from '../euchreStateMachine/GameStateTypes';
 import { HydratedGameState } from './serializeAndHydrateState';
 
-export async function transitionStateMachineWithInterpreter(
+export async function transitionStateMachine(
   prev: HydratedGameState,
   event: GameEvent
 ): Promise<GameState> {

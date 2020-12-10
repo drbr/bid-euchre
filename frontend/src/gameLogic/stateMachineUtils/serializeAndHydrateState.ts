@@ -33,6 +33,13 @@ export type StateWithPartialContext = Omit<
   context: PartialDeep<GameContext> & EventCountContext;
 };
 
+export function getEventCountFromStateJson(stateAsJson: string): number {
+  const stateConfig: StateConfig<GameContext, GameEvent> = JSON.parse(
+    stateAsJson
+  );
+  return stateConfig.context.eventCount;
+}
+
 export function hydrateState(stateAsJson: string): HydratedGameState {
   const stateConfig: StateConfig<GameContext, GameEvent> = JSON.parse(
     stateAsJson

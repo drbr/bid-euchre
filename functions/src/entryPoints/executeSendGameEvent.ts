@@ -1,16 +1,11 @@
-import * as functions from 'firebase-functions';
 import * as _ from 'lodash';
 import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
-import {
-  GameEvent,
-  GameState,
-} from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
-import { transitionStateMachineWithInterpreter } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import {
   SendGameEventRequest,
   SendGameEventResult,
 } from '../../apiContract/cloudFunctions/SendGameEvent';
 import * as DAO from '../databaseHelpers/BackendDAO';
+import { incrementStateMachineAndTransactionallyStoreResult } from '../gameLogic/incrementAndStoreState';
 
 /**
  * Thrown if the user is not in the game
@@ -52,116 +47,8 @@ export default async function executeSendGameEvent(
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
-  await runStateMachineAndTransactionallyStoreResult(request, gameInfo);
+  await incrementStateMachineAndTransactionallyStoreResult(request, gameInfo);
 
   // Once the state is successfully updated, push the event to the server's private record.
   await DAO.pushGameEvent({ gameId, event });
-}
-
-/**
- * Before applying the event, verify that the current state is in sync
- * between the client and the server, by checking that they both have
- * the same event count. Since we transactionally update the event count
- * and the client never touches the state directly, the two event counts
- * being equal should be sufficient to know that the two states are equal.
- *
- * @returns a boolean indicating whether some encountered counts were null.
- */
-function assertEventsAreInSync(
-  eventCountA: number | null,
-  eventCountB: number | null,
-  options: { throwIfNull: boolean }
-): { countsWereNull: boolean } {
-  const { throwIfNull } = options;
-
-  if (eventCountA === null || eventCountB === null) {
-    if (throwIfNull) {
-      throw new Error(
-        'Event counts in existing states are null, this should never happen!'
-      );
-    } else {
-      return { countsWereNull: true };
-    }
-  }
-
-  if (eventCountA !== eventCountB) {
-    functions.logger.error('Stale state: event count mismatch');
-    throw new STALE_STATE_ERROR();
-  }
-
-  return { countsWereNull: false };
-}
-
-/**
- * The Firebase database does not support asynchronous transaction updaters. Usually it would be a
- * bad idea to even try making the update asynchronously, but because this is a turn-based game, the
- * frequency of updates should be low enough to allow this to work without churn.
- *
- * So, we implement our own custom transaction, which reads the current state, asynchronously runs
- * the state machine to compute the new value, and then writes the new value, as long as the
- * original value did not change in the meantime.
- */
-async function runStateMachineAndTransactionallyStoreResult(
-  request: SendGameEventRequest
-): Promise<GameState> {
-  const { gameId, event, existingEventCount: eventCountFromClient } = request;
-
-  const currentState = await DAO.getFullGameStateJson({ gameId });
-  if (!currentState) {
-    throw new Error(`No game state found in database for game ID ${gameId}`);
-  }
-  const eventCountFromDatabase =
-    currentState && currentState.hydratedState.context.eventCount;
-  assertEventsAreInSync(eventCountFromDatabase, eventCountFromClient, {
-    throwIfNull: true,
-  });
-
-  let nextState = currentState.hydratedState;
-  try {
-    nextState = await transitionStateMachineWithInterpreter(
-      currentState,
-      event as GameEvent
-    );
-  } catch (e) {
-    // The state machine runs in Strict Mode, so an event not enumerated in the state machine should
-    // get caught here.
-    functions.logger.error(e);
-    throw new INVALID_STATE_TRANSITION_ERROR();
-  }
-
-  // Sometimes the transaction update will run multiple times, seemingly unnecessarily – the first
-  // time, `current` will be undefined, and then the second time it'll be correct. We want to make
-  // sure the event count is in sync, but if it's "wrong" the first time and okay the second time,
-  // that's fine. So this variable helps keep track of that for error logging.
-  let foundNullEventCountsOnLatestAttempt = false;
-
-  await DAO.transactionallySetFullGameStateJson({
-    gameId,
-    transactionUpdate: (current) => {
-      // Now that we've asynchronously computed the new state, make sure that the state from the
-      // database hasn't changed by verifying the event count. If it has changed, there's no way we
-      // can recover, so we throw an error immediately. If this is the first of possibly multiple
-      // transaction attempts, the `current` might be null, but in that case, the transaction will
-      // probably try again and the first iteration is ignored.
-      const newEventCountFromDatabase =
-        current && current.hydratedState.context.eventCount;
-      foundNullEventCountsOnLatestAttempt = assertEventsAreInSync(
-        eventCountFromDatabase,
-        newEventCountFromDatabase,
-        { throwIfNull: false }
-      ).countsWereNull;
-
-      return nextState;
-    },
-  });
-
-  // If we found null event counts but didn't try again and eventually succeed, _then_ something
-  // is wrong and the error should be thrown.
-  if (foundNullEventCountsOnLatestAttempt) {
-    throw new Error(
-      'Fetched null event counts during database transaction but did not recover!'
-    );
-  }
-
-  return nextState;
 }

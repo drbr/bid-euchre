@@ -11,10 +11,10 @@ export const SampleFullContext = {
     canBeNested: {
       arbitrarily: {
         private_onlyChild: {
-          north: 'secret data for north',
-          south: 'secret data for south',
-          east: 'secret data for east',
-          west: 'secret data for west',
+          north: ['secret', 'data', 'for', 'north'],
+          south: ['secret', 'data', 'for', 'south'],
+          east: ['secret', 'data', 'for', 'east'],
+          west: ['secret', 'data', 'for', 'west'],
         },
       },
       onlyThingsStartingWithPrivateUnderscoreAreConsideredPrivate: true,
@@ -27,10 +27,10 @@ export const SampleFullContext = {
       },
     },
     otherPositionRecordsAreNotPrivate: {
-      north: 'public data for north',
-      south: 'public data for south',
-      east: 'public data for east',
-      west: 'public data for west',
+      north: ['public', 'data', 'for', 'north'],
+      south: ['public', 'data', 'for', 'south'],
+      east: ['public', 'data', 'for', 'east'],
+      west: ['public', 'data', 'for', 'west'],
     },
   },
 };
@@ -49,10 +49,10 @@ export const SamplePublicContext = {
       allPrivateStateIsAssumedToBeA: 'PositionRecord',
     },
     otherPositionRecordsAreNotPrivate: {
-      north: 'public data for north',
-      south: 'public data for south',
-      east: 'public data for east',
-      west: 'public data for west',
+      north: ['public', 'data', 'for', 'north'],
+      south: ['public', 'data', 'for', 'south'],
+      east: ['public', 'data', 'for', 'east'],
+      west: ['public', 'data', 'for', 'west'],
     },
   },
 };
@@ -121,10 +121,10 @@ export function sampleReconstitutedClientContextFor(position: Position) {
         },
       },
       otherPositionRecordsAreNotPrivate: {
-        north: 'public data for north',
-        south: 'public data for south',
-        east: 'public data for east',
-        west: 'public data for west',
+        north: ['public', 'data', 'for', 'north'],
+        south: ['public', 'data', 'for', 'south'],
+        east: ['public', 'data', 'for', 'east'],
+        west: ['public', 'data', 'for', 'west'],
       },
     },
   };

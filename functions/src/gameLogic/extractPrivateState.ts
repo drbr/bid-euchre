@@ -43,7 +43,9 @@ export function extractPublicAndPrivateGameStateContexts<C>(
   forEachPosition(playerIdsByPosition, (playerId, position) => {
     if (playerId) {
       const privateContextOnePlayer = {
-        ..._.pickDeep(privateContextAllPlayers, position),
+        ..._.pickDeep(privateContextAllPlayers, position, {
+          onMatch: { skipChildren: true, cloneDeep: true },
+        }),
         ...eventCounts,
       };
       privateContextsByPlayerId[playerId] = privateContextOnePlayer;

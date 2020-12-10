@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
+import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
   RoundContext,
   RoundEvent,
-  RoundState,
   RoundStateNames,
 } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { getScopedValueString } from '../gameLogic/stateMachineUtils/getScopedValue';
@@ -15,15 +15,14 @@ import {
 import { TransientState } from './TransientState';
 
 export type RoundDisplayProps = ScopedGameDisplayProps<
-  RoundContext,
-  RoundEvent,
-  RoundState
+  RoundContext & GameContext,
+  RoundEvent
 > &
   UnscopedGameDisplayProps;
 
 export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
   const substate: RoundStateNames = getScopedValueString(
-    props.machineState,
+    props.stateValue,
     'runGame',
     'round'
   );

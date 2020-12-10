@@ -6,6 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import FlexView from 'react-flexview/lib';
+import { Hand } from '../../../functions/apiContract/database/Cards';
 import { Position } from '../../../functions/apiContract/database/GameState';
 
 export type GameLayoutProps = {
@@ -13,6 +14,7 @@ export type GameLayoutProps = {
   awaitedPosition?: Position;
   renderPlayerElement: (position: Position) => React.ReactNode;
   promptMessage?: string;
+  hand?: Hand;
   userActionElement?: React.ReactNode;
 };
 

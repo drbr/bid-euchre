@@ -108,8 +108,8 @@ function PlayGameWithKnownState(props: PlayGameProps) {
         {props.playerId ? null : 'You are a spectator of the current game!'}
       </p>
       <GameDisplay
-        machineState={props.gameState}
-        machineContext={props.gameState.context}
+        stateValue={props.gameState.value}
+        stateContext={props.gameState.context}
         sendGameEvent={sendEventToStateMachine}
         gameConfig={props.gameConfig}
         seatedAt={props.seatedAt}

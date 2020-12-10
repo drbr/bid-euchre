@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { EventObject, State, StateValue } from 'xstate';
+import { StateValue } from 'xstate';
 
 // export type MatcherFn<V extends string> = (stateValue: V) => boolean;
 //
@@ -31,11 +31,11 @@ import { EventObject, State, StateValue } from 'xstate';
  * @param state The original state
  * @param parentValues The values to scope down by
  */
-export function getScopedValue<C, E extends EventObject>(
-  state: State<C, E>,
+export function getScopedValue(
+  stateValue: StateValue,
   ...parentValues: string[]
 ): StateValue {
-  let val = state.value;
+  let val = stateValue;
   for (const p of parentValues) {
     if (typeof val === 'string') {
       throw new Error(
@@ -54,12 +54,11 @@ export function getScopedValue<C, E extends EventObject>(
  * It is assumed that this will NOT be used to stringify a parallel state node, where there would be
  * more than one key on the object.
  */
-export function getScopedValueString<
-  V extends string,
-  C,
-  E extends EventObject
->(state: State<C, E>, ...parentValues: string[]): V {
-  const scopedValue = getScopedValue(state, ...parentValues);
+export function getScopedValueString<V extends string>(
+  stateValue: StateValue,
+  ...parentValues: string[]
+): V {
+  const scopedValue = getScopedValue(stateValue, ...parentValues);
   if (typeof scopedValue === 'string') {
     return scopedValue as V;
   } else {

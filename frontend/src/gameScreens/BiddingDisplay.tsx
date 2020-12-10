@@ -7,8 +7,9 @@ import { Bid } from '../../../functions/apiContract/database/GameState';
 import {
   BiddingContext,
   BiddingEvent,
-  BiddingState,
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
+import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
+import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import {
   ScopedGameDisplayProps,
   UnscopedGameDisplayProps,
@@ -16,23 +17,22 @@ import {
 import { GameLayout, PLACEHOLDER } from './GameLayout';
 
 export type BiddingDisplayProps = ScopedGameDisplayProps<
-  BiddingContext,
-  BiddingEvent,
-  BiddingState
+  BiddingContext & RoundContext & GameContext,
+  BiddingEvent
 > &
   UnscopedGameDisplayProps;
 
 export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
-  const bids = props.machineContext.bids;
+  const bids = props.stateContext.bids;
   if (!bids) {
     throw new Error('Bids is not an object!!!');
   }
 
-  const awaitedPosition = props.machineContext.awaitedPlayer;
+  const awaitedPosition = props.stateContext.awaitedPlayer;
   const awaitedPlayerName =
     props.gameConfig.playerFriendlyNames[awaitedPosition];
   const promptMessage =
-    props.machineContext.awaitedPlayer === props.seatedAt
+    props.stateContext.awaitedPlayer === props.seatedAt
       ? "It's your turn to bid. Choose a bid from the options below."
       : `Waiting for ${awaitedPlayerName} to bid…`;
 
@@ -48,6 +48,11 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
           />
         )}
         promptMessage={promptMessage}
+        hand={
+          props.seatedAt
+            ? props.stateContext.private_hands[props.seatedAt]
+            : undefined
+        }
         userActionElement={
           <FlexView hAlignContent="center" wrap={true}>
             <BidButton value="pass" />

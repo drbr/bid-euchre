@@ -18,8 +18,8 @@ export function LocalGame() {
         server.
       </p>
       <GameDisplay
-        machineState={state}
-        machineContext={state.context}
+        stateValue={state.value}
+        stateContext={state.context}
         sendGameEvent={send}
         gameConfig={DummyGameConfig}
         seatedAt="east"

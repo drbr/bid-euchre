@@ -15,7 +15,7 @@ export default async function executeJoinGame(
   const { gameId, position, friendlyName } = request;
   const playerId = generateHardToGuessId();
 
-  const gameConfig = await DAO.getPublicGameConfig({ gameId });
+  const gameConfig = await DAO.getGameConfig({ gameId });
   if (!gameConfig) {
     throw new GAME_NOT_FOUND_ERROR();
   }

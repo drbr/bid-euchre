@@ -6,7 +6,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import FlexView from 'react-flexview/lib';
 import { useState } from 'react';
-import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
+import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from '../gameScreens/GameLayout';
 import { joinGame } from '../firebase/CloudFunctionsClient';
@@ -20,7 +20,7 @@ const MAX_NAME_LENGTH = 12;
 
 export type JoinGameProps = {
   gameId: string;
-  gameConfig: PublicGameConfig;
+  gameConfig: GameConfig;
   setPlayerInfoFromStorage: (x: PlayerInfoStorage) => void;
   seatedAt: Position | null;
 };
@@ -133,7 +133,7 @@ async function joinGameAtPosition(args: {
 
 function nameInvalidHelperText(
   name: string,
-  playerFriendlyNames: PublicGameConfig['playerFriendlyNames']
+  playerFriendlyNames: GameConfig['playerFriendlyNames']
 ): string | undefined {
   if (name.length > MAX_NAME_LENGTH) {
     return 'The name entered is too long.';

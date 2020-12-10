@@ -21,13 +21,13 @@ export type PlayGameProps = {
 export function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
-  const gameMachineState = useObservedState(
+  const fetchedPublicGameState = useObservedState(
     { gameId },
-    DAO.subscribeToPublicGameMachineState,
+    DAO.subscribeToPublicGameState,
     onGameStateChange
   );
 
-  const privateGameState = useObservedState(
+  const fetchedPrivateGameState = useObservedState(
     { gameId, playerId },
     privateGameStateSubscription
   );
@@ -36,7 +36,8 @@ export function PlayGame(props: PlayGameProps) {
     try {
       await sendGameEvent({
         event,
-        existingEventCount: (gameMachineState as GameState).context.eventCount,
+        existingEventCount: (fetchedPublicGameState as GameState).context
+          .eventCount,
         gameId,
         playerId,
       });
@@ -49,17 +50,18 @@ export function PlayGame(props: PlayGameProps) {
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  (window as any).gameState = gameMachineState;
-  (window as any).privateGameState = privateGameState;
+  (window as any).gameState = fetchedPublicGameState;
+  (window as any).privateGameState = fetchedPrivateGameState;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   if (
-    gameMachineState === 'loading' ||
-    gameMachineState === 'gameNotFound' ||
-    privateGameState === 'loading' ||
-    privateGameState === 'gameNotFound'
+    fetchedPublicGameState === 'loading' ||
+    fetchedPublicGameState === 'gameNotFound' ||
+    (playerId &&
+      (fetchedPrivateGameState === 'loading' ||
+        fetchedPrivateGameState === 'gameNotFound'))
   ) {
-    return <div></div>;
+    return <div>Loading game…</div>;
   }
 
   return (
@@ -68,8 +70,8 @@ export function PlayGame(props: PlayGameProps) {
         {props.playerId ? null : 'You are a spectator of the current game!'}
       </p>
       <GameDisplay
-        machineState={gameMachineState}
-        machineContext={gameMachineState.context}
+        machineState={fetchedPublicGameState}
+        machineContext={fetchedPublicGameState.context}
         sendGameEvent={sendEventToStateMachine}
         gameConfig={props.gameConfig}
         seatedAt={props.seatedAt}

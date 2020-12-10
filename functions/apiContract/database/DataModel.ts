@@ -1,24 +1,22 @@
 import { Position } from './GameState';
 
 export type DatabaseSchema = {
-  gameMachineState: {
-    [gameId: string]: {
-      fullJson: string;
-      publicJson: string;
-    };
+  games: {
+    [gameId: string]: AllGameInfo;
   };
-  gameEventsJson: {
+  gameEvents: {
     [gameId: string]: string[];
   };
-  publicGameConfig: {
-    [gameId: string]: PublicGameConfig;
+};
+
+export type AllGameInfo = {
+  gameState: {
+    fullJson: string;
+    publicJson: string;
+    privateContextsJson: PrivateGameContextsJson;
   };
-  playerIdentities: {
-    [gameId: string]: PlayerIdentities;
-  };
-  playerPrivateGameStateJson: {
-    [gameId: string]: PlayerPrivateGameStatesJson;
-  };
+  gameConfig: GameConfig;
+  playerIdentities: PlayerIdentities;
 };
 
 /**
@@ -29,7 +27,7 @@ export type DatabaseSchema = {
  *
  * This state can be read by anyone (players and observers).
  */
-export type PublicGameConfig = {
+export type GameConfig = {
   /**
    * We need to initialize with at least one non-null value so the database will actually create the
    * entry
@@ -41,7 +39,7 @@ export type PublicGameConfig = {
 /** The status of the game, as stored in the game config */
 export type GameStatus = 'waitingToStart' | 'inProgress' | 'finished';
 
-export type InProgressGameConfig = PublicGameConfig & {
+export type InProgressGameConfig = GameConfig & {
   playerFriendlyNames: Record<Position, string>;
 };
 
@@ -61,6 +59,6 @@ export type PlayerIdentities = Record<Position, string | null>;
  *
  * This object will exist during a game's `inProgress` phase.
  */
-export type PlayerPrivateGameStatesJson = {
+export type PrivateGameContextsJson = {
   [playerId: string]: string;
 };

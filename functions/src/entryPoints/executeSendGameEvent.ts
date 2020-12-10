@@ -36,7 +36,7 @@ export default async function executeSendGameEvent(
   const { event, gameId, playerId } = request;
 
   // Make sure the game exists and is underway.
-  const gameConfig = await DAO.getPublicGameConfig({ gameId });
+  const gameConfig = await DAO.getGameConfig({ gameId });
   if (!gameConfig) {
     throw new GAME_NOT_FOUND_ERROR();
   }
@@ -62,11 +62,11 @@ export default async function executeSendGameEvent(
   } = preparePublicAndPrivateStateForStorage(nextState, playerIdentities);
 
   await Promise.all([
-    DAO.setPublicGameMachineStateJson({
+    DAO.setPublicGameStateJson({
       gameId,
       machineStateJson: publicStateJson,
     }),
-    DAO.setPlayerPrivateGameStates({
+    DAO.setPrivateGameContextsJson({
       gameId,
       gameStates: privateContextsJsonByPlayerId,
     }),
@@ -122,7 +122,7 @@ async function runStateMachineAndTransactionallyStoreResult(
 ): Promise<GameState> {
   const { gameId, event, existingEventCount: eventCountFromClient } = request;
 
-  const currentState = await DAO.getFullGameMachineStateJson({ gameId });
+  const currentState = await DAO.getFullGameStateJson({ gameId });
   if (!currentState) {
     throw new Error(`No game state found in database for game ID ${gameId}`);
   }
@@ -151,7 +151,7 @@ async function runStateMachineAndTransactionallyStoreResult(
   // that's fine. So this variable helps keep track of that for error logging.
   let foundNullEventCountsOnLatestAttempt = false;
 
-  await DAO.transactionallySetFullGameMachineStateJson({
+  await DAO.transactionallySetFullGameStateJson({
     gameId,
     transactionUpdate: (current) => {
       // Now that we've asynchronously computed the new state, make sure that the state from the

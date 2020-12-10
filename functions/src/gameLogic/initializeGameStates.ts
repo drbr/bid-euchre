@@ -16,15 +16,15 @@ export async function initializeGameStates(props: {
   );
 
   await Promise.all([
-    DAO.transactionallySetFullGameMachineStateJson({
+    DAO.transactionallySetFullGameStateJson({
       gameId: props.gameId,
       transactionUpdate: getInitialMachineState,
     }),
-    DAO.setPublicGameMachineStateJson({
+    DAO.setPublicGameStateJson({
       gameId: props.gameId,
       machineStateJson: publicStateJson,
     }),
-    DAO.setPlayerPrivateGameStates({
+    DAO.setPrivateGameContextsJson({
       gameId: props.gameId,
       gameStates: privateContextsJsonByPlayerId,
     }),

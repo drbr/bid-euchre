@@ -10,10 +10,14 @@ export type PrivateContexts<C> = {
   [playerId: string]: PartialDeep<C> & EventCountContext;
 };
 
-// Take an object, copy out the 'private_' stuff from it, assume each `private_` thing is a
-// PositionRecord. Make four copies, one for each player, key them by player ID.
-// We also need to keep the eventCount/previousEventCount in the private contexts.
-export function extractPrivateGameState<C>(
+/**
+ * Breaks the game machine context into "public" and "private" versions, suitable for sending to the
+ * clients.
+ *
+ * @param gameMachineContext
+ * @param playerIdsByPosition
+ */
+export function extractPublicAndPrivateGameStateContexts<C>(
   gameMachineContext: C & EventCountContext,
   playerIdsByPosition: PlayerIdentities
 ): {

@@ -1,4 +1,4 @@
-import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
+import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import {
   mapGameConfigFromDatabase,
   mapPrivateGameStateFromDatabase,
@@ -33,23 +33,23 @@ export const subscribeToEntireDatabase: Subscription<
   return subscribeToDatabaseNode(`/`, callback, (x) => x);
 };
 
-export const subscribeToPublicGameConfig: Subscription<
-  GameIdParams,
-  PublicGameConfig
-> = ({ gameId }, callback) => {
+export const subscribeToGameConfig: Subscription<GameIdParams, GameConfig> = (
+  { gameId },
+  callback
+) => {
   return subscribeToDatabaseNode(
-    `/publicGameConfig/${gameId}`,
+    `/games/${gameId}/gameConfig`,
     mapGameConfigFromDatabase,
     callback
   );
 };
 
-export const subscribeToPublicGameMachineState: Subscription<
+export const subscribeToPublicGameState: Subscription<
   GameIdParams,
   GameState
 > = ({ gameId }, callback) => {
   return subscribeToDatabaseNode(
-    `/gameMachineState/${gameId}/publicJson`,
+    `/games/${gameId}/gameState/publicJson`,
     mapGameMachineStateFromDatabase,
     callback
   );
@@ -60,7 +60,7 @@ export const subscribeToPrivateGameState: Subscription<
   Partial<GameContext>
 > = ({ gameId, playerId }, callback) => {
   return subscribeToDatabaseNode(
-    `/playerPrivateGameStateJson/${gameId}/${playerId}`,
+    `/games/${gameId}/gameState/privateContextsJson/${playerId}`,
     mapPrivateGameStateFromDatabase,
     callback
   );

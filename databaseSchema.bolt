@@ -6,43 +6,40 @@
  */
 
 path / {
-  read() { true } /* REMOVE THIS WHEN GAME IS READY FOR DEPLOYMENT */
+  // read() { true } /* REMOVE THIS WHEN GAME IS READY FOR DEPLOYMENT */
+  read() { false }
   write() { false }
 }
 
-path /publicGameConfig/{gameId} is PublicGameConfig {
-  read() { true }
-}
-
-// The full contents of the current state of the game's state machine
-path /gameMachineState/{gameId}/fullJson is String {
+path /games/{gameId}/gameState/fullJson is String {
   read() { false }
 }
 
-// The contents of the current state of the game's state machine, sanitized of info
-// that may reveal player-private information, but still enough to construct the state on the
-// frontend.
-path /gameMachineState/{gameId}/publicJson is String {
+path /games/{gameId}/gameState/publicJson is String {
   read() { true }
 }
 
-// Game events are (for now) private to the server
-path /gameEventsJson/{gameId} is GameEvents {
-  read() { false }
-}
-
-// Player identities are private to the server
-path /playerIdentities/{gameId} is Map<Position, String> {
-  read() { false }
-}
-
-// Player-private game state can be read only by that player.
-// Since a player knows only their own ID, this is "security by obscurity".
-path /playerPrivateGameStateJson/{gameId}/{playerId} is String {
+// Each player can read their own private state only, as long as they know the player ID.
+path /games/{gameId}/gameState/privateContextsJson/{playerId} is String {
   read() { true }
 }
 
-type PublicGameConfig {
+path /games/{gameId}/gameConfig is GameConfig {
+  read() { true }
+}
+
+path /games/{gameId}/playerIdentities is Map<Position, String> {
+  read() { false }
+}
+
+
+// Game events are stored separately because we don't want to waste resources
+// fetching them all regularly. They're for record keeping only – push and forget.
+path /gameEvents/{gameId} is String[] {
+  read() { false }
+}
+
+type GameConfig {
   gameStatus: GameStatus,
   playerFriendlyNames: Map<Position, String>,
 }
@@ -54,8 +51,6 @@ type GameStatus extends String {
     this === 'finished'
   }
 }
-
-type GameEvents extends String[] {}
 
 type Position extends String {
   validate() {

@@ -19,7 +19,7 @@ export function GameContainer(props: GameContainerProps) {
 
   const gameConfig = useObservedState(
     { gameId },
-    DAO.subscribeToPublicGameConfig
+    DAO.subscribeToGameConfig
   );
 
   const [playerInfoFromStorage, setPlayerInfoFromStorage] = useState<

@@ -1,4 +1,4 @@
-import { PublicGameConfig } from '../../../functions/apiContract/database/DataModel';
+import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameContext, GameState } from './euchreStateMachine/GameStateTypes';
 import { hydrateState } from './stateMachineUtils/serializeAndHydrateState';
@@ -8,8 +8,8 @@ import { hydrateState } from './stateMachineUtils/serializeAndHydrateState';
  * values.
  */
 export function mapGameConfigFromDatabase(
-  original: PublicGameConfig | null | undefined
-): PublicGameConfig | null {
+  original: GameConfig | null | undefined
+): GameConfig | null {
   if (!original) {
     return null;
   }

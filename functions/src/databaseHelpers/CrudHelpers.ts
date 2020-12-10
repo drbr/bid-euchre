@@ -45,18 +45,17 @@ export class ID_COLLISION_ERROR {}
  *   2. Create a new node with a static key – useful for when we need to do it transactionally.
  */
 export async function transactionallyCreateChildNode<T>(props: {
-  path: string;
+  generatePath: () => string;
   value: T;
-  generateKey: () => string;
   tries?: number;
 }): Promise<TypedDataSnapshot<T>> {
-  const { path, value, generateKey } = props;
+  const { value, generatePath } = props;
   let tries = props.tries ?? ID_COLLISION_TRIES;
 
   while (tries > 0) {
-    const key: string = generateKey();
+    const path = generatePath();
     const { committed, snapshot } = await firebaseDatabaseAdminClient
-      .ref(`${path}/${key}`)
+      .ref(`${path}`)
       .transaction((current) => {
         return current ? undefined : value;
       });

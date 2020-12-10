@@ -27,7 +27,7 @@ export type HydratedGameState = HydratedState<
 >;
 
 export type StateWithPartialContext = Omit<
-  ReturnType<typeof sanitizeState>,
+  ReturnType<typeof sanitizeStateMetadata>,
   'context'
 > & {
   context: PartialDeep<GameContext> & EventCountContext;
@@ -47,12 +47,10 @@ export function serializeState(state: StateWithPartialContext): string {
 }
 
 /**
- * Certain parts of the state aren't safe fur clients to see, because they might expose extra information.
- * Clients don't need them in order to create the state on their end, so we whitelist the "safe" fields
- * for sending to the clients.
+ * Certain parts of the state aren't safe for clients to see, because they might expose extra
+ * information. Clients don't need them in order to create the state on their end, so we whitelist
+ * the "safe" fields for sending to the clients.
  */
-export function sanitizeState(state: GameState) {
+export function sanitizeStateMetadata(state: GameState) {
   return _.pick(state, 'value', 'actions', 'event', '_event', 'context');
 }
-
-

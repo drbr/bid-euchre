@@ -1,22 +1,22 @@
 import * as _ from 'lodash';
 import { PartialDeep } from 'type-fest';
-import { EventObject, State, StateConfig, Typestate } from 'xstate';
+import { EventObject, State, Typestate } from 'xstate';
 import { GameStateMachine } from '../euchreStateMachine/GameStateMachine';
 import {
   GameContext,
   GameEvent,
   GameState,
+  GameStateConfig,
   GameStateSchema,
 } from '../euchreStateMachine/GameStateTypes';
 import { EventCountContext } from './TypedStateInterfaces';
 
 /**
  * Use a special object to store hydrated state so we can type-safely make sure we're requiring it,
- * because it's too easy to send a parsed object into a place that expects a fully-hydrated state
- * instance.
+ * because it's too easy to send a non-hydrated State Config object into a place that expects a
+ * fully-hydrated state instance.
  */
 export type HydratedState<C, E extends EventObject, S> = {
-  stateConfig: StateConfig<C, E>;
   hydratedState: State<C, E, S, Typestate<C>>;
 };
 
@@ -33,20 +33,20 @@ export type StateWithPartialContext = Omit<
   context: PartialDeep<GameContext> & EventCountContext;
 };
 
-export function getEventCountFromStateJson(stateAsJson: string): number {
-  const stateConfig: StateConfig<GameContext, GameEvent> = JSON.parse(
-    stateAsJson
-  );
-  return stateConfig.context.eventCount;
+export function getStateConfigFromJson(stateAsJson: string): GameStateConfig {
+  return JSON.parse(stateAsJson);
 }
 
-export function hydrateState(stateAsJson: string): HydratedGameState {
-  const stateConfig: StateConfig<GameContext, GameEvent> = JSON.parse(
-    stateAsJson
-  );
+export function hydrateStateFromConfig(
+  stateConfig: GameStateConfig
+): HydratedState<GameContext, GameEvent, GameState> {
   const createdState = State.create(stateConfig);
   const hydratedState = GameStateMachine.resolveState(createdState);
-  return { stateConfig, hydratedState };
+  return { hydratedState };
+}
+
+export function hydrateStateFromJson(stateAsJson: string): HydratedGameState {
+  return hydrateStateFromConfig(getStateConfigFromJson(stateAsJson));
 }
 
 export function serializeState(state: StateWithPartialContext): string {

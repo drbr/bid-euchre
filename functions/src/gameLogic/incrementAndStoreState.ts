@@ -4,8 +4,8 @@ import {
   GameState,
 } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import {
-  getEventCountFromStateJson,
-  hydrateState,
+  getStateConfigFromJson,
+  hydrateStateFromJson,
   serializeState,
 } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { transitionStateMachine } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
@@ -72,7 +72,7 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
     throw new Error(`No game state found in database for game ID ${gameId}`);
   }
 
-  const hydratedCurrentState = hydrateState(currentStates.fullJson);
+  const hydratedCurrentState = hydrateStateFromJson(currentStates.fullJson);
 
   const eventCountFromDatabase =
     hydratedCurrentState.hydratedState.context.eventCount;
@@ -108,7 +108,7 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
       // transaction attempts, the `current` might be null, but in that case, the transaction will
       // probably try again and the first iteration is ignored.
       const newEventCountFromDatabase = current
-        ? getEventCountFromStateJson(current.fullJson)
+        ? getStateConfigFromJson(current.fullJson).context.eventCount
         : null;
       foundNullEventCountsOnLatestAttempt = assertEventsAreInSync(
         eventCountFromDatabase,

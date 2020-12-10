@@ -6,7 +6,7 @@ import {
   PlayerInfoStorage,
   retrievePlayerInfoForGame,
 } from '../uiHelpers/LocalStorageClient';
-import { PlayGame } from './PlayGame';
+import { PlayGameContainer } from './PlayGame';
 import { useObservedState } from '../uiHelpers/useObservedState';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 
@@ -17,17 +17,14 @@ export type GameContainerProps = {
 export function GameContainer(props: GameContainerProps) {
   const { gameId } = props;
 
-  const gameConfig = useObservedState(
-    { gameId },
-    DAO.subscribeToGameConfig
-  );
+  const gameConfig = useObservedState({ gameId }, DAO.subscribeToGameConfig);
 
   const [playerInfoFromStorage, setPlayerInfoFromStorage] = useState<
     PlayerInfoStorage | 'gameNotFound'
   >(() => retrievePlayerInfoForGame({ gameId }) || 'gameNotFound');
 
   if (gameConfig === 'loading') {
-    return <></>;
+    return <div>Loading…</div>;
   }
 
   if (gameConfig === 'gameNotFound') {
@@ -58,7 +55,7 @@ export function GameContainer(props: GameContainerProps) {
     );
   } else {
     return (
-      <PlayGame
+      <PlayGameContainer
         gameId={props.gameId}
         gameConfig={gameConfig as InProgressGameConfig}
         seatedAt={seatedAt}

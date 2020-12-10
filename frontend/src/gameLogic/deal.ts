@@ -7,10 +7,12 @@ import {
 } from '../../../functions/apiContract/database/Cards';
 import { Position } from '../../../functions/apiContract/database/GameState';
 
+const NUMBER_OF_CARDS_PER_HAND = 6;
+
 export function deal(): Record<Position, Hand> {
   const deck = generateDeckOfCards();
   const shuffled = _.shuffle(deck);
-  const fourHands = _.chunk(shuffled, 6);
+  const fourHands = _.chunk(shuffled, NUMBER_OF_CARDS_PER_HAND);
 
   return {
     north: fourHands[0],

@@ -1,11 +1,16 @@
+import { PartialDeep } from 'type-fest';
 import {
   AllGameInfo,
   GameConfig,
   GameStates,
 } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
-import { GameContext, GameState } from './euchreStateMachine/GameStateTypes';
-import { hydrateState } from './stateMachineUtils/serializeAndHydrateState';
+import {
+  GameContext,
+  GameStateConfig,
+} from './euchreStateMachine/GameStateTypes';
+import { getStateConfigFromJson } from './stateMachineUtils/serializeAndHydrateState';
+import { EventCountContext } from './stateMachineUtils/TypedStateInterfaces';
 
 /**
  * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined
@@ -58,19 +63,22 @@ export function mapGameStatesFromDatabase(
   };
 }
 
-export function mapPublicGameStateFromDatabase(
+export function mapPublicGameStateConfigFromDatabase(
   original: string | null | undefined
-): GameState | null {
+): GameStateConfig | null {
   console.debug('Received game state from database:');
   console.debug(original);
-  return original ? hydrateState(original).hydratedState : null;
+  return original ? getStateConfigFromJson(original) : null;
 }
 
-export function mapPrivateGameStateFromDatabase(
+export function parsePrivateGameContextFromDatabase(
   original: string | null | undefined
-): Partial<GameContext> {
+): PartialDeep<GameContext> & EventCountContext {
   if (!original) {
-    return {};
+    return {
+      eventCount: 0,
+      previousEventCount: null,
+    };
   }
   return JSON.parse(original);
 }

@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { PartialDeep } from 'type-fest';
 import { AnyEventObject } from 'xstate';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
@@ -6,40 +8,87 @@ import * as DAO from '../firebase/FrontendDAO';
 import {
   GameContext,
   GameState,
+  GameStateConfig,
 } from '../gameLogic/euchreStateMachine/GameStateTypes';
+import { mergePublicAndPrivateStateContexts } from '../gameLogic/stateMachineUtils/mergePublicAndPrivateStateContexts';
+import {
+  HydratedGameState,
+  hydrateStateFromConfig,
+} from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { EventCountContext } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
 import { GameDisplay } from '../gameScreens/GameDisplay';
 import { UIActions } from '../uiHelpers/UIActions';
-import { Subscription, useObservedState } from '../uiHelpers/useObservedState';
+import {
+  ObservedState,
+  Subscription,
+  useObservedState,
+} from '../uiHelpers/useObservedState';
 
-export type PlayGameProps = {
+export type PlayGameContainerProps = {
   gameId: string;
   playerId: string | null;
   gameConfig: InProgressGameConfig;
   seatedAt: Position | null;
 };
 
-export function PlayGame(props: PlayGameProps) {
+export function PlayGameContainer(props: PlayGameContainerProps) {
   const { gameId, playerId } = props;
 
-  const fetchedPublicGameState = useObservedState(
+  const fetchedPublicGameStateConfig = useObservedState(
     { gameId },
-    DAO.subscribeToPublicGameState,
-    onGameStateChange
+    DAO.subscribeToPublicGameStateConfig,
+    (prev, next) => onGameContextFetched(prev.context, next.context)
   );
 
-  const fetchedPrivateGameState = useObservedState(
+  const fetchedPrivateGameContext = useObservedState(
     { gameId, playerId },
-    privateGameStateSubscription
+    privateGameContextSubscription,
+    onGameContextFetched
   );
 
+  const [
+    syncedGameState,
+    setSyncedGameState,
+  ] = useState<HydratedGameState | null>(null);
+
+  useEffect(
+    () =>
+      reconstituteGameStateIfInSync(
+        fetchedPublicGameStateConfig,
+        fetchedPrivateGameContext,
+        playerId,
+        setSyncedGameState
+      ),
+    [fetchedPublicGameStateConfig, fetchedPrivateGameContext, playerId]
+  );
+
+  if (!syncedGameState) {
+    return <div>Loading…</div>;
+  }
+
+  return (
+    <PlayGameWithKnownState
+      gameId={gameId}
+      playerId={playerId}
+      gameConfig={props.gameConfig}
+      seatedAt={props.seatedAt}
+      gameState={syncedGameState.hydratedState}
+    />
+  );
+}
+
+type PlayGameProps = PlayGameContainerProps & {
+  gameState: GameState;
+};
+
+export function PlayGameWithKnownState(props: PlayGameProps) {
   async function sendEventToStateMachine(event: AnyEventObject) {
     try {
       await sendGameEvent({
         event,
-        existingEventCount: (fetchedPublicGameState as GameState).context
-          .eventCount,
-        gameId,
-        playerId,
+        existingEventCount: props.gameState.context.eventCount,
+        gameId: props.gameId,
+        playerId: props.playerId,
       });
     } catch (e) {
       UIActions.showErrorAlert(e, {
@@ -50,19 +99,8 @@ export function PlayGame(props: PlayGameProps) {
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  (window as any).gameState = fetchedPublicGameState;
-  (window as any).privateGameState = fetchedPrivateGameState;
+  (window as any).gameState = props.gameState;
   /* eslint-enable @typescript-eslint/no-explicit-any */
-
-  if (
-    fetchedPublicGameState === 'loading' ||
-    fetchedPublicGameState === 'gameNotFound' ||
-    (playerId &&
-      (fetchedPrivateGameState === 'loading' ||
-        fetchedPrivateGameState === 'gameNotFound'))
-  ) {
-    return <div>Loading game…</div>;
-  }
 
   return (
     <div>
@@ -70,8 +108,8 @@ export function PlayGame(props: PlayGameProps) {
         {props.playerId ? null : 'You are a spectator of the current game!'}
       </p>
       <GameDisplay
-        machineState={fetchedPublicGameState}
-        machineContext={fetchedPublicGameState.context}
+        machineState={props.gameState}
+        machineContext={props.gameState.context}
         sendGameEvent={sendEventToStateMachine}
         gameConfig={props.gameConfig}
         seatedAt={props.seatedAt}
@@ -80,30 +118,83 @@ export function PlayGame(props: PlayGameProps) {
   );
 }
 
-function onGameStateChange(prev: GameState, next: GameState) {
-  const actualPrevCount = prev.context.eventCount;
-  const expectedPrevCount = next.context.previousEventCount || 0;
-  const nextCount = next.context.eventCount;
-  console.debug('Applying new game state received from the database');
+function onGameContextFetched(
+  prev: EventCountContext,
+  next: EventCountContext
+) {
+  const actualPrevCount = prev.eventCount;
+  const expectedPrevCount = next.previousEventCount || 0;
+  const nextCount = next.eventCount;
+  console.debug('Received new game state context from the database');
   console.debug(next);
   if (actualPrevCount !== expectedPrevCount) {
     console.warn(
       `Possible error in state transition: previous local state had event count ${actualPrevCount}, ` +
         `new state has previous eventCount ${expectedPrevCount} and current count ${nextCount}`
     );
-    console.debug('Previous state:');
-    console.debug(prev);
-    console.debug('Next state:');
-    console.debug(next);
   }
 }
 
-const privateGameStateSubscription: Subscription<
+/**
+ * The public and private game states are fetched separately and must be combined in order to
+ * correctly render the game. This effect waits until the private and public state are both in sync,
+ * then combines them and calls the callback with the reconstituted value.
+ */
+function reconstituteGameStateIfInSync(
+  publicGameStateConfig: ObservedState<GameStateConfig>,
+  privateGameContext: ObservedState<
+    PartialDeep<GameContext> & EventCountContext
+  >,
+  playerId: string | null,
+  setSyncedGameState: Dispatch<SetStateAction<HydratedGameState | null>>
+): void {
+  if (
+    publicGameStateConfig === 'loading' ||
+    publicGameStateConfig === 'gameNotFound'
+  ) {
+    return; // Can't sync the state until we have it
+  }
+
+  // If the player isn't part of the game, we'll never get any private state,
+  // so no special merging needs to happen.
+  if (!playerId) {
+    const hydratedState = hydrateStateFromConfig(publicGameStateConfig);
+    setSyncedGameState(hydratedState);
+    return;
+  }
+
+  if (
+    privateGameContext === 'loading' ||
+    privateGameContext === 'gameNotFound'
+  ) {
+    return; // Can't sync the state until we have it
+  }
+
+  // Merge the private and public state only when they match.
+  // Otherwise, do nothing and wait for the inputs to change.
+  const publicEventCount = publicGameStateConfig.context.eventCount;
+  const privateEventCount = privateGameContext.eventCount;
+  if (publicEventCount === privateEventCount) {
+    const mergedContext = mergePublicAndPrivateStateContexts({
+      publicContext: publicGameStateConfig.context,
+      privateContext: privateGameContext,
+    }) as GameContext;
+    const newStateConfig = {
+      ...publicGameStateConfig,
+      context: mergedContext,
+    };
+    const hydratedState = hydrateStateFromConfig(newStateConfig);
+    setSyncedGameState(hydratedState);
+    return;
+  }
+}
+
+const privateGameContextSubscription: Subscription<
   { gameId: string; playerId: string | null },
-  Partial<GameContext>
+  PartialDeep<GameContext> & EventCountContext
 > = (params, callback) => {
   if (params.playerId) {
-    return DAO.subscribeToPrivateGameState(
+    return DAO.subscribeToPrivateGameContext(
       { gameId: params.gameId, playerId: params.playerId },
       callback
     );

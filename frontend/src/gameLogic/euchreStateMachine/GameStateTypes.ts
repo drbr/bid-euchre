@@ -1,4 +1,4 @@
-import { State, Typestate } from 'xstate';
+import { State, StateConfig, Typestate } from 'xstate';
 import { Partnership } from '../../../../functions/apiContract/database/GameState';
 import {
   EventCountContext,
@@ -36,3 +36,5 @@ export type GameState = State<
   GameStateSchema,
   Typestate<GameContext>
 >;
+
+export type GameStateConfig = StateConfig<GameContext, GameEvent>;

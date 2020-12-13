@@ -5,7 +5,6 @@ import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import FlexView from 'react-flexview/lib';
 import { Hand } from '../../../functions/apiContract/database/Cards';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { HandDisplay } from './HandDisplay';
@@ -44,7 +43,6 @@ export function GameLayout(props: GameLayoutProps) {
     return (
       <Paper>
         <Box bgcolor={awaited ? '#ea78157a' : undefined}>
-          {/* <CardContent>{props.renderPlayerElement(position)}</CardContent> */}
           <Box p={1}>{props.renderPlayerElement(position)}</Box>
         </Box>
       </Paper>
@@ -77,7 +75,7 @@ export function GameLayout(props: GameLayoutProps) {
         </Grid>
       </Box>
 
-      {props.hand ? (
+      {props.seatedAt && props.hand ? (
         <Box mt={3}>
           <HandDisplay hand={props.hand} />
         </Box>
@@ -89,7 +87,7 @@ export function GameLayout(props: GameLayoutProps) {
         </Box>
       ) : null}
 
-      {props.userActionElement ? (
+      {props.seatedAt && props.userActionElement ? (
         <Box mt={2}>{props.userActionElement}</Box>
       ) : null}
     </Container>
@@ -108,23 +106,23 @@ function Player(props: React.PropsWithChildren<unknown>) {
   );
 }
 
-function Center(props: React.PropsWithChildren<unknown>) {
-  return (
-    <Grid item xs={12} sm={4}>
-      {props.children}
-    </Grid>
-  );
-}
+// function Center(props: React.PropsWithChildren<unknown>) {
+//   return (
+//     <Grid item xs={12} sm={4}>
+//       {props.children}
+//     </Grid>
+//   );
+// }
 
-function PromptInGrid(props: { message?: string }) {
-  return (
-    <Box>
-      <FlexView vAlignContent="center" hAlignContent="center" height={100}>
-        <PromptText message={props.message} />
-      </FlexView>
-    </Box>
-  );
-}
+// function PromptInGrid(props: { message?: string }) {
+//   return (
+//     <Box>
+//       <FlexView vAlignContent="center" hAlignContent="center" height={100}>
+//         <PromptText message={props.message} />
+//       </FlexView>
+//     </Box>
+//   );
+// }
 
 function PromptText(props: { message?: string }) {
   const messageOrSpacer = props.message ?? PLACEHOLDER;

@@ -63,9 +63,10 @@ export function GameLayout(props: GameLayoutProps) {
           {/* middle row */}
           <Player>{renderPlayerAtIndex(1)}</Player>
           <Hidden xsDown>
-            <Center>
+            <Spacer />
+            {/* <Center>
               <PromptInGrid message={props.promptMessage} />
-            </Center>
+            </Center> */}
           </Hidden>
           <Player>{renderPlayerAtIndex(2)}</Player>
 
@@ -73,21 +74,24 @@ export function GameLayout(props: GameLayoutProps) {
           <Spacer />
           <Player>{renderPlayerAtIndex(3)}</Player>
           <Spacer />
-
-          {/* on xs devices, display the center below the grid */}
-          <Hidden smUp>
-            <Grid item xs={12}>
-              <PromptText message={props.promptMessage} />
-            </Grid>
-          </Hidden>
         </Grid>
       </Box>
+
       {props.hand ? (
         <Box mt={3}>
           <HandDisplay hand={props.hand} />
         </Box>
       ) : null}
-      <Box mt={3}>{props.userActionElement ?? ''}</Box>
+
+      {props.promptMessage ? (
+        <Box mt={3}>
+          <PromptText message={props.promptMessage} />
+        </Box>
+      ) : null}
+
+      {props.userActionElement ? (
+        <Box mt={2}>{props.userActionElement}</Box>
+      ) : null}
     </Container>
   );
 }

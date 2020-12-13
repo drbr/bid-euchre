@@ -8,14 +8,11 @@ export type HandDisplayProps = {
 
 export function HandDisplay(props: HandDisplayProps) {
   return (
-    <div>
-      <p>{JSON.stringify(props.hand)}</p>
-      <Grid container spacing={1} alignContent="center">
-        {props.hand.map((card) => (
-          <CardInRow card={card} key={keyForCard(card)} />
-        ))}
-      </Grid>
-    </div>
+    <Grid container spacing={1} alignContent="center">
+      {props.hand.map((card) => (
+        <CardInRow card={card} key={keyForCard(card)} />
+      ))}
+    </Grid>
   );
 }
 

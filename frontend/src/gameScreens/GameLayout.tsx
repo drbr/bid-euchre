@@ -8,6 +8,7 @@ import React from 'react';
 import FlexView from 'react-flexview/lib';
 import { Hand } from '../../../functions/apiContract/database/Cards';
 import { Position } from '../../../functions/apiContract/database/GameState';
+import { HandDisplay } from './HandDisplay';
 
 export type GameLayoutProps = {
   seatedAt: Position | null;
@@ -81,7 +82,11 @@ export function GameLayout(props: GameLayoutProps) {
           </Hidden>
         </Grid>
       </Box>
-      {props.hand ? <Box mt={3}>{JSON.stringify(props.hand)}</Box> : null}
+      {props.hand ? (
+        <Box mt={3}>
+          <HandDisplay hand={props.hand} />
+        </Box>
+      ) : null}
       <Box mt={3}>{props.userActionElement ?? ''}</Box>
     </Container>
   );

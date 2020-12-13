@@ -11,12 +11,9 @@ export function HandDisplay(props: HandDisplayProps) {
     <div>
       <p>{JSON.stringify(props.hand)}</p>
       <Grid container spacing={1} alignContent="center">
-        <CardInRow card={{ suit: 'H', rank: '9' }} />
-        <CardInRow card={{ suit: 'H', rank: '10' }} />
-        <CardInRow card={{ suit: 'H', rank: 'J' }} />
-        <CardInRow card={{ suit: 'H', rank: 'Q' }} />
-        <CardInRow card={{ suit: 'H', rank: 'K' }} />
-        <CardInRow card={{ suit: 'H', rank: 'A' }} />
+        {props.hand.map((card) => (
+          <CardInRow card={card} key={keyForCard(card)} />
+        ))}
       </Grid>
     </div>
   );
@@ -38,4 +35,8 @@ export function CardInRow(props: CardInRowProps) {
       />
     </Grid>
   );
+}
+
+function keyForCard(card: Card): string {
+  return card.rank + card.suit;
 }

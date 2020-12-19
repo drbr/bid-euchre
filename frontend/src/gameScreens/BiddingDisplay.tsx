@@ -66,54 +66,64 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
             <BidButton value={24} />
           </FlexView>
         }
+        debugControls={
+          <BiddingDebugControls sendGameEvent={props.sendGameEvent} />
+        }
       />
-      <Box flexDirection="column" p={3}>
-        <button
-          onClick={() =>
-            props.sendGameEvent({
-              type: 'PLAYER_BID',
-              bid: 2,
-              position: 'north',
-            })
-          }
-        >
-          Send Bid Event 2 North
-        </button>
-        <button
-          onClick={() =>
-            props.sendGameEvent({
-              type: 'PLAYER_BID',
-              bid: 3,
-              position: 'east',
-            })
-          }
-        >
-          Send Bid Event 3 East
-        </button>
-        <button
-          onClick={() =>
-            props.sendGameEvent({
-              type: 'PLAYER_BID',
-              bid: 4,
-              position: 'south',
-            })
-          }
-        >
-          Send Bid Event 4 South
-        </button>
-        <button
-          onClick={() =>
-            props.sendGameEvent({
-              type: 'PLAYER_BID',
-              bid: 5,
-              position: 'west',
-            })
-          }
-        >
-          Send Bid Event 5 West
-        </button>
-      </Box>
     </div>
+  );
+}
+
+function BiddingDebugControls(props: {
+  sendGameEvent: (event: BiddingEvent) => void;
+}) {
+  return (
+    <Box flexDirection="column" p={3}>
+      <button
+        onClick={() =>
+          props.sendGameEvent({
+            type: 'PLAYER_BID',
+            bid: 2,
+            position: 'north',
+          })
+        }
+      >
+        Send Bid Event 2 North
+      </button>
+      <button
+        onClick={() =>
+          props.sendGameEvent({
+            type: 'PLAYER_BID',
+            bid: 3,
+            position: 'east',
+          })
+        }
+      >
+        Send Bid Event 3 East
+      </button>
+      <button
+        onClick={() =>
+          props.sendGameEvent({
+            type: 'PLAYER_BID',
+            bid: 4,
+            position: 'south',
+          })
+        }
+      >
+        Send Bid Event 4 South
+      </button>
+      <button
+        onClick={() =>
+          props.sendGameEvent({
+            type: 'PLAYER_BID',
+            bid: 5,
+            position: 'west',
+          })
+        }
+      >
+        Send Bid Event 5 West
+      </button>
+    </Box>
   );
 }
 

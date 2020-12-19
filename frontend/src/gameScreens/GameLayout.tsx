@@ -16,6 +16,7 @@ export type GameLayoutProps = {
   promptMessage?: string;
   hand?: Hand;
   userActionElement?: React.ReactNode;
+  debugControls?: React.ReactNode;
 };
 
 /**
@@ -90,6 +91,10 @@ export function GameLayout(props: GameLayoutProps) {
       {props.seatedAt && props.userActionElement ? (
         <Box mt={2}>{props.userActionElement}</Box>
       ) : null}
+
+      {process.env.NODE_ENV === 'development' && props.debugControls
+        ? props.debugControls
+        : null}
     </Container>
   );
 }

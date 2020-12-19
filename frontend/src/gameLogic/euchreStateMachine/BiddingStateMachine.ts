@@ -25,7 +25,9 @@ export const BiddingStates: StateNodeConfig<
       on: {
         PLAYER_BID: {
           target: 'checkIfBiddingIsComplete',
-          cond: wasBidMadeByAwaitedPlayer,
+          cond: (context, event) =>
+            wasBidMadeByAwaitedPlayer(context, event) &&
+            isBidValid(context, event),
           actions: assign({
             bids: (context, event) => ({
               ...context.bids,
@@ -43,9 +45,6 @@ export const BiddingStates: StateNodeConfig<
           target: 'biddingComplete',
         },
         {
-          // cond: function somePlayersHaveNotYetBid(context) {
-          //   return !haveAllBidsBeenMade(context);
-          // },
           target: 'waitForPlayerToBid',
           actions: assign({
             awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
@@ -59,17 +58,6 @@ export const BiddingStates: StateNodeConfig<
     },
   },
 };
-
-function wasBidMadeByAwaitedPlayer(
-  context: BiddingContext,
-  event: BiddingEvent
-): boolean {
-  return event.position === context.awaitedPlayer;
-}
-
-function haveAllBidsBeenMade(context: BiddingContext): boolean {
-  return _.every(context.bids, (bid) => bid !== null);
-}
 
 export function assignInitialBiddingContext(
   parentContext: RoundContext
@@ -85,22 +73,49 @@ export function assignInitialBiddingContext(
   };
 }
 
-export function determineWinningBidder(
+function wasBidMadeByAwaitedPlayer(
+  context: BiddingContext,
+  event: BiddingEvent
+): boolean {
+  return event.position === context.awaitedPlayer;
+}
+
+function isBidValid(context: BiddingContext, event: BiddingEvent): boolean {
+  if (event.bid === 'pass') {
+    return true;
+  }
+  const { highestBid } = getHighestBid(context);
+  if (!_.isNumber(highestBid)) {
+    return true;
+  } else if (event.bid > highestBid) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function haveAllBidsBeenMade(context: BiddingContext): boolean {
+  return _.every(context.bids, (bid) => bid !== null);
+}
+
+export function getHighestBid(
   context: BiddingContext
 ): {
-  winningBidder: Position | undefined;
-  winningBid: Bid;
+  highestBidder: Position | undefined;
+  highestBid: Bid;
 } {
-  let maxBid = 0;
-  let winningBidder: Position | undefined = undefined;
+  let highestSoFar = 0;
+  let highestBidder: Position | undefined = undefined;
 
   forEachPosition(context.bids, (bid, position) => {
-    if (_.isNumber(bid) && bid > maxBid) {
-      maxBid = bid;
-      winningBidder = position;
+    if (_.isNumber(bid) && bid > highestSoFar) {
+      highestSoFar = bid;
+      highestBidder = position;
     }
   });
 
-  const winningBid = (winningBidder !== undefined ? maxBid : 'pass') as Bid;
-  return { winningBidder, winningBid };
+  const highestBid = (highestBidder !== undefined
+    ? highestSoFar
+    : 'pass') as Bid;
+  return { highestBidder, highestBid };
 }

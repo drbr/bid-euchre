@@ -4,7 +4,7 @@ import { NextPlayer } from '../utils/ModelHelpers';
 import {
   assignInitialBiddingContext,
   BiddingStates,
-  determineWinningBidder,
+  getHighestBid,
 } from './BiddingStateMachine';
 import { BiddingContext } from './BiddingStateTypes';
 import {
@@ -32,22 +32,6 @@ export const RoundStates: StateNodeConfig<
       },
     },
     waitForDeal: {
-      // TODO: Dispatch an action that tells the server to send an "assignHands" event so that
-      // we have the event for replay purposes. The server needs to send this event because the
-      // clients aren't supposed to know what the other players' cards are. Even then, the state
-      // will contain info about the previous event, so we may need a different strategy...
-
-      // entry: makeAssignHandsEventSender(),
-      // on: {
-      //   ASSIGN_HANDS: {
-      //     target: 'bidding',
-      //     actions: assign({
-      //       hands: (context, event) => event.hands,
-      //     }),
-      //   },
-      // },
-
-      // entry: assign({ hands: (_, __) => deal() }),
       invoke: {
         id: 'dealHands',
         src: (context, event) => (callback, onReceive) => {
@@ -77,9 +61,15 @@ export const RoundStates: StateNodeConfig<
         (context) =>
           (assignInitialBiddingContext(context) as unknown) as RoundContext
       ),
-      exit: assign((context) =>
-        determineWinningBidder((context as unknown) as BiddingContext)
-      ),
+      exit: assign((context) => {
+        const { highestBid, highestBidder } = getHighestBid(
+          (context as unknown) as BiddingContext
+        );
+        return {
+          winningBid: highestBid,
+          winningBidder: highestBidder,
+        };
+      }),
       onDone: { target: 'checkWinningBidder' },
     },
 
@@ -114,18 +104,6 @@ export const RoundStates: StateNodeConfig<
     },
   },
 };
-
-/**
- * Make an action object that will send an ASSIGN_HANDS event.
- * Each time this function is called, it will create a new random assignment of cards.
- */
-// function makeAssignHandsEventSender(): SendAction<
-//   RoundContext,
-//   RoundEvent,
-//   RoundEvent
-// > {
-//   return send({ type: 'ASSIGN_HANDS', hands: deal() } as RoundEvent);
-// }
 
 // const RoundGuards: Record<
 //   string,

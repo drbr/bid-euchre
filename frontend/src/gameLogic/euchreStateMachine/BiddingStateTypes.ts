@@ -24,7 +24,11 @@ export type BiddingStateSchema = {
   states: BiddingStatesGeneric<TypedStateSchema<BiddingMeta, BiddingContext>>;
 };
 
-export type BiddingEvent = { type: 'PLAYER_BID'; bid: Bid; position: Position };
+export type BiddingEvent = {
+  type: 'PLAYER_BID';
+  bid: NonNullable<Bid>;
+  position: Position;
+};
 
 export type BiddingState = State<
   BiddingContext,

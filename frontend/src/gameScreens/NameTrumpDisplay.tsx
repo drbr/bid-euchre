@@ -1,12 +1,11 @@
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import FlexView from 'react-flexview/lib';
 import { Suit } from '../../../functions/apiContract/database/Cards';
 import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { PlayerBidCard } from './BiddingDisplay';
 import { DebugButton } from './DebugButton';
-import { GameLayout, PLACEHOLDER } from './GameLayout';
+import { GameLayout } from './GameLayout';
 import { RoundDisplayProps } from './RoundDisplay';
 
 export function NameTrumpDisplay(props: RoundDisplayProps): JSX.Element {

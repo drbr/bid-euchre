@@ -15,6 +15,11 @@ import {
   RoundStateSchema,
 } from './RoundStateTypes';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
+import {
+  assignInitialThePlayContext,
+  ThePlayStates,
+} from './ThePlayStateMachine';
+import { ThePlayContext } from './ThePlayStateTypes';
 
 export const RoundStates: StateNodeConfig<
   RoundContext,
@@ -88,9 +93,16 @@ export const RoundStates: StateNodeConfig<
     },
 
     thePlay: {
-      on: {
-        NEXT: 'scoring',
-      },
+      ...(ThePlayStates as StateNodeConfig<
+        RoundContext,
+        TypedStateSchema<RoundMeta, ThePlayContext>,
+        RoundEvent
+      >),
+      entry: assign(
+        (context) =>
+          (assignInitialThePlayContext(context) as unknown) as RoundContext
+      ),
+      onDone: { target: 'scoring' },
     },
 
     scoring: {

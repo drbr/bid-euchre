@@ -6,7 +6,7 @@ import {
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type BiddingContext = {
-  bids: Record<Position, Bid>;
+  bids: Record<Position, Bid | null>;
   awaitedPlayer: Position;
 };
 
@@ -26,7 +26,7 @@ export type BiddingStateSchema = {
 
 export type BiddingEvent = {
   type: 'PLAYER_BID';
-  bid: NonNullable<Bid>;
+  bid: Bid;
   position: Position;
 };
 

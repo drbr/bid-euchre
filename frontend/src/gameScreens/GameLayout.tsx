@@ -14,7 +14,7 @@ export type GameLayoutProps = {
   awaitedPosition?: Position;
   renderPlayerElement: (position: Position) => React.ReactNode;
   promptMessage?: string;
-  hand?: Hand;
+  hands?: Record<Position, Hand>;
   userActionElement?: React.ReactNode;
   debugControls?: React.ReactNode;
 };
@@ -76,9 +76,9 @@ export function GameLayout(props: GameLayoutProps) {
         </Grid>
       </Box>
 
-      {props.seatedAt && props.hand ? (
+      {props.seatedAt && props.hands ? (
         <Box mt={3}>
-          <HandDisplay hand={props.hand} />
+          <HandDisplay hand={props.hands[props.seatedAt]} />
         </Box>
       ) : null}
 

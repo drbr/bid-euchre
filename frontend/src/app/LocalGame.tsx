@@ -30,7 +30,7 @@ export function LocalGame() {
         sendGameEvent={send}
         isEventValid={isEventValid}
         gameConfig={DummyGameConfig}
-        seatedAt="east"
+        seatedAt="south"
       />
     </div>
   );

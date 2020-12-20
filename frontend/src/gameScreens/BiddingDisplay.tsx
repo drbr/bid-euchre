@@ -42,101 +42,63 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
         seatedAt={props.seatedAt}
         awaitedPosition={awaitedPosition}
         renderPlayerElement={(position) => (
-          <PlayerBidElement
+          <PlayerBidCard
             playerName={props.gameConfig.playerFriendlyNames[position]}
             bid={bids[position]}
           />
         )}
         promptMessage={promptMessage}
-        hand={
-          props.seatedAt
-            ? props.stateContext.private_hands[props.seatedAt]
-            : undefined
-        }
-        userActionElement={
-          <FlexView hAlignContent="center" wrap={true}>
-            <BidButton value="pass" />
-            <BidButton value={1} />
-            <BidButton value={2} />
-            <BidButton value={3} />
-            <BidButton value={4} />
-            <BidButton value={5} />
-            <BidButton value={6} />
-            <BidButton value={12} />
-            <BidButton value={24} />
-          </FlexView>
-        }
-        debugControls={
-          <BiddingDebugControls sendGameEvent={props.sendGameEvent} />
-        }
+        hands={props.stateContext.private_hands}
+        userActionElement={<BidButtons {...props} />}
+        debugControls={<BiddingDebugControls {...props} />}
       />
     </div>
   );
 }
 
-function BiddingDebugControls(props: {
-  sendGameEvent: (event: BiddingEvent) => void;
-}) {
+function BidButtons(props: BiddingDisplayProps) {
   return (
-    <Box flexDirection="column" p={3}>
-      <button
-        onClick={() =>
-          props.sendGameEvent({
-            type: 'PLAYER_BID',
-            bid: 2,
-            position: 'north',
-          })
-        }
-      >
-        Send Bid Event 2 North
-      </button>
-      <button
-        onClick={() =>
-          props.sendGameEvent({
-            type: 'PLAYER_BID',
-            bid: 3,
-            position: 'east',
-          })
-        }
-      >
-        Send Bid Event 3 East
-      </button>
-      <button
-        onClick={() =>
-          props.sendGameEvent({
-            type: 'PLAYER_BID',
-            bid: 4,
-            position: 'south',
-          })
-        }
-      >
-        Send Bid Event 4 South
-      </button>
-      <button
-        onClick={() =>
-          props.sendGameEvent({
-            type: 'PLAYER_BID',
-            bid: 5,
-            position: 'west',
-          })
-        }
-      >
-        Send Bid Event 5 West
-      </button>
-    </Box>
+    <FlexView hAlignContent="center" wrap={true}>
+      <BidButton {...props} bidValue="pass" text="Pass" />
+      <BidButton {...props} bidValue={1} />
+      <BidButton {...props} bidValue={2} />
+      <BidButton {...props} bidValue={3} />
+      <BidButton {...props} bidValue={4} />
+      <BidButton {...props} bidValue={5} />
+      <BidButton {...props} bidValue={6} />
+      <BidButton {...props} bidValue={12} />
+      <BidButton {...props} bidValue={24} />
+    </FlexView>
   );
 }
 
-function BidButton(props: { value: Bid; text?: string }) {
-  const buttonText = props.text || props.value;
+function BidButton(
+  props: BiddingDisplayProps & { bidValue: Bid; text?: string }
+) {
+  if (!props.seatedAt) {
+    return null;
+  }
+
+  const event: BiddingEvent = {
+    type: 'PLAYER_BID',
+    position: props.seatedAt,
+    bid: props.bidValue,
+  };
+
+  const enabled = props.isEventValid(event);
+  const sendEvent = () => props.sendGameEvent(event);
+
+  const buttonText = props.text || props.bidValue;
   return (
     <Box p={1}>
-      <Button variant="contained">{buttonText}</Button>
+      <Button disabled={!enabled} onClick={sendEvent} variant="contained">
+        {buttonText}
+      </Button>
     </Box>
   );
 }
 
-function PlayerBidElement(props: { playerName: string; bid: Bid }) {
+function PlayerBidCard(props: { playerName: string; bid: Bid | null }) {
   const translatedBid =
     props.bid === 'pass'
       ? 'Pass'
@@ -153,5 +115,62 @@ function PlayerBidElement(props: { playerName: string; bid: Bid }) {
         {translatedBid}
       </Typography>
     </>
+  );
+}
+
+function BiddingDebugControls(props: BiddingDisplayProps) {
+  return (
+    <Box display="flex" flexDirection="column" p={3}>
+      <DebugButton
+        {...props}
+        event={{
+          type: 'PLAYER_BID',
+          bid: 192,
+          position: 'north',
+        }}
+        text="Send Bid Event 192 North"
+      />
+      <DebugButton
+        {...props}
+        event={{
+          type: 'PLAYER_BID',
+          bid: 3,
+          position: 'east',
+        }}
+        text="Send Bid Event 3 East"
+      />
+      <DebugButton
+        {...props}
+        event={{
+          type: 'PLAYER_BID',
+          bid: 4,
+          position: 'south',
+        }}
+        text="Send Bid Event 4 South"
+      />{' '}
+      <DebugButton
+        {...props}
+        event={{
+          type: 'PLAYER_BID',
+          bid: 24,
+          position: 'west',
+        }}
+        text="Send Bid Event 24 West"
+      />
+    </Box>
+  );
+}
+
+function DebugButton(
+  props: BiddingDisplayProps & { event: BiddingEvent; text: string }
+) {
+  const enabled = props.isEventValid(props.event);
+  return (
+    <button
+      disabled={!enabled}
+      onClick={() => props.sendGameEvent(props.event)}
+    >
+      {props.text}
+    </button>
   );
 }

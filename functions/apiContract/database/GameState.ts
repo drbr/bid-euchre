@@ -14,5 +14,4 @@ export type Bid =
   | 48
   | 96
   | 192
-  | null
   | 'pass';

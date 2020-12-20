@@ -35,8 +35,6 @@ export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
       return (
         <BiddingDisplay {...((props as unknown) as BiddingDisplayProps)} />
       );
-    case 'entry':
-      return <OneButton {...props} />;
     case 'checkWinningBidder':
     case 'waitForDeal':
     case 'roundComplete':
@@ -50,10 +48,10 @@ export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
   }
 }
 
-function OneButton(props: RoundDisplayProps) {
-  return (
-    <button onClick={() => props.sendGameEvent({ type: 'NEXT' })}>
-      Send NEXT event
-    </button>
-  );
-}
+// function OneButton(props: RoundDisplayProps) {
+//   return (
+//     <button onClick={() => props.sendGameEvent({ type: 'NEXT' })}>
+//       Send NEXT event
+//     </button>
+//   );
+// }

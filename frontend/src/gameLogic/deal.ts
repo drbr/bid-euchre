@@ -10,6 +10,16 @@ import { Position } from '../../../functions/apiContract/database/GameState';
 const NUMBER_OF_CARDS_PER_HAND = 6;
 
 export function deal(): Record<Position, Hand> {
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const hands = dealOnce();
+    if (!wasAnyPlayerDealtABadHand(hands)) {
+      return hands;
+    }
+  }
+}
+
+export function dealOnce(): Record<Position, Hand> {
   const deck = generateDeckOfCards();
   const shuffled = _.shuffle(deck);
   const fourHands = _.chunk(shuffled, NUMBER_OF_CARDS_PER_HAND);
@@ -35,4 +45,16 @@ function generateDeckOfCards(): Card[] {
   }
 
   return deck;
+}
+
+/**
+ * In our rules, if a player was dealt four 9s, it qualifies for an automatic redeal. Other "bad
+ * hand" conditions could be added here too, if we want to add game config to support them.
+ */
+function wasAnyPlayerDealtABadHand(hands: Record<Position, Hand>): boolean {
+  function handContainsFourNines(hand: Hand): boolean {
+    return hand.filter((card) => card.rank === '9').length === 4;
+  }
+
+  return _.some(hands, handContainsFourNines);
 }

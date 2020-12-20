@@ -18,7 +18,6 @@ export type RoundContext = {
 export type RoundMeta = unknown;
 
 export type RoundStatesGeneric<T> = {
-  entry: T;
   waitForDeal: T;
   bidding: T;
   checkWinningBidder: T;

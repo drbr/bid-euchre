@@ -21,16 +21,11 @@ export const RoundStates: StateNodeConfig<
   RoundEvent
 > = {
   key: 'round',
-  initial: 'entry',
+  initial: 'waitForDeal',
   entry: assign({
     currentDealer: (context) => NextPlayer[context.currentDealer] || 'north',
   }),
   states: {
-    entry: {
-      on: {
-        NEXT: { target: 'waitForDeal' },
-      },
-    },
     waitForDeal: {
       invoke: {
         id: 'dealHands',

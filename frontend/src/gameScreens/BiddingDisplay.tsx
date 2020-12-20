@@ -132,37 +132,37 @@ function BiddingDebugControls(props: BiddingDisplayProps) {
         {...props}
         event={{
           type: 'PLAYER_BID',
-          bid: 48,
+          bid: 'pass',
           position: 'north',
         }}
-        text="Send Bid Event 48 North"
+        text="Send Bid Event Pass North"
       />
       <DebugButton
         {...props}
         event={{
           type: 'PLAYER_BID',
-          bid: 12,
+          bid: 'pass',
           position: 'east',
         }}
-        text="Send Bid Event 12 East"
+        text="Send Bid Event Pass East"
       />
       <DebugButton
         {...props}
         event={{
           type: 'PLAYER_BID',
-          bid: 24,
+          bid: 'pass',
           position: 'south',
         }}
-        text="Send Bid Event 24 South"
+        text="Send Bid Event Pass South"
       />{' '}
       <DebugButton
         {...props}
         event={{
           type: 'PLAYER_BID',
-          bid: 24,
+          bid: 'pass',
           position: 'west',
         }}
-        text="Send Bid Event 24 West"
+        text="Send Bid Event Pass West"
       />
     </Box>
   );

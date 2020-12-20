@@ -4,7 +4,7 @@ import FlexView from 'react-flexview/lib';
 import { State } from 'xstate';
 import { subscribeToEntireDatabase } from '../firebase/FrontendDAO';
 import { useObservedState } from '../uiHelpers/useObservedState';
-import { useEventSender, EventSender } from './EventSender';
+import { EventSender, useEventSenderProps } from './EventSender';
 import {
   ExperimentEvent,
   ExperimentStateMachine,
@@ -23,7 +23,7 @@ const machineWithActions = machine.withConfig({
 export function Experiment() {
   useEffect(() => {
     document.title = 'Experiment';
-  }, []);
+  });
 
   useEffect(() => {
     runIsolatedMachine();
@@ -50,13 +50,23 @@ export function Experiment() {
 
   const databaseValue = useObservedState({}, subscribeToEntireDatabase);
 
-  const addOneActionSend = useEventSender(
-    { type: 'addOne' },
-    applyEventToMachine
+  const addOneActionSend = useEventSenderProps(
+    { type: 'addOne', value: undefined },
+    applyEventToMachine,
+    machine,
+    manualState
   );
-  const subtractOneActionSend = useEventSender(
-    { type: 'subtractOne' },
-    applyEventToMachine
+  const subtractOneActionSend = useEventSenderProps(
+    { type: 'subtractOne', value: undefined },
+    applyEventToMachine,
+    machine,
+    manualState
+  );
+  const addXActionSend = useEventSenderProps(
+    { type: 'addX', value: 4 },
+    applyEventToMachine,
+    machine,
+    manualState
   );
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -69,6 +79,7 @@ export function Experiment() {
     <div style={{ padding: 20 }}>
       <EventSender {...addOneActionSend} />
       <EventSender {...subtractOneActionSend} />
+      <EventSender {...addXActionSend} />
       <FlexView>
         <FlexView column grow>
           <h3>Machine State</h3>

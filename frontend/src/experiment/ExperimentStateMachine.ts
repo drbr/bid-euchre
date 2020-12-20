@@ -25,17 +25,20 @@ export type ExperimentStateSchema = {
   };
 };
 
-export type ExperimentEvent = { type: 'addOne' } | { type: 'subtractOne' };
+export type ExperimentEvent =
+  | { type: 'addOne'; value: undefined }
+  | { type: 'subtractOne'; value: undefined }
+  | { type: 'addX'; value: number };
 
 export const ExperimentActions: ActionFunctionMap<
   ExperimentContext,
   ExperimentEvent
 > = {
   increment: assign({
-    value: (context) => context.value + 1,
+    value: (context, event) => context.value + (event.value || 1),
   }),
   decrement: assign({
-    value: (context) => context.value - 1,
+    value: (context, event) => context.value - (event.value || 1),
   }),
   addEventToContext: assign({
     events: (context, event) => (context.events || []).concat(event),
@@ -66,11 +69,11 @@ export const ExperimentStateMachine = Machine<
     context: { value: 0, events: [] },
     states: {
       recordEvents: {
-        on: {
-          '*': {
-            actions: 'addEventToContext',
-          },
-        },
+        // on: {
+        //   '*': {
+        //     actions: 'addEventToContext',
+        //   },
+        // },
       },
       runExperiment: {
         initial: 'count',
@@ -90,6 +93,11 @@ export const ExperimentStateMachine = Machine<
                     string: 'Decrement transition via UI Alert Effect',
                   },
                 ],
+              },
+              addX: {
+                target: 'count',
+                cond: (context, event) => event.value >= 3,
+                actions: ['increment'],
               },
             },
           },

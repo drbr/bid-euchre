@@ -5,6 +5,10 @@ import * as React from 'react';
 import FlexView from 'react-flexview/lib';
 import { Bid } from '../../../functions/apiContract/database/GameState';
 import {
+  getHighestBid,
+  UltimateBidChart,
+} from '../gameLogic/euchreStateMachine/BiddingStateMachine';
+import {
   BiddingContext,
   BiddingEvent,
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
@@ -57,6 +61,9 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
 }
 
 function BidButtons(props: BiddingDisplayProps) {
+  const { highestBid } = getHighestBid(props.stateContext);
+  const ultimateBidValue = UltimateBidChart[highestBid];
+
   return (
     <FlexView hAlignContent="center" wrap={true}>
       <BidButton {...props} bidValue="pass" text="Pass" />
@@ -67,7 +74,7 @@ function BidButtons(props: BiddingDisplayProps) {
       <BidButton {...props} bidValue={5} />
       <BidButton {...props} bidValue={6} />
       <BidButton {...props} bidValue={12} />
-      <BidButton {...props} bidValue={24} />
+      <BidButton {...props} bidValue={ultimateBidValue} />
     </FlexView>
   );
 }
@@ -125,28 +132,28 @@ function BiddingDebugControls(props: BiddingDisplayProps) {
         {...props}
         event={{
           type: 'PLAYER_BID',
-          bid: 192,
+          bid: 48,
           position: 'north',
         }}
-        text="Send Bid Event 192 North"
+        text="Send Bid Event 48 North"
       />
       <DebugButton
         {...props}
         event={{
           type: 'PLAYER_BID',
-          bid: 3,
+          bid: 12,
           position: 'east',
         }}
-        text="Send Bid Event 3 East"
+        text="Send Bid Event 12 East"
       />
       <DebugButton
         {...props}
         event={{
           type: 'PLAYER_BID',
-          bid: 4,
+          bid: 24,
           position: 'south',
         }}
-        text="Send Bid Event 4 South"
+        text="Send Bid Event 24 South"
       />{' '}
       <DebugButton
         {...props}

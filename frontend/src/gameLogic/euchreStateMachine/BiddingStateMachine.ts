@@ -81,18 +81,34 @@ function wasBidMadeByAwaitedPlayer(
 }
 
 function isBidValid(context: BiddingContext, event: BiddingEvent): boolean {
+  // A player can always pass
   if (event.bid === 'pass') {
     return true;
   }
+
   const { highestBid } = getHighestBid(context);
-  if (!_.isNumber(highestBid)) {
-    return true;
-  } else if (event.bid > highestBid) {
-    return true;
-  } else {
-    return false;
-  }
+  const highestAllowed = UltimateBidChart[highestBid];
+  const highestExisting = _.isNumber(highestBid) ? highestBid : 0;
+  return event.bid > (highestExisting || 0) && event.bid <= highestAllowed;
 }
+
+/**
+ * The highest allowed bid for the highest value bid so far
+ */
+export const UltimateBidChart: Record<Bid, Bid> = {
+  pass: 24,
+  1: 24,
+  2: 24,
+  3: 24,
+  4: 24,
+  5: 24,
+  6: 24,
+  12: 24,
+  24: 48,
+  48: 96,
+  96: 192,
+  192: 192,
+};
 
 function haveAllBidsBeenMade(context: BiddingContext): boolean {
   return _.every(context.bids, (bid) => bid !== null);

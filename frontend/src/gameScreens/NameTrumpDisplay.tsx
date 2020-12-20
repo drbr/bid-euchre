@@ -1,11 +1,12 @@
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 import FlexView from 'react-flexview/lib';
 import { Suit } from '../../../functions/apiContract/database/Cards';
 import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { PlayerBidCard } from './BiddingDisplay';
 import { DebugButton } from './DebugButton';
-import { GameLayout } from './GameLayout';
+import { GameLayout, PLACEHOLDER } from './GameLayout';
 import { RoundDisplayProps } from './RoundDisplay';
 
 export function NameTrumpDisplay(props: RoundDisplayProps): JSX.Element {
@@ -41,12 +42,12 @@ export function NameTrumpDisplay(props: RoundDisplayProps): JSX.Element {
 
 function SuitButtons(props: RoundDisplayProps) {
   return (
-    <FlexView hAlignContent="center" wrap={true}>
+    <Grid container spacing={1} justify="center">
       <SuitButton {...props} suit="C" />
       <SuitButton {...props} suit="S" />
       <SuitButton {...props} suit="D" />
       <SuitButton {...props} suit="H" />
-    </FlexView>
+    </Grid>
   );
 }
 
@@ -64,21 +65,26 @@ function SuitButton(props: RoundDisplayProps & { suit: Suit }) {
   const enabled = props.isEventValid(event);
   const sendEvent = () => props.sendGameEvent(event);
 
-  const buttonText = SuitDisplay[props.suit].text;
+  const suitInfo = SuitDisplay[props.suit];
   return (
-    <Box p={1}>
-      <Button disabled={!enabled} onClick={sendEvent} variant="contained">
-        {buttonText}
+    <Grid item xs={3} sm={2}>
+      <Button
+        style={{ color: suitInfo.color, fontSize: 40 }}
+        disabled={!enabled}
+        onClick={sendEvent}
+        variant="contained"
+      >
+        <div style={{ marginTop: -15, marginBottom: -10 }}>{suitInfo.text}</div>
       </Button>
-    </Box>
+    </Grid>
   );
 }
 
-const SuitDisplay: Record<Suit, { text: string }> = {
-  H: { text: '♥️' },
-  D: { text: '♦️️' },
-  S: { text: '♠' },
-  C: { text: '♣️️' },
+const SuitDisplay: Record<Suit, { text: string; color: string }> = {
+  H: { text: '♥️', color: 'red' },
+  D: { text: '♦️️', color: 'red' },
+  S: { text: '♠', color: 'black' },
+  C: { text: '♣️️', color: 'black' },
 };
 
 function NameTrumpDebugControls(props: RoundDisplayProps) {

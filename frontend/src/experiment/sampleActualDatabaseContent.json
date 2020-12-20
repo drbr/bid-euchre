@@ -11,14 +11,14 @@
         }
       },
       "gameStates": {
-        "fullJson": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":{\"round\":\"entry\"}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null,\"currentDealer\":\"north\"},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false,\"changed\":true}",
+        "fullJson": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":{\"round\":\"waitForDeal\"}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null,\"currentDealer\":\"north\"},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false,\"changed\":true}",
         "privateContextsJson": {
           "HwULycbL7LakHBMrNdsXf": "{\"eventCount\":0,\"previousEventCount\":null}",
           "g_c2S3z-nZ9cFNadOBOu4": "{\"eventCount\":0,\"previousEventCount\":null}",
           "h9ZvMEpzbVWAs0IxcxCOu": "{\"eventCount\":0,\"previousEventCount\":null}",
           "ywL1GBB3sd5872oL86xSf": "{\"eventCount\":0,\"previousEventCount\":null}"
         },
-        "publicJson": "{\"value\":{\"runGame\":{\"round\":\"entry\"}},\"actions\":[],\"event\":{\"type\":\"xstate.init\"},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null,\"currentDealer\":\"north\"}}"
+        "publicJson": "{\"value\":{\"runGame\":{\"round\":\"waitForDeal\"}},\"actions\":[],\"event\":{\"type\":\"xstate.init\"},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null,\"currentDealer\":\"north\"}}"
       },
       "playerIdentities": {
         "east": "HwULycbL7LakHBMrNdsXf",

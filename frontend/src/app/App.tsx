@@ -1,5 +1,5 @@
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FlexView from 'react-flexview/lib';
 import { classes } from 'typestyle';
 import {
@@ -22,6 +22,11 @@ export function App(props: { children?: React.ReactChild }) {
     storeColorSchemeId(x);
     setColorSchemeId(x);
   }
+
+  useEffect(() => {
+    const newBackgroundColor = ColorSchemes[colorSchemeId].backgroundColor;
+    document.body.style.backgroundColor = newBackgroundColor;
+  }, [colorSchemeId]);
 
   return (
     <MuiThemeProvider theme={MaterialUITheme}>

@@ -46,7 +46,7 @@ export const subscribeToGameConfig: Subscription<GameIdParams, GameConfig> = (
   );
 };
 
-export const subscribeToPublicGameStateConfig: Subscription<
+export const subscribeToPublicGameState: Subscription<
   GameIdParams,
   GameStateConfig
 > = ({ gameId }, callback) => {

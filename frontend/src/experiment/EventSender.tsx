@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Event, EventObject, State, StateMachine, StateSchema } from 'xstate';
+import { EventObject, State, StateMachine, StateSchema } from 'xstate';
+import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 
 export function useEventSenderProps<
   C,
@@ -35,7 +36,7 @@ export function EventSender<C, SS extends StateSchema, E extends EventObject>(
   try {
     eventObj = JSON.parse(props.actionText);
   } catch (e) {
-    /* It's okay if it can't parse */
+    /* It's okay if it can't parse, we just won't do anything with that event */
   }
   const isEventValidForTransition = eventObj
     ? willEventApply(props.machine, props.currentState, eventObj)
@@ -57,16 +58,4 @@ export function EventSender<C, SS extends StateSchema, E extends EventObject>(
       ) : null}
     </div>
   );
-}
-
-function willEventApply<C, SS extends StateSchema, E extends EventObject>(
-  machine: StateMachine<C, SS, E>,
-  currentState: State<C, E>,
-  event: Event<E>
-): boolean {
-  try {
-    return machine.transition(currentState, event).changed ?? false;
-  } catch (e) {
-    return false;
-  }
 }

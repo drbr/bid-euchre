@@ -12,12 +12,19 @@ import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
 import { RoundDisplay, RoundDisplayProps } from './RoundDisplay';
 import { TransientState } from './TransientState';
 
+/**
+ * The "scoped" props are those whose types need to match the substate we're currently in.
+ * At each level of the game display component hierarchy, we re-scope these types to correspond
+ * to the context/event types at that level.
+ */
 export type ScopedGameDisplayProps<C, E extends EventObject> = {
   stateValue: StateValue;
   stateContext: C;
   sendGameEvent: (event: E) => void;
+  isEventValid: (event: E) => boolean;
 };
 
+/** The "unscoped" props are the same no matter which state we're currently in. */
 export type UnscopedGameDisplayProps = {
   gameConfig: InProgressGameConfig;
   seatedAt: Position | null;

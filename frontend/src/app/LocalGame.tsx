@@ -1,6 +1,9 @@
 import { useMachine } from '@xstate/react';
+import { AnyEventObject } from 'xstate';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
+import { GameEvent } from '../gameLogic/euchreStateMachine/GameStateTypes';
+import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import { GameDisplay } from '../gameScreens/GameDisplay';
 import * as LocalGameStates from './LocalGameStates';
 
@@ -9,6 +12,10 @@ export function LocalGame() {
     devTools: true,
     state: LocalGameStates.freshGame,
   });
+
+  function isEventValid(event: AnyEventObject): boolean {
+    return willEventApply(GameStateMachine, state, event as GameEvent);
+  }
 
   return (
     <div>
@@ -21,6 +28,7 @@ export function LocalGame() {
         stateValue={state.value}
         stateContext={state.context}
         sendGameEvent={send}
+        isEventValid={isEventValid}
         gameConfig={DummyGameConfig}
         seatedAt="east"
       />

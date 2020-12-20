@@ -5,6 +5,11 @@ import { GameStateMachine } from '../euchreStateMachine/GameStateMachine';
 import { GameEvent, GameState } from '../euchreStateMachine/GameStateTypes';
 import { HydratedGameState } from './serializeAndHydrateState';
 
+/**
+ * Thrown if the state machine does not accept the event.
+ */
+export class INVALID_STATE_TRANSITION_ERROR {}
+
 export async function transitionStateMachine(
   prev: HydratedGameState,
   event: GameEvent
@@ -26,6 +31,10 @@ export async function transitionStateMachine(
 
   machineService.send(event);
   const nextState = await deferred.promise;
+
+  if (!nextState.changed) {
+    throw new INVALID_STATE_TRANSITION_ERROR();
+  }
 
   // Manually increment the event count to help keep the clients and server in sync.
   // For every transition, we'll increase the event count by 1. We used to have the state machine

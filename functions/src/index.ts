@@ -1,4 +1,5 @@
 import * as functions from 'firebase-functions';
+import { INVALID_STATE_TRANSITION_ERROR } from '../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import {
   ID_COLLISION_ERROR,
   TRANSACTION_FAILED_ERROR,
@@ -6,7 +7,6 @@ import {
 import executeJoinGame from './entryPoints/executeJoinGame';
 import executeNewGame from './entryPoints/executeNewGame';
 import executeSendGameEvent, {
-  INVALID_STATE_TRANSITION_ERROR,
   STALE_STATE_ERROR,
   USER_NOT_AUTHORIZED_ERROR,
 } from './entryPoints/executeSendGameEvent';

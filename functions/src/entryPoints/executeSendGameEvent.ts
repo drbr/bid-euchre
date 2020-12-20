@@ -19,11 +19,6 @@ export class USER_NOT_AUTHORIZED_ERROR {}
  */
 export class STALE_STATE_ERROR {}
 
-/**
- * Thrown if the state machine does not accept the event.
- */
-export class INVALID_STATE_TRANSITION_ERROR {}
-
 export default async function executeSendGameEvent(
   request: SendGameEventRequest
 ): Promise<SendGameEventResult> {

@@ -8,14 +8,14 @@ import {
   hydrateStateFromJson,
   serializeState,
 } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { transitionStateMachine } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
+import {
+  INVALID_STATE_TRANSITION_ERROR,
+  transitionStateMachine,
+} from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import { SendGameEventRequest } from '../../apiContract/cloudFunctions/SendGameEvent';
 import { AllGameInfo } from '../../apiContract/database/DataModel';
 import * as DAO from '../databaseHelpers/BackendDAO';
-import {
-  INVALID_STATE_TRANSITION_ERROR,
-  STALE_STATE_ERROR,
-} from '../entryPoints/executeSendGameEvent';
+import { STALE_STATE_ERROR } from '../entryPoints/executeSendGameEvent';
 import { preparePublicAndPrivateStateForStorage } from './preparePublicAndPrivateStateForStorage';
 
 /**

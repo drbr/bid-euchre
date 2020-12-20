@@ -8,6 +8,7 @@ import {
 } from './BiddingStateMachine';
 import { BiddingContext } from './BiddingStateTypes';
 import {
+  NameTrumpEvent,
   RoundContext,
   RoundEvent,
   RoundMeta,
@@ -57,13 +58,7 @@ export const RoundStates: StateNodeConfig<
           (assignInitialBiddingContext(context) as unknown) as RoundContext
       ),
       exit: assign((context) => {
-        const { highestBid, highestBidder } = getHighestBid(
-          (context as unknown) as BiddingContext
-        );
-        return {
-          winningBid: highestBid,
-          winningBidder: highestBidder,
-        };
+        return getHighestBid((context as unknown) as BiddingContext);
       }),
       onDone: { target: 'checkWinningBidder' },
     },
@@ -75,12 +70,22 @@ export const RoundStates: StateNodeConfig<
           cond: allPlayersPassed,
         },
         {
-          target: 'nameTrump',
+          target: 'waitForPlayerToNameTrump',
         },
       ],
     },
 
-    nameTrump: {},
+    waitForPlayerToNameTrump: {
+      on: {
+        NAME_TRUMP: {
+          target: 'thePlay',
+          cond: wasTrumpNamedByHighestBidder,
+          actions: assign({
+            trump: (context, event) => event.trumpSuit,
+          }),
+        },
+      },
+    },
 
     thePlay: {
       on: {
@@ -105,6 +110,13 @@ export const RoundStates: StateNodeConfig<
 //   ConditionPredicate<RoundContext, RoundEvent>
 // > = {};
 
+function wasTrumpNamedByHighestBidder(
+  context: RoundContext,
+  event: NameTrumpEvent
+): boolean {
+  return context.highestBidder === event.position;
+}
+
 function allPlayersPassed(context: RoundContext): boolean {
-  return context.winningBid === 'pass';
+  return context.highestBid === 'pass';
 }

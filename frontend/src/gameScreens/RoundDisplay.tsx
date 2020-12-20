@@ -12,6 +12,7 @@ import {
   ScopedGameDisplayProps,
   UnscopedGameDisplayProps,
 } from './GameDisplay';
+import { NameTrumpDisplay } from './NameTrumpDisplay';
 import { TransientState } from './TransientState';
 
 export type RoundDisplayProps = ScopedGameDisplayProps<
@@ -35,12 +36,13 @@ export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
       return (
         <BiddingDisplay {...((props as unknown) as BiddingDisplayProps)} />
       );
+    case 'waitForPlayerToNameTrump':
+      return <NameTrumpDisplay {...props} />;
     case 'checkWinningBidder':
     case 'waitForDeal':
     case 'roundComplete':
     case 'scoring':
     case 'thePlay':
-    case 'nameTrump':
       return <TransientState substateName={substate} />;
     default:
       assertUnreachable(substate);

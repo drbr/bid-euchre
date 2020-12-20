@@ -10,8 +10,8 @@ import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 export type RoundContext = {
   currentDealer: Position;
   private_hands: Record<Position, Hand>;
-  winningBidder?: Position;
-  winningBid?: Bid;
+  highestBidder?: Position;
+  highestBid?: Bid;
   trump?: Suit;
 };
 
@@ -21,7 +21,7 @@ export type RoundStatesGeneric<T> = {
   waitForDeal: T;
   bidding: T;
   checkWinningBidder: T;
-  nameTrump: T;
+  waitForPlayerToNameTrump: T;
   thePlay: T;
   scoring: T;
   roundComplete: T;
@@ -33,9 +33,16 @@ export type RoundStateSchema = {
   states: RoundStatesGeneric<TypedStateSchema<RoundMeta, RoundContext>>;
 };
 
+export type NameTrumpEvent = {
+  type: 'NAME_TRUMP';
+  position: Position;
+  trumpSuit: Suit;
+};
+
 export type RoundEvent =
   | { type: 'NEXT' }
   | { type: 'ASSIGN_HANDS'; hands: Record<Position, Hand> }
+  | NameTrumpEvent
   | PrivateActionCompleteEvent;
 
 export type RoundState = State<

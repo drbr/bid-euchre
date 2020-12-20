@@ -25,9 +25,7 @@ export const BiddingStates: StateNodeConfig<
       on: {
         PLAYER_BID: {
           target: 'checkIfBiddingIsComplete',
-          cond: (context, event) =>
-            wasBidMadeByAwaitedPlayer(context, event) &&
-            isBidValid(context, event),
+          cond: isBidEventValid,
           actions: assign({
             bids: (context, event) => ({
               ...context.bids,
@@ -90,6 +88,15 @@ function isBidValid(context: BiddingContext, event: BiddingEvent): boolean {
   const highestAllowed = UltimateBidChart[highestBid];
   const highestExisting = _.isNumber(highestBid) ? highestBid : 0;
   return event.bid > (highestExisting || 0) && event.bid <= highestAllowed;
+}
+
+function isBidEventValid(
+  context: BiddingContext,
+  event: BiddingEvent
+): boolean {
+  return (
+    wasBidMadeByAwaitedPlayer(context, event) && isBidValid(context, event)
+  );
 }
 
 /**

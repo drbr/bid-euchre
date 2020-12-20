@@ -10,12 +10,17 @@ import * as LocalGameStates from './LocalGameStates';
 export function LocalGame() {
   const [state, send] = useMachine(GameStateMachine, {
     devTools: true,
-    state: LocalGameStates.freshGame,
+    state: LocalGameStates.startBidding,
   });
 
   function isEventValid(event: AnyEventObject): boolean {
     return willEventApply(GameStateMachine, state, event as GameEvent);
   }
+
+  /* Add stuff to the window for debugging */
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  (window as any).gameState = state;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return (
     <div>

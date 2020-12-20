@@ -19,6 +19,10 @@ export async function transitionStateMachine(
 
   const machineService = interpret(GameStateMachine)
     .onTransition((state, event) => {
+      // The `onTransition` callback gets invoked on the machine's initial state, so we need to
+      // ignore the first invocation otherwise we'd resolve the promise before the transition even
+      // happens. We continue to let the state machine run until it's finished executing all of its
+      // internal activities.
       if (ignoredInitialStateCallback) {
         const hasAnyOutstandingActivities = _.some(state.activities);
         if (!hasAnyOutstandingActivities) {

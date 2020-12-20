@@ -24,7 +24,7 @@ export type GameStateSchema = {
     runGame: {
       states: GameStatesGeneric<TypedStateSchema<GameMeta, GameContext>>;
     };
-    recordEvents: TypedStateSchema<GameMeta, GameContext>;
+    // recordEvents: TypedStateSchema<GameMeta, GameContext>;
   };
 };
 

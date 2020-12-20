@@ -27,11 +27,15 @@ export async function transitionStateMachine(
   machineService.send(event);
   const nextState = await deferred.promise;
 
-  // Manually add the previous event count into the state object so the client can verify
-  // that it didn't skip an update. One would think that the event count always increments by 1,
-  // but the machine increments the count by more than 1 for some transitions.
-  nextState.context.previousEventCount =
-    prev?.hydratedState.context.eventCount || null;
+  // Manually increment the event count to help keep the clients and server in sync.
+  // For every transition, we'll increase the event count by 1. We used to have the state machine
+  // do this automatically via a parallel state node at the root, but that caused every state's
+  // `changed` attribute to be true even when nothing in the actual game context changed. So now we
+  // take care of this outside of the state machine.
+  const prevEventCount = prev?.hydratedState?.context.eventCount ?? null;
+  const nextEventCount = (prevEventCount || 0) + 1;
+  nextState.context.eventCount = nextEventCount;
+  nextState.context.previousEventCount = prevEventCount;
 
   return nextState;
 }

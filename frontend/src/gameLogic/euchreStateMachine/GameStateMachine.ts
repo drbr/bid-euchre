@@ -1,4 +1,4 @@
-import { ActionFunctionMap, assign, Machine, StateNodeConfig } from 'xstate';
+import { Machine, StateNodeConfig } from 'xstate';
 import { BiddingContext } from './BiddingStateTypes';
 import {
   GameContext,
@@ -21,11 +21,11 @@ const initialGameContext: GameContext = {
   previousEventCount: null,
 };
 
-const GameActions: ActionFunctionMap<GameContext, GameEvent> = {
-  addEventToContext: assign({
-    eventCount: (context) => context.eventCount + 1,
-  }),
-};
+// const GameActions: ActionFunctionMap<GameContext, GameEvent> = {
+//   addEventToContext: assign({
+//     eventCount: (context) => context.eventCount + 1,
+//   }),
+// };
 
 export const GameStateMachine = Machine<
   GameContext,
@@ -55,16 +55,16 @@ export const GameStateMachine = Machine<
           gameComplete: { type: 'final' },
         },
       },
-      recordEvents: {
-        on: {
-          '*': {
-            actions: 'addEventToContext',
-          },
-        },
-      },
+      // recordEvents: {
+      //   on: {
+      //     '*': {
+      //       actions: 'addEventToContext',
+      //     },
+      //   },
+      // },
     },
-  },
-  {
-    actions: GameActions,
   }
+  // {
+  //   actions: GameActions,
+  // }
 );

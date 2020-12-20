@@ -6,17 +6,18 @@ import FlexView from 'react-flexview/lib';
 import { Bid } from '../../../functions/apiContract/database/GameState';
 import {
   getHighestBid,
-  UltimateBidChart,
+  UltimateBidChart
 } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import {
   BiddingContext,
-  BiddingEvent,
+  BiddingEvent
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
+import { DebugButton } from './DebugButton';
 import {
   ScopedGameDisplayProps,
-  UnscopedGameDisplayProps,
+  UnscopedGameDisplayProps
 } from './GameDisplay';
 import { GameLayout, PLACEHOLDER } from './GameLayout';
 
@@ -41,22 +42,20 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
       : `Waiting for ${awaitedPlayerName} to bid…`;
 
   return (
-    <div>
-      <GameLayout
-        seatedAt={props.seatedAt}
-        awaitedPosition={awaitedPosition}
-        renderPlayerElement={(position) => (
-          <PlayerBidCard
-            playerName={props.gameConfig.playerFriendlyNames[position]}
-            bid={bids[position]}
-          />
-        )}
-        promptMessage={promptMessage}
-        hands={props.stateContext.private_hands}
-        userActionElement={<BidButtons {...props} />}
-        debugControls={<BiddingDebugControls {...props} />}
-      />
-    </div>
+    <GameLayout
+      seatedAt={props.seatedAt}
+      awaitedPosition={awaitedPosition}
+      renderPlayerElement={(position) => (
+        <PlayerBidCard
+          playerName={props.gameConfig.playerFriendlyNames[position]}
+          bid={bids[position]}
+        />
+      )}
+      promptMessage={promptMessage}
+      hands={props.stateContext.private_hands}
+      userActionElement={<BidButtons {...props} />}
+      debugControls={<BiddingDebugControls {...props} />}
+    />
   );
 }
 
@@ -105,7 +104,7 @@ function BidButton(
   );
 }
 
-function PlayerBidCard(props: { playerName: string; bid: Bid | null }) {
+export function PlayerBidCard(props: { playerName: string; bid: Bid | null }) {
   const translatedBid =
     props.bid === 'pass'
       ? 'Pass'
@@ -126,58 +125,38 @@ function PlayerBidCard(props: { playerName: string; bid: Bid | null }) {
 }
 
 function BiddingDebugControls(props: BiddingDisplayProps) {
+  function renderButton(event: BiddingEvent) {
+    return (
+      <DebugButton
+        {...props}
+        event={event}
+        text={(event) => `Send bid event ${event.bid} ${event.position}`}
+      />
+    );
+  }
+
   return (
     <Box display="flex" flexDirection="column" p={3}>
-      <DebugButton
-        {...props}
-        event={{
-          type: 'PLAYER_BID',
-          bid: 'pass',
-          position: 'north',
-        }}
-        text="Send Bid Event Pass North"
-      />
-      <DebugButton
-        {...props}
-        event={{
-          type: 'PLAYER_BID',
-          bid: 'pass',
-          position: 'east',
-        }}
-        text="Send Bid Event Pass East"
-      />
-      <DebugButton
-        {...props}
-        event={{
-          type: 'PLAYER_BID',
-          bid: 'pass',
-          position: 'south',
-        }}
-        text="Send Bid Event Pass South"
-      />{' '}
-      <DebugButton
-        {...props}
-        event={{
-          type: 'PLAYER_BID',
-          bid: 'pass',
-          position: 'west',
-        }}
-        text="Send Bid Event Pass West"
-      />
+      {renderButton({
+        type: 'PLAYER_BID',
+        bid: 'pass',
+        position: 'north',
+      })}
+      {renderButton({
+        type: 'PLAYER_BID',
+        bid: 2,
+        position: 'east',
+      })}
+      {renderButton({
+        type: 'PLAYER_BID',
+        bid: 3,
+        position: 'south',
+      })}
+      {renderButton({
+        type: 'PLAYER_BID',
+        bid: 'pass',
+        position: 'west',
+      })}
     </Box>
-  );
-}
-
-function DebugButton(
-  props: BiddingDisplayProps & { event: BiddingEvent; text: string }
-) {
-  const enabled = props.isEventValid(props.event);
-  return (
-    <button
-      disabled={!enabled}
-      onClick={() => props.sendGameEvent(props.event)}
-    >
-      {props.text}
-    </button>
   );
 }

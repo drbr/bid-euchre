@@ -10,7 +10,7 @@ import * as LocalGameStates from './LocalGameStates';
 export function LocalGame() {
   const [state, send] = useMachine(GameStateMachine, {
     devTools: true,
-    state: LocalGameStates.startBidding,
+    state: LocalGameStates.nameTrump,
   });
 
   function isEventValid(event: AnyEventObject): boolean {

@@ -44,6 +44,7 @@ export function JoinGame(props: JoinGameProps) {
   return (
     <GameLayout
       seatedAt="south"
+      awaitedPosition={props.seatedAt ?? undefined}
       renderPlayerElement={(position) => (
         <JoinButton
           playerNameAtPosition={playerNames[position]}
@@ -89,10 +90,7 @@ function JoinButton(props: {
   return (
     <FlexView vAlignContent="center" hAlignContent="center" height={36}>
       {props.playerNameAtPosition ? (
-        <Typography
-          variant={props.seatedHere ? 'h6' : 'body1'}
-          // fontWeight={props.seatedHere ? 'bold' : undefined}
-        >
+        <Typography variant={props.seatedHere ? 'h6' : 'body1'}>
           {props.playerNameAtPosition}
         </Typography>
       ) : (

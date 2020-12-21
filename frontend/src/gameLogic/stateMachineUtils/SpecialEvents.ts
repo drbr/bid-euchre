@@ -1,3 +1,9 @@
+import { Position } from '../../../../functions/apiContract/database/GameState';
+
+export type PlayerSpecificEvent = {
+  position?: Position;
+};
+
 export type PrivateActionCompleteEvent = {
   type: 'PRIVATE_ACTION_COMPLETE';
 };

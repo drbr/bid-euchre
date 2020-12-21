@@ -1,9 +1,11 @@
 import * as _ from 'lodash';
 import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
+import { PlayerSpecificEvent } from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
 import {
   SendGameEventRequest,
   SendGameEventResult,
 } from '../../apiContract/cloudFunctions/SendGameEvent';
+import { Position } from '../../apiContract/database/GameState';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { incrementStateMachineAndTransactionallyStoreResult } from '../gameLogic/incrementAndStoreState';
 
@@ -34,11 +36,20 @@ export default async function executeSendGameEvent(
     throw new INVALID_GAME_STATUS_ERROR();
   }
 
-  const playerIsPartOfThisGame = _.includes(
+  const playerPositionInThisGame = _.findKey(
     gameInfo.playerIdentities,
-    playerId
-  );
-  if (!playerIsPartOfThisGame) {
+    (pid) => pid === playerId
+  ) as Position | undefined;
+  if (!playerPositionInThisGame) {
+    throw new USER_NOT_AUTHORIZED_ERROR();
+  }
+
+  // If the action is for a specific player, make sure the current player is submitting it
+  const positionEvent = event as PlayerSpecificEvent;
+  if (
+    positionEvent.position &&
+    positionEvent.position !== playerPositionInThisGame
+  ) {
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 

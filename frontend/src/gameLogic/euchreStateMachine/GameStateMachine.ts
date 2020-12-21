@@ -43,7 +43,9 @@ export const GameStateMachine = Machine<
         initial: 'entry',
         states: {
           entry: {
-            always: { target: 'round' },
+            on: {
+              START_GAME: 'round',
+            },
           },
           round: {
             ...(RoundStates as StateNodeConfig<

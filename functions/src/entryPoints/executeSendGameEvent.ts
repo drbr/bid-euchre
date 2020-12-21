@@ -7,7 +7,7 @@ import {
 } from '../../apiContract/cloudFunctions/SendGameEvent';
 import { Position } from '../../apiContract/database/GameState';
 import * as DAO from '../databaseHelpers/BackendDAO';
-import { incrementStateMachineAndTransactionallyStoreResult } from '../gameLogic/incrementAndStoreState';
+import { incrementStateMachineAndTransactionallyStoreResult } from '../stateMachineUtils/incrementAndStoreState';
 
 /**
  * Thrown if the user is not in the game

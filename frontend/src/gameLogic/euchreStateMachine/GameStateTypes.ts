@@ -28,7 +28,7 @@ export type GameStateSchema = {
   };
 };
 
-export type GameEvent = { type: never };
+export type GameEvent = { type: 'START_GAME' };
 
 export type GameState = State<
   GameContext,

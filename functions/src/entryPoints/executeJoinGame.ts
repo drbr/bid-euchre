@@ -6,7 +6,7 @@ import {
   JoinGameRequest,
   JoinGameResult,
 } from '../../apiContract/cloudFunctions/JoinGame';
-import { initializeGameStates } from '../gameLogic/initializeGameStates';
+import { initializeGameStates } from '../stateMachineUtils/initializeGameStates';
 import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
 
 export default async function executeJoinGame(

@@ -40,7 +40,6 @@ export type NameTrumpEvent = {
 };
 
 export type RoundEvent =
-  | { type: 'NEXT' }
   | { type: 'ASSIGN_HANDS'; hands: Record<Position, Hand> }
   | NameTrumpEvent
   | PrivateActionCompleteEvent;

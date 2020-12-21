@@ -106,9 +106,7 @@ export const RoundStates: StateNodeConfig<
     },
 
     scoring: {
-      on: {
-        NEXT: 'roundComplete',
-      },
+      always: 'roundComplete',
     },
 
     roundComplete: {

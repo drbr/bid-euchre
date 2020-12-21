@@ -1,11 +1,12 @@
 import { AnyEventObject } from 'xstate';
 import {
-  mapGameInfoFromDatabase,
+  mapGameConfigFromDatabase,
   mapGameStatesFromDatabase,
   mapPositionRecordFromDatabase,
 } from '../../../frontend/src/gameLogic/ModelMappers';
 import {
   AllGameInfo,
+  GameConfig,
   GameStates,
   GameStatus,
   PlayerIdentities,
@@ -26,15 +27,6 @@ export async function transactionallyCreateGameInfo(props: {
     generatePath: () => `/games/${props.generateGameId()}`,
     value: props.value,
   });
-}
-
-export async function getGameInfo(props: {
-  gameId: string;
-}): Promise<AllGameInfo | null> {
-  const snapshot = await firebaseDatabaseAdminClient
-    .ref(`/games/${props.gameId}`)
-    .once('value');
-  return mapGameInfoFromDatabase(snapshot.val());
 }
 
 export async function setGameStatus(props: {
@@ -80,6 +72,15 @@ export async function getPlayerIdentities(props: {
   return mapPositionRecordFromDatabase(snapshot.val());
 }
 
+export async function getGameConfig(props: {
+  gameId: string;
+}): Promise<GameConfig | null> {
+  const snapshot = await firebaseDatabaseAdminClient
+    .ref(`/games/${props.gameId}/gameConfig`)
+    .once('value');
+  return mapGameConfigFromDatabase(snapshot.val());
+}
+
 export async function getGameStates(props: {
   gameId: string;
 }): Promise<GameStates | null> {
@@ -87,6 +88,15 @@ export async function getGameStates(props: {
     .ref(`/games/${props.gameId}/gameStates`)
     .once('value');
   return mapGameStatesFromDatabase(snapshot.val());
+}
+
+export async function getGameStateFullJson(props: {
+  gameId: string;
+}): Promise<GameConfig | null> {
+  const snapshot = await firebaseDatabaseAdminClient
+    .ref(`/games/${props.gameId}/gameStates/fullJson`)
+    .once('value');
+  return mapGameConfigFromDatabase(snapshot.val());
 }
 
 export async function transactionallySetGameStates(props: {

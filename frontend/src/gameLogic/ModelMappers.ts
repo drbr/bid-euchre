@@ -1,6 +1,5 @@
 import { PartialDeep } from 'type-fest';
 import {
-  AllGameInfo,
   GameConfig,
   GameStates,
 } from '../../../functions/apiContract/database/DataModel';
@@ -16,28 +15,28 @@ import { EventCountContext } from './stateMachineUtils/TypedStateInterfaces';
  * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined
  * values.
  */
-export function mapGameInfoFromDatabase(
-  original: AllGameInfo | null | undefined
-): AllGameInfo | null {
-  if (!original) {
-    return null;
-  }
-  return {
-    gameStates: {
-      fullJson: original.gameStates.fullJson,
-      publicJson: original.gameStates.publicJson,
-      privateContextsJson: original.gameStates.privateContextsJson || {},
-    },
-    // The game config is initialized with the game info, so this will never be null.
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    gameConfig: mapGameConfigFromDatabase(original.gameConfig)!,
-    playerIdentities: mapPositionRecordFromDatabase(original.playerIdentities),
-  };
-}
+// export function mapGameInfoFromDatabase(
+//   original: AllGameInfo | null | undefined
+// ): AllGameInfo | null {
+//   if (!original) {
+//     return null;
+//   }
+//   return {
+//     gameStates: {
+//       fullJson: original.gameStates.fullJson,
+//       publicJson: original.gameStates.publicJson,
+//       privateContextsJson: original.gameStates.privateContextsJson || {},
+//     },
+//     // The game config is initialized with the game info, so this will never be null.
+//     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+//     gameConfig: mapGameConfigFromDatabase(original.gameConfig)!,
+//     playerIdentities: mapPositionRecordFromDatabase(original.playerIdentities),
+//   };
+// }
 
 /**
- * The frontend queries the game config by itself, so it might be null if the game hasn't been
- * initialized yet.
+ * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined
+ * values.
  */
 export function mapGameConfigFromDatabase(
   original: GameConfig | null | undefined
@@ -63,7 +62,7 @@ export function mapGameStatesFromDatabase(
   };
 }
 
-export function mapPublicGameStateConfigFromDatabase(
+export function mapPublicGameStateFromDatabase(
   original: string | null | undefined
 ): GameStateConfig | null {
   return original ? getStateConfigFromJson(original) : null;

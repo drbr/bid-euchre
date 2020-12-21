@@ -15,11 +15,11 @@ export default async function executeJoinGame(
   const { gameId, position, friendlyName } = request;
   const playerId = generateHardToGuessId();
 
-  const gameInfo = await DAO.getGameInfo({ gameId });
-  if (!gameInfo) {
+  const gameConfig = await DAO.getGameConfig({ gameId });
+  if (!gameConfig) {
     throw new GAME_NOT_FOUND_ERROR();
   }
-  if (gameInfo.gameConfig.gameStatus !== 'waitingToStart') {
+  if (gameConfig.gameStatus !== 'waitingToStart') {
     throw new INVALID_GAME_STATUS_ERROR();
   }
 

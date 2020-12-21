@@ -13,7 +13,7 @@ import {
   transitionStateMachine,
 } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import { SendGameEventRequest } from '../../apiContract/cloudFunctions/SendGameEvent';
-import { AllGameInfo } from '../../apiContract/database/DataModel';
+import { PlayerIdentities } from '../../apiContract/database/DataModel';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { assertEventsAreInSync } from './assertEventsAreInSync';
 import { preparePublicAndPrivateStateForStorage } from './preparePublicAndPrivateStateForStorage';
@@ -29,7 +29,7 @@ import { preparePublicAndPrivateStateForStorage } from './preparePublicAndPrivat
  */
 export async function incrementStateMachineAndTransactionallyStoreResult(
   request: SendGameEventRequest,
-  gameInfo: AllGameInfo
+  playerIdentities: PlayerIdentities
 ): Promise<GameState> {
   const { gameId, event, existingEventCount: eventCountFromClient } = request;
 
@@ -85,10 +85,7 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
       const {
         publicStateJson,
         privateContextsJsonByPlayerId,
-      } = preparePublicAndPrivateStateForStorage(
-        nextState,
-        gameInfo.playerIdentities
-      );
+      } = preparePublicAndPrivateStateForStorage(nextState, playerIdentities);
 
       return {
         fullJson: serializeState(nextState),

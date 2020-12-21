@@ -27,17 +27,18 @@ export default async function executeSendGameEvent(
   const { event, gameId, playerId } = request;
 
   // Make sure the game exists, is underway, and the current player is participating in it.
-  const gameInfo = await DAO.getGameInfo({ gameId });
-  if (!gameInfo) {
+  const gameConfig = await DAO.getGameConfig({ gameId });
+  if (!gameConfig) {
     throw new GAME_NOT_FOUND_ERROR();
   }
 
-  if (gameInfo.gameConfig.gameStatus !== 'inProgress') {
+  if (gameConfig.gameStatus !== 'inProgress') {
     throw new INVALID_GAME_STATUS_ERROR();
   }
 
+  const playerIdentities = await DAO.getPlayerIdentities({ gameId });
   const playerPositionInThisGame = _.findKey(
-    gameInfo.playerIdentities,
+    playerIdentities,
     (pid) => pid === playerId
   ) as Position | undefined;
   if (!playerPositionInThisGame) {
@@ -53,7 +54,10 @@ export default async function executeSendGameEvent(
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
-  await incrementStateMachineAndTransactionallyStoreResult(request, gameInfo);
+  await incrementStateMachineAndTransactionallyStoreResult(
+    request,
+    playerIdentities
+  );
 
   // Once the state is successfully updated, push the event to the server's private record.
   await DAO.pushGameEvent({ gameId, event });

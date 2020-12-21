@@ -1,15 +1,15 @@
 import * as functions from 'firebase-functions';
-import { INVALID_STATE_TRANSITION_ERROR } from '../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
+import { INVALID_STATE_TRANSITION_ERROR } from './backendStateMachineUtils/transitionStateMachine';
 import {
   ID_COLLISION_ERROR,
   TRANSACTION_FAILED_ERROR,
 } from './databaseHelpers/CrudHelpers';
-import executeJoinGame from './entryPoints/executeJoinGame';
-import executeNewGame from './entryPoints/executeNewGame';
+import executeJoinGame from './activities/executeJoinGame';
+import executeNewGame from './activities/executeNewGame';
 import executeSendGameEvent, {
   STALE_STATE_ERROR,
   USER_NOT_AUTHORIZED_ERROR,
-} from './entryPoints/executeSendGameEvent';
+} from './activities/executeSendGameEvent';
 
 /** Thrown when the game with the given ID does not exist */
 export class GAME_NOT_FOUND_ERROR {}

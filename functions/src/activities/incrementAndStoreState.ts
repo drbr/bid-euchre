@@ -1,4 +1,3 @@
-import * as functions from 'firebase-functions';
 import {
   GameEvent,
   GameState,
@@ -8,15 +7,12 @@ import {
   hydrateStateFromJson,
   serializeState,
 } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
-import {
-  INVALID_STATE_TRANSITION_ERROR,
-  transitionStateMachine,
-} from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import { SendGameEventRequest } from '../../apiContract/cloudFunctions/SendGameEvent';
 import { PlayerIdentities } from '../../apiContract/database/DataModel';
+import { preparePublicAndPrivateStateForStorage } from '../backendStateMachineUtils/preparePublicAndPrivateStateForStorage';
+import { transitionStateMachine } from '../backendStateMachineUtils/transitionStateMachine';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { assertEventsAreInSync } from './assertEventsAreInSync';
-import { preparePublicAndPrivateStateForStorage } from './preparePublicAndPrivateStateForStorage';
 
 /**
  * The Firebase database does not support asynchronous transaction updaters. Usually it would be a
@@ -46,18 +42,10 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
     throwIfNull: true,
   });
 
-  let nextState = hydratedCurrentState.hydratedState;
-  try {
-    nextState = await transitionStateMachine(
-      hydratedCurrentState,
-      event as GameEvent
-    );
-  } catch (e) {
-    // The state machine runs in Strict Mode, so an event not enumerated in the state machine should
-    // get caught here.
-    functions.logger.error(e);
-    throw new INVALID_STATE_TRANSITION_ERROR();
-  }
+  const nextState = await transitionStateMachine(
+    hydratedCurrentState,
+    event as GameEvent
+  );
 
   // Sometimes the transaction update will run multiple times, seemingly unnecessarily – the first
   // time, `current` will be undefined, and then the second time it'll be correct. We want to make

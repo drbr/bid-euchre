@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions';
-import { STALE_STATE_ERROR } from '../entryPoints/executeSendGameEvent';
+import { STALE_STATE_ERROR } from './executeSendGameEvent';
 
 /**
  * Before applying the event, verify that the current state is in sync
@@ -13,7 +13,8 @@ import { STALE_STATE_ERROR } from '../entryPoints/executeSendGameEvent';
 export function assertEventsAreInSync(
   eventCountA: number | null,
   eventCountB: number | null,
-  options: { throwIfNull: boolean; }): { countsWereNull: boolean; } {
+  options: { throwIfNull: boolean }
+): { countsWereNull: boolean } {
   const { throwIfNull } = options;
 
   if (eventCountA === null || eventCountB === null) {

@@ -4,6 +4,10 @@ export type PlayerSpecificEvent = {
   position?: Position;
 };
 
+export type StartGameEvent = {
+  type: 'START_GAME';
+};
+
 export type PrivateActionCompleteEvent = {
   type: 'PRIVATE_ACTION_COMPLETE';
 };

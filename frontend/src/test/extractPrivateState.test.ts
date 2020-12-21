@@ -1,4 +1,4 @@
-import { extractPublicAndPrivateGameStateContexts } from '../../../functions/src/gameLogic/extractPrivateState';
+import { extractPublicAndPrivateGameStateContexts } from '../../../functions/src/backendStateMachineUtils/extractPrivateState';
 import { forEachPosition } from '../gameLogic/utils/ModelHelpers';
 import {
   SampleFullContext,
@@ -9,7 +9,9 @@ import {
 
 describe('extractPrivateGameState', () => {
   test('should return the public game state with the private fields removed', () => {
-    const { publicContext: publicGameStateContext } = extractPublicAndPrivateGameStateContexts(
+    const {
+      publicContext: publicGameStateContext,
+    } = extractPublicAndPrivateGameStateContexts(
       SampleFullContext,
       SamplePlayerIdentities
     );
@@ -20,7 +22,10 @@ describe('extractPrivateGameState', () => {
   test('should return one private state per player ID, with only the private fields and the event counts', () => {
     const {
       privateContextsByPlayerId: privateContexts,
-    } = extractPublicAndPrivateGameStateContexts(SampleFullContext, SamplePlayerIdentities);
+    } = extractPublicAndPrivateGameStateContexts(
+      SampleFullContext,
+      SamplePlayerIdentities
+    );
 
     forEachPosition(SamplePlayerIdentities, (playerId, position) => {
       const playerPrivateContext = privateContexts[playerId];

@@ -15,8 +15,10 @@ export type TransitionTestStatesGeneric<T> = {
   destination: T;
   autoTransition1: T;
   autoTransition2: T;
+  respondsToAutoTransitionAndNext: T;
   secretAction: T;
-  respondsToMultipleAutomaticEvents: T;
+  invokeSecretAction: T;
+  respondsToSecretActionAndNext: T;
 };
 
 export type TransitionTestStateSchema = {
@@ -64,8 +66,10 @@ export const TransitionTestStateMachine = Machine<
         simpleEventWithTransientState: 'simpleEventWithTransientState',
         autoTransition1: 'autoTransition1',
         autoTransition2: 'autoTransition2',
+        respondsToAutoTransitionAndNext: 'respondsToAutoTransitionAndNext',
         secretAction: 'secretAction',
-        respondsToMultipleAutomaticEvents: 'respondsToMultipleAutomaticEvents',
+        invokeSecretAction: 'invokeSecretAction',
+        respondsToSecretActionAndNext: 'respondsToSecretActionAndNext',
       },
     },
     destination: {
@@ -83,13 +87,27 @@ export const TransitionTestStateMachine = Machine<
     autoTransition2: {
       on: { AUTO_TRANSITION: 'autoTransition1' },
     },
+    respondsToAutoTransitionAndNext: {
+      on: {
+        AUTO_TRANSITION: 'entry',
+        NEXT: 'entry',
+      },
+    },
     secretAction: {
       on: { SECRET_ACTION_COMPLETE: 'destination' },
     },
-    respondsToMultipleAutomaticEvents: {
+    invokeSecretAction: {
+      on: { NEXT: 'secretAction' },
+      invoke: {
+        src: (context, event) => (callback, onReceive) => {
+          callback({ type: 'NEXT', data: 'TOP SECRET' });
+        },
+      },
+    },
+    respondsToSecretActionAndNext: {
       on: {
-        AUTO_TRANSITION: 'entry',
         SECRET_ACTION_COMPLETE: 'entry',
+        NEXT: 'entry',
       },
     },
   },

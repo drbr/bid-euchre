@@ -1,12 +1,9 @@
 import * as _ from 'lodash';
+import { AnyEventObject, interpret, State, StateMachine } from 'xstate';
 import {
-  AnyEventObject,
-  EventObject,
-  interpret,
-  State,
-  StateMachine,
-} from 'xstate';
-import { HydratedState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+  HydratedState,
+  sanitizeStateMetadata,
+} from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import {
   AutoTransitionEvent,
   SecretActionCompleteEvent,
@@ -46,10 +43,11 @@ export async function transitionStateMachine<
   event: E
 ): Promise<State<C, E, SS>[]> {
   const machineService = interpret(stateMachine);
-  const transitionedStates: State<C, E, SS>[] = [];
-  const deferred = new SimpleDeferred<State<C, E, SS>[]>();
 
   try {
+    const deferred = new SimpleDeferred<State<C, E, SS>[]>();
+    const transitionedStates: State<C, E, SS>[] = [];
+
     let ignoredInitialStateCallback = false;
     machineService.onTransition((state) => {
       const mostRecentPreviousState =
@@ -61,13 +59,13 @@ export async function transitionStateMachine<
       // its internal activities.
       if (ignoredInitialStateCallback) {
         try {
-          const { finished, expose, sendEvent } = processNextState(
+          const { processedState, finished, sendEvent } = processNextState(
             mostRecentPreviousState,
             state
           );
 
-          if (expose) {
-            transitionedStates.push(state);
+          if (processedState) {
+            transitionedStates.push(processedState);
           }
           if (sendEvent) {
             machineService.send(sendEvent);
@@ -105,20 +103,21 @@ export async function transitionStateMachine<
  *     machine's expectations
  * @returns
  *   - `finished` – true if this is the last state we expect to get from the machine
- *   - `expose` – true if this state should be exposed to the outside world
+ *   - `processedState` – the version of the state to expose externally, or undefined if it
+ *     shouldn't be exposed
  *   - `sendEvent` – the type of the event (if any) that should be sent back into the machine to
  *     continue the transition
  */
 function processNextState<
   C extends EventCountContext,
-  E extends EventObject,
+  E extends AnyEventObject,
   SS
 >(
-  prevState: State<C, E, SS>,
+  prevState: { context: C },
   nextState: State<C, E, SS>
 ): {
+  processedState?: State<C, E, SS>;
   finished: boolean;
-  expose: boolean;
   sendEvent?: typeof AUTO_TRANSITION | typeof SECRET_ACTION_COMPLETE;
 } {
   // Non-enumerated events will get caught above, but it's still possible to send an event with the
@@ -136,6 +135,7 @@ function processNextState<
   nextState.context.eventCount = nextEventCount;
   nextState.context.previousEventCount = prevEventCount;
 
+  const processedState = sanitizeStateMetadata(nextState) as State<C, E, SS>;
   const hasAnyOutstandingActivities = _.some(nextState.activities);
   const nextEvents = nextState.nextEvents;
 
@@ -151,8 +151,8 @@ function processNextState<
       );
     }
     return {
+      processedState,
       finished: false,
-      expose: true,
       sendEvent: 'AUTO_TRANSITION',
     };
   } else if (nextEvents.includes(SECRET_ACTION_COMPLETE)) {
@@ -168,13 +168,12 @@ function processNextState<
     }
     return {
       finished: false,
-      expose: false,
       sendEvent: 'SECRET_ACTION_COMPLETE',
     };
   } else {
     return {
+      processedState,
       finished: !hasAnyOutstandingActivities,
-      expose: true,
     };
   }
 }

@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { PartialDeep } from 'type-fest';
-import { EventObject, State, Typestate } from 'xstate';
+import { AnyEventObject, EventObject, State, Typestate } from 'xstate';
 import { GameStateMachine } from '../euchreStateMachine/GameStateMachine';
 import {
   GameContext,
@@ -50,10 +50,8 @@ export function hydrateStateFromJson(stateAsJson: string): HydratedGameState {
 }
 
 export function serializeState(
-  state: GameState | StateWithPartialContext
+  state: GameState | StateWithPartialContext | SanitizedState<any, any, any> // eslint-disable-line @typescript-eslint/no-explicit-any
 ): string {
-  // TODO: Sanitize the metadata for _all_ states and remove the standalone
-  // sanitizeStateMetadata method
   return JSON.stringify(state);
 }
 
@@ -62,6 +60,16 @@ export function serializeState(
  * information. Clients don't need them in order to create the state on their end, so we whitelist
  * the "safe" fields for sending to the clients.
  */
-export function sanitizeStateMetadata(state: GameState) {
+export function sanitizeStateMetadata<
+  C extends EventCountContext,
+  E extends AnyEventObject,
+  SS
+>(state: State<C, E, SS>) {
   return _.pick(state, 'value', 'actions', 'event', '_event', 'context');
 }
+
+export type SanitizedState<
+  C extends EventCountContext,
+  E extends AnyEventObject,
+  SS
+> = Pick<State<C, E, SS>, 'value' | 'actions' | 'event' | '_event' | 'context'>;

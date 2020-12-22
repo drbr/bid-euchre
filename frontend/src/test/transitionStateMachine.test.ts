@@ -56,20 +56,61 @@ describe('transitionStateMachine function', () => {
     });
 
     test('a state node may not respond to events in addition to AUTO_TRANSITION', () => {
-      const result = doTransition('respondsToMultipleAutomaticEvents');
+      const result = doTransition('respondsToAutoTransitionAndNext');
       return expect(result).rejects.toMatchErrorMessage(
         /may not respond to events in addition to AUTO_TRANSITION/
       );
     });
 
-    test('when an event contains secret data, its destination is passed over in the exposed transitions', async () => {
-      const { stateNames } = await doTransition('secretAction');
-      expect(stateNames).toEqual(['destination']);
-    });
+    test(
+      'when an event contains secret data, its immediate destination can be passed over ' +
+        'in the exposed transitions by responding to the SECRET_ACTION_COMPLETE event',
+      async () => {
+        const { stateNames } = await doTransition('secretAction', 'TOP SECRET');
+        expect(stateNames).toEqual(['destination']);
+      }
+    );
 
-    test("when an event contains secret data, the resulting state's event will be SECRET_ACTION_COMPLETE", async () => {
-      const { nextStates } = await doTransition('secretAction');
-      expect(nextStates[0].event).toEqual({ type: 'SECRET_ACTION_COMPLETE' });
+    test(
+      'when an event contains secret data, the resulting state ' +
+        'will not contain the secret data',
+      async () => {
+        const { nextStates } = await doTransition('secretAction', 'TOP SECRET');
+        expect(nextStates).toHaveLength(1);
+        const destinationState = nextStates[0];
+        expect(destinationState.event).toEqual({
+          type: 'SECRET_ACTION_COMPLETE',
+        });
+        expect(JSON.stringify(destinationState)).not.toContain('TOP SECRET');
+      }
+    );
+
+    test(
+      'when the machine invokes a secret event, the destination state is passed over ' +
+        'in the exposed transitions',
+      async () => {
+        const { stateNames } = await doTransition('invokeSecretAction');
+        expect(stateNames).toEqual(['invokeSecretAction', 'destination']);
+      }
+    );
+
+    test(
+      'when the machine invokes a secret event, the resulting states ' +
+        'will not contain the secret data',
+      async () => {
+        const { nextStates } = await doTransition('invokeSecretAction');
+        expect(nextStates).toHaveLength(2);
+        for (const destinationState of nextStates) {
+          expect(JSON.stringify(destinationState)).not.toContain('TOP SECRET');
+        }
+      }
+    );
+
+    test('a state node may not respond to events in addition to SECRET_ACTION_COMPLETE', () => {
+      const result = doTransition('respondsToSecretActionAndNext');
+      return expect(result).rejects.toMatchErrorMessage(
+        /may not respond to events in addition to SECRET_ACTION_COMPLETE/
+      );
     });
     /*
 
@@ -85,7 +126,6 @@ describe('transitionStateMachine function', () => {
     TEST6B responds to AUTO_TRANSITION, goes to TEST6C
     TEST6C responds to NEXT
     */
-    // Should error if state node responds to SECRET_EVENT_DONE/AUTO_TRANSITION and something else
 
     // Should error if auto-transition state has invoked a service
   });

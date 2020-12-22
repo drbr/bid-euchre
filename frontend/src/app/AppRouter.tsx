@@ -8,6 +8,7 @@ import { GamePathRouteProps } from './paths';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import { Experiment } from '../experiment/Experiment';
 import { ExperimentStateMachine } from '../experiment/ExperimentStateMachine';
+import { TransitionTestStateMachine } from '../test/TransitionTestStateMachine';
 
 export function AppRouter() {
   return (
@@ -29,6 +30,11 @@ export function AppRouter() {
       <StateMachineRoute
         path="/localGame/stateMachine"
         childrenWithMachine={<LocalGameRoute />}
+      />
+
+      <StateMachineRoute
+        path="/transitionTestStateMachine"
+        machine={TransitionTestStateMachine}
       />
     </Router>
   );

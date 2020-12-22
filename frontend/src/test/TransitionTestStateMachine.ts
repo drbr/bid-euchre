@@ -11,6 +11,10 @@ import {
 export type TransitionTestStatesGeneric<T> = {
   entry: T;
   simpleEvent: T;
+  simpleEventWithTransientState: T;
+  destination: T;
+  autoTransition1: T;
+  autoTransition2: T;
 };
 
 export type TransitionTestStateSchema = {
@@ -55,55 +59,25 @@ export const TransitionTestStateMachine = Machine<
     entry: {
       on: {
         simpleEvent: 'simpleEvent',
+        simpleEventWithTransientState: 'simpleEventWithTransientState',
+        autoTransition1: 'autoTransition1',
+        autoTransition2: 'autoTransition2',
       },
+    },
+    destination: {
+      on: { NEXT: 'entry' },
     },
     simpleEvent: {
       on: { NEXT: 'entry' },
     },
+    simpleEventWithTransientState: {
+      always: 'destination',
+    },
+    autoTransition1: {
+      on: { AUTO_TRANSITION: 'destination' },
+    },
+    autoTransition2: {
+      on: { AUTO_TRANSITION: 'autoTransition1' },
+    },
   },
 });
-
-/*
-
-// Happy case, one transient state
-entry responds to event TEST3, which goes to TEST3A
-TEST3A always goes to TEST3B
-TEST3B responds to NEXT
-
-// Two auto-transitions
-entry responds to event TEST1, goes to TEST1A
-TEST1A responds to AUTO_TRANSITION, goes to TEST1B
-TEST1B responds to AUTO_TRANSITION, goes to TEST1C
-TEST1C responds to NEXT
-
-// Secret data in event
-entry responds to event TEST2, which contains some secret info, goes to TEST2A
-TEST2A responds to SECRET_EVENT_DONE, goes to TEST2B
-TEST2B responds to NEXT
-
-// Auto-invoke secret event, then shroud it
-entry responds to TEST5, which goes to TEST5A
-TEST5A invokes a service that sends an event with some secret stuff, which goes to TEST5B
-TEST5B responds to SECRET_EVENT_DONE, goes to TEST5C
-TEST5C responds to NEXT
-
-// Secret data AND auto-invoke
-entry responds to TEST6, which contains some secret info, goes to TEST6A
-TEST6A responds to SECRET_EVENT_DONE, goes to TEST6B
-TEST6B responds to AUTO_TRANSITION, goes to TEST6C
-TEST6C responds to NEXT
-
-// Should error if state node responds to SECRET_EVENT_DONE/AUTO_TRANSITION and something else
-
-// Respond to non-enumerated event from entry
-
-// Respond to non-enumerated event from after an AUTO_TRANSITION
-
-// Respond to event without the right condition from entry
-
-// Respond to event without the right condition from after an AUTO_TRANSITION
-
-// Increments the event counts correctly from X
-
-// Increments the event counts correctly from null
-*/

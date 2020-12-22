@@ -21,7 +21,7 @@ async function doTransition(testKey: TransitionTestStateName, data?: string) {
 }
 
 describe('transitionStateMachine function', () => {
-  describe('Simple transitions', () => {
+  describe('Simple Transitions', () => {
     test('simple transition to another state', async () => {
       const { stateNames } = await doTransition('simpleEvent');
       expect(stateNames).toEqual(['simpleEvent']);
@@ -35,7 +35,7 @@ describe('transitionStateMachine function', () => {
     });
   });
 
-  describe('Auto-Transitions', () => {
+  describe('Automatic Transitions', () => {
     test('one auto-transition', async () => {
       const { stateNames } = await doTransition('autoTransition1');
       expect(stateNames).toEqual(['autoTransition1', 'destination']);
@@ -55,7 +55,7 @@ describe('transitionStateMachine function', () => {
       expect(nextStates[1].event).toEqual({ type: 'AUTO_TRANSITION' });
     });
 
-    test('a state node may not respond to events in addition to AUTO_TRANSITION', () => {
+    test('a state node is not allowed to respond to events in addition to AUTO_TRANSITION', () => {
       const result = doTransition('respondsToAutoTransitionAndNext');
       return expect(result).rejects.toMatchErrorMessage(
         /may not respond to events in addition to AUTO_TRANSITION/
@@ -106,28 +106,19 @@ describe('transitionStateMachine function', () => {
       }
     );
 
-    test('a state node may not respond to events in addition to SECRET_ACTION_COMPLETE', () => {
+    test('a state node is not allowed to respond to events in addition to SECRET_ACTION_COMPLETE', () => {
       const result = doTransition('respondsToSecretActionAndNext');
       return expect(result).rejects.toMatchErrorMessage(
         /may not respond to events in addition to SECRET_ACTION_COMPLETE/
       );
     });
-    /*
 
-    // Auto-invoke secret event, then shroud it
-    entry responds to TEST5, which goes to TEST5A
-    TEST5A invokes a service that sends an event with some secret stuff, which goes to TEST5B
-    TEST5B responds to SECRET_EVENT_DONE, goes to TEST5C
-    TEST5C responds to NEXT
-
-    // Secret data and then auto-invoke
-    entry responds to TEST6, which contains some secret info, goes to TEST6A
-    TEST6A responds to SECRET_EVENT_DONE, goes to TEST6B
-    TEST6B responds to AUTO_TRANSITION, goes to TEST6C
-    TEST6C responds to NEXT
-    */
-
-    // Should error if auto-transition state has invoked a service
+    test('a state node is not allowed to invoke a service and respond to the special events', async () => {
+      const result = doTransition('invokeAndAutoTransition');
+      return expect(result).rejects.toMatchErrorMessage(
+        /but there were still activities in progress/
+      );
+    });
   });
 
   describe('Invalid events', () => {

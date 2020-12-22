@@ -19,6 +19,7 @@ export type TransitionTestStatesGeneric<T> = {
   secretAction: T;
   invokeSecretAction: T;
   respondsToSecretActionAndNext: T;
+  invokeAndAutoTransition: T;
 };
 
 export type TransitionTestStateSchema = {
@@ -70,6 +71,7 @@ export const TransitionTestStateMachine = Machine<
         secretAction: 'secretAction',
         invokeSecretAction: 'invokeSecretAction',
         respondsToSecretActionAndNext: 'respondsToSecretActionAndNext',
+        invokeAndAutoTransition: 'invokeAndAutoTransition',
       },
     },
     destination: {
@@ -99,7 +101,7 @@ export const TransitionTestStateMachine = Machine<
     invokeSecretAction: {
       on: { NEXT: 'secretAction' },
       invoke: {
-        src: (context, event) => (callback, onReceive) => {
+        src: () => (callback) => {
           callback({ type: 'NEXT', data: 'TOP SECRET' });
         },
       },
@@ -108,6 +110,12 @@ export const TransitionTestStateMachine = Machine<
       on: {
         SECRET_ACTION_COMPLETE: 'entry',
         NEXT: 'entry',
+      },
+    },
+    invokeAndAutoTransition: {
+      on: { AUTO_TRANSITION: 'entry' },
+      invoke: {
+        src: () => (callback) => callback('NEXT'),
       },
     },
   },

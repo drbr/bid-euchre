@@ -49,7 +49,11 @@ export function hydrateStateFromJson(stateAsJson: string): HydratedGameState {
   return hydrateStateFromConfig(getStateConfigFromJson(stateAsJson));
 }
 
-export function serializeState(state: StateWithPartialContext): string {
+export function serializeState(
+  state: GameState | StateWithPartialContext
+): string {
+  // TODO: Sanitize the metadata for _all_ states and remove the standalone
+  // sanitizeStateMetadata method
   return JSON.stringify(state);
 }
 

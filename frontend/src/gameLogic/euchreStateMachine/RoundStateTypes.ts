@@ -4,7 +4,7 @@ import {
   Bid,
   Position,
 } from '../../../../functions/apiContract/database/GameState';
-import { PrivateActionCompleteEvent } from '../stateMachineUtils/SpecialEvents';
+import { SecretActionCompleteEvent } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type RoundContext = {
@@ -42,7 +42,7 @@ export type NameTrumpEvent = {
 export type RoundEvent =
   | { type: 'ASSIGN_HANDS'; hands: Record<Position, Hand> }
   | NameTrumpEvent
-  | PrivateActionCompleteEvent;
+  | SecretActionCompleteEvent;
 
 export type RoundState = State<
   RoundContext,

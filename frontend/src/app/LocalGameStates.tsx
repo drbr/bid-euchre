@@ -121,16 +121,16 @@ export const startBidding = JSON.parse(`
 		}
 	},
 	"_event": {
-		"name": "PRIVATE_ACTION_COMPLETE",
+		"name": "SECRET_ACTION_COMPLETE",
 		"data": {
-			"type": "PRIVATE_ACTION_COMPLETE"
+			"type": "SECRET_ACTION_COMPLETE"
 		},
 		"$$type": "scxml",
 		"type": "external"
 	},
 	"_sessionid": "x:3",
 	"event": {
-		"type": "PRIVATE_ACTION_COMPLETE"
+		"type": "SECRET_ACTION_COMPLETE"
 	},
 	"historyValue": {
 		"current": {

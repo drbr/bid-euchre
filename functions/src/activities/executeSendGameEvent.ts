@@ -26,7 +26,7 @@ export default async function executeSendGameEvent(
 ): Promise<SendGameEventResult> {
   const { event, gameId, playerId } = request;
 
-  // Make sure the game exists, is underway, and the current player is participating in it.
+  // Make sure the game exists and it's underway
   const gameConfig = await DAO.getGameConfig({ gameId });
   if (!gameConfig) {
     throw new GAME_NOT_FOUND_ERROR();
@@ -36,6 +36,7 @@ export default async function executeSendGameEvent(
     throw new INVALID_GAME_STATUS_ERROR();
   }
 
+  // Make sure the player submitting the event is participating in the game
   const playerIdentities = await DAO.getPlayerIdentities({ gameId });
   const playerPositionInThisGame = _.findKey(
     playerIdentities,
@@ -45,7 +46,7 @@ export default async function executeSendGameEvent(
     throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
-  // If the action is for a specific player, make sure the current player is submitting it
+  // If the action is for a specific player, make sure it's the player submitting the event
   const positionEvent = event as PlayerSpecificEvent;
   if (
     positionEvent.position &&

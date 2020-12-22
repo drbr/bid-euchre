@@ -1,10 +1,12 @@
+import * as _ from 'lodash';
+import { GameStateMachine } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
   GameState,
 } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import {
   getStateConfigFromJson,
-  hydrateStateFromJson,
+  hydrateStateFromConfig,
   serializeState,
 } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { SendGameEventRequest } from '../../apiContract/cloudFunctions/SendGameEvent';
@@ -26,26 +28,31 @@ import { assertEventsAreInSync } from './assertEventsAreInSync';
 export async function incrementStateMachineAndTransactionallyStoreResult(
   request: SendGameEventRequest,
   playerIdentities: PlayerIdentities
-): Promise<GameState> {
+): Promise<void> {
   const { gameId, event, existingEventCount: eventCountFromClient } = request;
 
-  const currentStates = await DAO.getGameStates({ gameId });
-  if (!currentStates) {
+  const currentState = await DAO.getGameStateFullJson({ gameId });
+  if (!currentState) {
     throw new Error(`No game state found in database for game ID ${gameId}`);
   }
 
-  const hydratedCurrentState = hydrateStateFromJson(currentStates.fullJson);
+  const hydratedCurrentState = hydrateStateFromConfig(currentState);
 
-  const eventCountFromDatabase =
+  const originalEventCountFromDatabase =
     hydratedCurrentState.hydratedState.context.eventCount;
-  assertEventsAreInSync(eventCountFromDatabase, eventCountFromClient, {
+  assertEventsAreInSync(originalEventCountFromDatabase, eventCountFromClient, {
     throwIfNull: true,
   });
 
-  const nextState = await transitionStateMachine(
+  const nextStates = await transitionStateMachine(
+    GameStateMachine,
     hydratedCurrentState,
     event as GameEvent
   );
+  const finalState = _.last(nextStates);
+  if (!finalState) {
+    throw new Error('Event did not result in a new game state!');
+  }
 
   // Sometimes the transaction update will run multiple times, seemingly unnecessarily – the first
   // time, `current` will be undefined, and then the second time it'll be correct. We want to make
@@ -53,34 +60,31 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
   // that's fine. So this variable helps keep track of that for error logging.
   let foundNullEventCountsOnLatestAttempt = false;
 
-  await DAO.transactionallySetGameStates({
+  await DAO.transactionallySetGameStateFullJson({
     gameId,
-    transactionUpdate: (current) => {
+    transactionUpdate: (currentJson) => {
       // Now that we've asynchronously computed the new state, verify the event count to make sure
       // that the state from the database hasn't changed. If it has changed, there's no way we can
       // recover, so we throw an error immediately. If this is the first of possibly multiple
       // transaction attempts, the `current` might be null, but in that case, the transaction will
-      // probably try again and the first iteration is ignored.
-      const newEventCountFromDatabase = current
-        ? getStateConfigFromJson(current.fullJson).context.eventCount
+      // (probably) try again and the first iteration is ignored.
+      const newEventCountFromDatabase = currentJson
+        ? getStateConfigFromJson(currentJson).context.eventCount
         : null;
       foundNullEventCountsOnLatestAttempt = assertEventsAreInSync(
-        eventCountFromDatabase,
+        originalEventCountFromDatabase,
         newEventCountFromDatabase,
         { throwIfNull: false }
       ).countsWereNull;
 
-      const {
-        publicStateJson,
-        privateContextsJsonByPlayerId,
-      } = preparePublicAndPrivateStateForStorage(nextState, playerIdentities);
-
-      return {
-        fullJson: serializeState(nextState),
-        publicJson: publicStateJson,
-        privateContextsJson: privateContextsJsonByPlayerId,
-      };
+      return serializeState(finalState);
     },
+  });
+
+  await storePublicAndPrivateStateViewsFromTransition({
+    gameId,
+    nextStates,
+    playerIdentities,
   });
 
   // If we found null event counts but didn't try again and eventually succeed, _then_ something
@@ -90,6 +94,26 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
       'Fetched null event counts during database transaction but did not recover!'
     );
   }
+}
 
-  return nextState;
+export async function storePublicAndPrivateStateViewsFromTransition(params: {
+  gameId: string;
+  nextStates: GameState[];
+  playerIdentities: PlayerIdentities;
+}): Promise<void> {
+  const { gameId, nextStates, playerIdentities } = params;
+  for (const state of nextStates) {
+    const {
+      publicStateJson,
+      privateContextsJsonByPlayerId,
+    } = preparePublicAndPrivateStateForStorage(state, playerIdentities);
+
+    await Promise.all([
+      DAO.setGameStatePublicJson({ gameId: gameId, publicStateJson }),
+      DAO.setGameStatePrivateContextsJson({
+        gameId: gameId,
+        privateContextsJsonByPlayerId,
+      }),
+    ]);
+  }
 }

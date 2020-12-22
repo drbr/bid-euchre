@@ -6,10 +6,7 @@ import {
   TransitionTestStateMachine,
 } from './TransitionTestStateMachine';
 
-async function doTransition(
-  testKey: TransitionTestStateName,
-  data?: string
-): Promise<TransitionTestStateName[]> {
+async function doTransition(testKey: TransitionTestStateName, data?: string) {
   const nextStates = await transitionStateMachine(
     TransitionTestStateMachine,
     { hydratedState: TransitionTestStateMachine.initialState },
@@ -19,50 +16,62 @@ async function doTransition(
     }
   );
 
-  return nextStates.map((s) => s.value as TransitionTestStateName);
+  const stateNames = nextStates.map((s) => s.value as TransitionTestStateName);
+  return { nextStates, stateNames };
 }
 
 describe('transitionStateMachine function', () => {
   describe('Simple transitions', () => {
     test('simple transition to another state', async () => {
-      const result = await doTransition('simpleEvent');
-      expect(result).toEqual(['simpleEvent']);
+      const { stateNames } = await doTransition('simpleEvent');
+      expect(stateNames).toEqual(['simpleEvent']);
     });
 
     test('transition to another state via a transient state', async () => {
-      const result = await doTransition('simpleEventWithTransientState');
-      expect(result).toEqual(['destination']);
+      const { stateNames } = await doTransition(
+        'simpleEventWithTransientState'
+      );
+      expect(stateNames).toEqual(['destination']);
     });
   });
 
-  describe('Automatic transitions', () => {
+  describe('Auto-Transitions', () => {
     test('one auto-transition', async () => {
-      const result = await doTransition('autoTransition1');
-      expect(result).toEqual(['autoTransition1', 'destination']);
+      const { stateNames } = await doTransition('autoTransition1');
+      expect(stateNames).toEqual(['autoTransition1', 'destination']);
     });
 
     test('two auto-transitions', async () => {
-      const result = await doTransition('autoTransition2');
-      expect(result).toEqual([
+      const { stateNames } = await doTransition('autoTransition2');
+      expect(stateNames).toEqual([
         'autoTransition2',
         'autoTransition1',
         'destination',
       ]);
     });
 
-    test('state cannot respond to events in addition to AUTO_TRANSITION', () => {
+    test("after an auto-transition, the resulting state's event will be AUTO_TRANSITION", async () => {
+      const { nextStates } = await doTransition('autoTransition1');
+      expect(nextStates[1].event).toEqual({ type: 'AUTO_TRANSITION' });
+    });
+
+    test('a state node may not respond to events in addition to AUTO_TRANSITION', () => {
       const result = doTransition('respondsToMultipleAutomaticEvents');
       return expect(result).rejects.toMatchErrorMessage(
         /may not respond to events in addition to AUTO_TRANSITION/
       );
     });
 
-    /*
+    test('when an event contains secret data, its destination is passed over in the exposed transitions', async () => {
+      const { stateNames } = await doTransition('secretAction');
+      expect(stateNames).toEqual(['destination']);
+    });
 
-    // Secret data in event
-    entry responds to event TEST2, which contains some secret info, goes to TEST2A
-    TEST2A responds to SECRET_EVENT_DONE, goes to TEST2B
-    TEST2B responds to NEXT
+    test("when an event contains secret data, the resulting state's event will be SECRET_ACTION_COMPLETE", async () => {
+      const { nextStates } = await doTransition('secretAction');
+      expect(nextStates[0].event).toEqual({ type: 'SECRET_ACTION_COMPLETE' });
+    });
+    /*
 
     // Auto-invoke secret event, then shroud it
     entry responds to TEST5, which goes to TEST5A
@@ -77,6 +86,8 @@ describe('transitionStateMachine function', () => {
     TEST6C responds to NEXT
     */
     // Should error if state node responds to SECRET_EVENT_DONE/AUTO_TRANSITION and something else
+
+    // Should error if auto-transition state has invoked a service
   });
 
   describe('Invalid events', () => {

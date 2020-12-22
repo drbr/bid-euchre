@@ -7,7 +7,10 @@ import {
   StateMachine,
 } from 'xstate';
 import { HydratedState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { AutoTransitionEvent } from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
+import {
+  AutoTransitionEvent,
+  SecretActionCompleteEvent,
+} from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
 import { EventCountContext } from '../../../frontend/src/gameLogic/stateMachineUtils/TypedStateInterfaces';
 import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDeferred';
 
@@ -17,8 +20,8 @@ import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDefe
 export class INVALID_STATE_TRANSITION_ERROR {}
 
 const AUTO_TRANSITION: AutoTransitionEvent['type'] = 'AUTO_TRANSITION';
-// const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
-//   'SECRET_ACTION_COMPLETE';
+const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
+  'SECRET_ACTION_COMPLETE';
 
 /**
  * Transitions the state machine from the given `prev` state and `event`, while also executing
@@ -58,23 +61,18 @@ export async function transitionStateMachine<
       // its internal activities.
       if (ignoredInitialStateCallback) {
         try {
-          const { finished } = processNextState(mostRecentPreviousState, state);
-          transitionedStates.push(state);
+          const { finished, expose, sendEvent } = processNextState(
+            mostRecentPreviousState,
+            state
+          );
 
-          const nextEvents = state.nextEvents;
-          if (nextEvents.includes(AUTO_TRANSITION)) {
-            if (nextEvents.length > 1) {
-              throw new Error(
-                `State ${state.value} may not respond to events in addition to AUTO_TRANSITION`
-              );
-            }
-            if (!finished) {
-              throw new Error(
-                `Tried to auto-transition from state ${state.value}, but there were still activities in progress`
-              );
-            }
-            machineService.send('AUTO_TRANSITION');
-          } else if (finished) {
+          if (expose) {
+            transitionedStates.push(state);
+          }
+          if (sendEvent) {
+            machineService.send(sendEvent);
+          }
+          if (finished) {
             deferred.resolve(transitionedStates);
           }
         } catch (e) {
@@ -101,8 +99,15 @@ export async function transitionStateMachine<
 /**
  * Processes the transitioned state, adding the `eventCount` bookkeeping in-place.
  *
- * @throws `INVALID_STATE_TRANSITION_ERROR` if `nextState` is not changed.
- * @returns `{finished: boolean}` true if this is the last state we expect to get from the machine
+ * @throws
+ *   - `INVALID_STATE_TRANSITION_ERROR` if `nextState` is not changed.
+ *   - `Error` if a valid state was reached but the state machine is not configured according to the
+ *     machine's expectations
+ * @returns
+ *   - `finished` – true if this is the last state we expect to get from the machine
+ *   - `expose` – true if this state should be exposed to the outside world
+ *   - `sendEvent` – the type of the event (if any) that should be sent back into the machine to
+ *     continue the transition
  */
 function processNextState<
   C extends EventCountContext,
@@ -111,7 +116,11 @@ function processNextState<
 >(
   prevState: State<C, E, SS>,
   nextState: State<C, E, SS>
-): { finished: boolean } {
+): {
+  finished: boolean;
+  expose: boolean;
+  sendEvent?: typeof AUTO_TRANSITION | typeof SECRET_ACTION_COMPLETE;
+} {
   // Non-enumerated events will get caught above, but it's still possible to send an event with the
   // wrong parameters that doesn't match any conditions. Those events get caught here.
   if (!nextState.changed) {
@@ -128,7 +137,44 @@ function processNextState<
   nextState.context.previousEventCount = prevEventCount;
 
   const hasAnyOutstandingActivities = _.some(nextState.activities);
-  return {
-    finished: !hasAnyOutstandingActivities,
-  };
+  const nextEvents = nextState.nextEvents;
+
+  if (nextEvents.includes(AUTO_TRANSITION)) {
+    if (nextEvents.length > 1) {
+      throw new Error(
+        `State ${nextState.value} may not respond to events in addition to AUTO_TRANSITION`
+      );
+    }
+    if (hasAnyOutstandingActivities) {
+      throw new Error(
+        `Tried to auto-transition from state ${nextState.value}, but there were still activities in progress`
+      );
+    }
+    return {
+      finished: false,
+      expose: true,
+      sendEvent: 'AUTO_TRANSITION',
+    };
+  } else if (nextEvents.includes(SECRET_ACTION_COMPLETE)) {
+    if (nextEvents.length > 1) {
+      throw new Error(
+        `State ${nextState.value} may not respond to events in addition to SECRET_ACTION_COMPLETE`
+      );
+    }
+    if (hasAnyOutstandingActivities) {
+      throw new Error(
+        `Tried to auto-transition from state ${nextState.value}, but there were still activities in progress`
+      );
+    }
+    return {
+      finished: false,
+      expose: false,
+      sendEvent: 'SECRET_ACTION_COMPLETE',
+    };
+  } else {
+    return {
+      finished: !hasAnyOutstandingActivities,
+      expose: true,
+    };
+  }
 }

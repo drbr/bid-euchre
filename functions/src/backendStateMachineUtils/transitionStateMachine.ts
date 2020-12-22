@@ -1,6 +1,10 @@
 import * as _ from 'lodash';
 import { EventObject, interpret, State, StateMachine } from 'xstate';
 import { HydratedState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+import {
+  AutoTransitionEvent,
+  SecretActionCompleteEvent,
+} from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
 import { EventCountContext } from '../../../frontend/src/gameLogic/stateMachineUtils/TypedStateInterfaces';
 import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDeferred';
 
@@ -8,6 +12,10 @@ import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDefe
  * Thrown if the state machine does not accept the event.
  */
 export class INVALID_STATE_TRANSITION_ERROR {}
+
+const AUTO_TRANSITION: AutoTransitionEvent['type'] = 'AUTO_TRANSITION';
+const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
+  'SECRET_ACTION_COMPLETE';
 
 /**
  * Transitions the state machine from the given `prev` state and `event`, while also executing
@@ -24,7 +32,7 @@ export class INVALID_STATE_TRANSITION_ERROR {}
  */
 export async function transitionStateMachine<
   C extends EventCountContext,
-  E extends EventObject,
+  E extends AutoTransitionEvent | SecretActionCompleteEvent,
   SS
 >(
   stateMachine: StateMachine<C, SS, E>,
@@ -49,7 +57,21 @@ export async function transitionStateMachine<
         try {
           const { finished } = processNextState(mostRecentPreviousState, state);
           transitionedStates.push(state);
-          if (finished) {
+
+          const nextEvents = state.nextEvents;
+          if (nextEvents.includes(AUTO_TRANSITION)) {
+            if (nextEvents.length > 1) {
+              throw new Error(
+                `State ${state.value} may not respond to events in addition to AUTO_TRANSITION`
+              );
+            }
+            if (!finished) {
+              throw new Error(
+                `Tried to auto-transition from state ${state.value}, but there were still activities in progress`
+              );
+            }
+            machineService.send('AUTO_TRANSITION');
+          } else if (finished) {
             deferred.resolve(transitionedStates);
           }
         } catch (e) {

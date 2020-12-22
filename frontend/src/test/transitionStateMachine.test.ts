@@ -41,7 +41,7 @@ describe('transitionStateMachine function', () => {
     });
 
     test('two auto-transitions', async () => {
-      const result = await doTransition('autoTransition1');
+      const result = await doTransition('autoTransition2');
       expect(result).toEqual([
         'autoTransition2',
         'autoTransition1',

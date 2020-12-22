@@ -19,6 +19,9 @@ export type StartGameEvent = {
  * server can capture it to send to the clients, but when it encounters such a state, it will
  * automatically send the AUTO_TRANSITION event back to the state machine to continue the game
  * further.
+ *
+ * **Because this event will be automatically invoked by the server, states responding to it
+ * should not respond to any other events, nor have `always` transitions.**
  */
 export type AutoTransitionEvent = {
   type: 'AUTO_TRANSITION';
@@ -32,6 +35,9 @@ export type AutoTransitionEvent = {
  * We can accomplish this with an extra state that responds to the SECRET_ACTION_COMPLETE event. The
  * server will automatically send this event when it transitions to such a state (similar to the
  * AUTO_TRANSITION events), but it will not send the intermediate state back to the client.
+ *
+ * **Because this event will be automatically invoked by the server, states responding to it
+ * should not respond to any other events, nor have `always` transitions.**
  */
 export type SecretActionCompleteEvent = {
   type: 'SECRET_ACTION_COMPLETE';

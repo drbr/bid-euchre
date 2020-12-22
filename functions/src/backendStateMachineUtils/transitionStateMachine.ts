@@ -1,9 +1,8 @@
-import * as functions from 'firebase-functions';
 import * as _ from 'lodash';
 import { EventObject, interpret, State, StateMachine } from 'xstate';
-import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDeferred';
 import { HydratedState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { EventCountContext } from '../../../frontend/src/gameLogic/stateMachineUtils/TypedStateInterfaces';
+import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDeferred';
 
 /**
  * Thrown if the state machine does not accept the event.
@@ -11,8 +10,8 @@ import { EventCountContext } from '../../../frontend/src/gameLogic/stateMachineU
 export class INVALID_STATE_TRANSITION_ERROR {}
 
 /**
- * Transitions the state machine from the given `prev` state and `event, _while also executing
- * activities involved in the transition_ and returning those transitions.
+ * Transitions the state machine from the given `prev` state and `event`, while also executing
+ * activities involved in the transition and returning those transitions.
  *
  * As is standard for XState machines, this transition is isolated; the machine on which this
  * transition runs is local to this function, and the transition does not affect any other state. It
@@ -64,9 +63,6 @@ export async function transitionStateMachine<
     machineService.send(event);
     return await deferred.promise;
   } catch (e) {
-    // The state machine runs in Strict Mode, so an event not enumerated in the state machine should
-    // get caught here.
-    functions.logger.error(e);
     throw new INVALID_STATE_TRANSITION_ERROR();
   } finally {
     machineService.stop();

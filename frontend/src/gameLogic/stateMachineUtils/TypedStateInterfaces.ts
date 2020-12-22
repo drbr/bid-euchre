@@ -1,7 +1,7 @@
 import { StateSchema } from 'xstate';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TypedStateSchema<TMeta, TC = any> = StateSchema<TC> & {
+export type TypedStateSchema<TMeta, C = any> = StateSchema<C> & {
   meta?: TMeta;
 };
 

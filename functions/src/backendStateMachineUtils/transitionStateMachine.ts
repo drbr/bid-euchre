@@ -1,10 +1,13 @@
 import * as _ from 'lodash';
-import { EventObject, interpret, State, StateMachine } from 'xstate';
-import { HydratedState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import {
-  AutoTransitionEvent,
-  SecretActionCompleteEvent,
-} from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
+  AnyEventObject,
+  EventObject,
+  interpret,
+  State,
+  StateMachine,
+} from 'xstate';
+import { HydratedState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { AutoTransitionEvent } from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
 import { EventCountContext } from '../../../frontend/src/gameLogic/stateMachineUtils/TypedStateInterfaces';
 import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDeferred';
 
@@ -14,8 +17,8 @@ import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDefe
 export class INVALID_STATE_TRANSITION_ERROR {}
 
 const AUTO_TRANSITION: AutoTransitionEvent['type'] = 'AUTO_TRANSITION';
-const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
-  'SECRET_ACTION_COMPLETE';
+// const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
+//   'SECRET_ACTION_COMPLETE';
 
 /**
  * Transitions the state machine from the given `prev` state and `event`, while also executing
@@ -32,7 +35,7 @@ const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
  */
 export async function transitionStateMachine<
   C extends EventCountContext,
-  E extends AutoTransitionEvent | SecretActionCompleteEvent,
+  E extends AnyEventObject,
   SS
 >(
   stateMachine: StateMachine<C, SS, E>,
@@ -85,7 +88,11 @@ export async function transitionStateMachine<
     machineService.send(event);
     return await deferred.promise;
   } catch (e) {
-    throw new INVALID_STATE_TRANSITION_ERROR();
+    if (e instanceof Error) {
+      throw e;
+    } else {
+      throw new INVALID_STATE_TRANSITION_ERROR();
+    }
   } finally {
     machineService.stop();
   }

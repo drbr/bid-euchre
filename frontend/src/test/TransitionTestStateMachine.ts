@@ -15,6 +15,7 @@ export type TransitionTestStatesGeneric<T> = {
   destination: T;
   autoTransition1: T;
   autoTransition2: T;
+  respondsToMultipleAutomaticEvents: T;
 };
 
 export type TransitionTestStateSchema = {
@@ -62,6 +63,7 @@ export const TransitionTestStateMachine = Machine<
         simpleEventWithTransientState: 'simpleEventWithTransientState',
         autoTransition1: 'autoTransition1',
         autoTransition2: 'autoTransition2',
+        respondsToMultipleAutomaticEvents: 'respondsToMultipleAutomaticEvents',
       },
     },
     destination: {
@@ -78,6 +80,12 @@ export const TransitionTestStateMachine = Machine<
     },
     autoTransition2: {
       on: { AUTO_TRANSITION: 'autoTransition1' },
+    },
+    respondsToMultipleAutomaticEvents: {
+      on: {
+        AUTO_TRANSITION: 'entry',
+        SECRET_ACTION_COMPLETE: 'entry',
+      },
     },
   },
 });

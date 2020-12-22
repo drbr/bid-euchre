@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import './CustomMatchers';
 import { transitionStateMachine } from '../../../functions/src/backendStateMachineUtils/transitionStateMachine';
 import {
   TransitionTestStateName,
@@ -48,12 +49,15 @@ describe('transitionStateMachine function', () => {
         'destination',
       ]);
     });
+
+    test('state cannot respond to events in addition to AUTO_TRANSITION', () => {
+      const result = doTransition('respondsToMultipleAutomaticEvents');
+      return expect(result).rejects.toMatchErrorMessage(
+        /may not respond to events in addition to AUTO_TRANSITION/
+      );
+    });
+
     /*
-    // Two auto-transitions
-    entry responds to event TEST1, goes to TEST1A
-    TEST1A responds to AUTO_TRANSITION, goes to TEST1B
-    TEST1B responds to AUTO_TRANSITION, goes to TEST1C
-    TEST1C responds to NEXT
 
     // Secret data in event
     entry responds to event TEST2, which contains some secret info, goes to TEST2A
@@ -66,7 +70,7 @@ describe('transitionStateMachine function', () => {
     TEST5B responds to SECRET_EVENT_DONE, goes to TEST5C
     TEST5C responds to NEXT
 
-    // Secret data AND auto-invoke
+    // Secret data and then auto-invoke
     entry responds to TEST6, which contains some secret info, goes to TEST6A
     TEST6A responds to SECRET_EVENT_DONE, goes to TEST6B
     TEST6B responds to AUTO_TRANSITION, goes to TEST6C

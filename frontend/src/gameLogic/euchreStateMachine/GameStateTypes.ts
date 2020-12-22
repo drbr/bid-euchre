@@ -1,6 +1,10 @@
 import { State, StateConfig, Typestate } from 'xstate';
 import { Partnership } from '../../../../functions/apiContract/database/GameState';
-import { StartGameEvent } from '../stateMachineUtils/SpecialEvents';
+import {
+  AutoTransitionEvent,
+  SecretActionCompleteEvent,
+  StartGameEvent,
+} from '../stateMachineUtils/SpecialEvents';
 import {
   EventCountContext,
   TypedStateSchema,
@@ -29,7 +33,10 @@ export type GameStateSchema = {
   };
 };
 
-export type GameEvent = StartGameEvent;
+export type GameEvent =
+  | StartGameEvent
+  | AutoTransitionEvent
+  | SecretActionCompleteEvent;
 
 export type GameState = State<
   GameContext,

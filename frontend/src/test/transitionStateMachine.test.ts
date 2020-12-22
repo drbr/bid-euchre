@@ -1,6 +1,9 @@
 import * as _ from 'lodash';
 import './CustomMatchers';
-import { transitionStateMachine } from '../../../functions/src/backendStateMachineUtils/transitionStateMachine';
+import {
+  INVALID_STATE_TRANSITION_ERROR,
+  transitionStateMachine,
+} from '../../../functions/src/backendStateMachineUtils/transitionStateMachine';
 import {
   TransitionTestStateName,
   TransitionTestStateMachine,
@@ -122,10 +125,28 @@ describe('transitionStateMachine function', () => {
   });
 
   describe('Invalid events', () => {
-    // Respond to non-enumerated event from entry
-    // Respond to non-enumerated event from after an AUTO_TRANSITION
-    // Respond to event without the right condition from entry
-    // Respond to event without the right condition from after an AUTO_TRANSITION
+    test('should abort if a state node is given a non-enumerated event', () => {
+      const result = doTransition(
+        'thisEventDoesNotExist' as TransitionTestStateName
+      );
+      return expect(result).rejects.toBeInstanceOf(
+        INVALID_STATE_TRANSITION_ERROR
+      );
+    });
+
+    test('should abort if a state node is given a non-enumerated event from an invoked service', () => {
+      const result = doTransition('invokeANonEnumeratedEvent');
+      return expect(result).rejects.toBeInstanceOf(
+        INVALID_STATE_TRANSITION_ERROR
+      );
+    });
+
+    test('should abort if given an enumerated event but the guards are not met', () => {
+      const result = doTransition('transitionOnlyIfTruthy');
+      return expect(result).rejects.toBeInstanceOf(
+        INVALID_STATE_TRANSITION_ERROR
+      );
+    });
   });
 
   describe('Updating event counts', () => {

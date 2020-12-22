@@ -8,7 +8,7 @@ import {
 } from './PublicPrivateStateSampleData';
 
 describe('extractPrivateGameState', () => {
-  test('should return the public game state with the private fields removed', () => {
+  test('should return the public game state with the player-private and server-private fields removed', () => {
     const {
       publicContext: publicGameStateContext,
     } = extractPublicAndPrivateGameStateContexts(
@@ -19,7 +19,7 @@ describe('extractPrivateGameState', () => {
     expect(publicGameStateContext).toEqual(SamplePublicContext);
   });
 
-  test('should return one private state per player ID, with only the private fields and the event counts', () => {
+  test('should return one private state per player ID, with only the player-private fields and the event counts', () => {
     const {
       privateContextsByPlayerId: privateContexts,
     } = extractPublicAndPrivateGameStateContexts(

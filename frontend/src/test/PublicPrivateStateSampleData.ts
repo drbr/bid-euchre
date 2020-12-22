@@ -10,21 +10,22 @@ export const SampleFullContext = {
   theData: {
     canBeNested: {
       arbitrarily: {
-        private_onlyChild: {
+        private_onlyChild_canMapComplexDataTypes: {
           north: ['secret', 'data', 'for', 'north'],
           south: ['secret', 'data', 'for', 'south'],
           east: ['secret', 'data', 'for', 'east'],
           west: ['secret', 'data', 'for', 'west'],
         },
       },
-      onlyThingsStartingWithPrivateUnderscoreAreConsideredPrivate: true,
-      allPrivateStateIsAssumedToBeA: 'PositionRecord',
-      private_sibling: {
+      private_sibling_canMapPrimitiveDataTypes: {
         north: 'Nancy',
         south: 'Susan',
         east: 'Edward',
         west: 'William',
       },
+      privateDataWhoseKeyDoesNotStartWithPrivateUnderscoreIs:
+        'not actually private',
+      private_dataThatIsNotAPositionRecordIs: 'private to the server',
     },
     otherPositionRecordsAreNotPrivate: {
       north: ['public', 'data', 'for', 'north'],
@@ -45,8 +46,8 @@ export const SamplePublicContext = {
   theData: {
     canBeNested: {
       arbitrarily: {},
-      onlyThingsStartingWithPrivateUnderscoreAreConsideredPrivate: true,
-      allPrivateStateIsAssumedToBeA: 'PositionRecord',
+      privateDataWhoseKeyDoesNotStartWithPrivateUnderscoreIs:
+        'not actually private',
     },
     otherPositionRecordsAreNotPrivate: {
       north: ['public', 'data', 'for', 'north'],
@@ -58,18 +59,19 @@ export const SamplePublicContext = {
 };
 
 /**
- * Private state should include the current/previous event counts, and anything marked `private_`,
- * and exclude everything else.
+ * Private state should include the current/previous event counts, and any position records marked
+ * `private_`, and exclude everything else (including other `private_` fields that are not position
+ * records).
  *
  * Only the specific player gets this version of the context.
  */
 export function samplePrivateContextFor(position: Position) {
   const privateOnlyChildPiece =
-    SampleFullContext.theData.canBeNested.arbitrarily.private_onlyChild[
-      position
-    ];
+    SampleFullContext.theData.canBeNested.arbitrarily
+      .private_onlyChild_canMapComplexDataTypes[position];
   const privateSiblingPiece =
-    SampleFullContext.theData.canBeNested.private_sibling[position];
+    SampleFullContext.theData.canBeNested
+      .private_sibling_canMapPrimitiveDataTypes[position];
 
   return {
     eventCount: 153,
@@ -77,11 +79,11 @@ export function samplePrivateContextFor(position: Position) {
     theData: {
       canBeNested: {
         arbitrarily: {
-          private_onlyChild: {
+          private_onlyChild_canMapComplexDataTypes: {
             [position]: privateOnlyChildPiece,
           },
         },
-        private_sibling: {
+        private_sibling_canMapPrimitiveDataTypes: {
           [position]: privateSiblingPiece,
         },
       },
@@ -90,19 +92,19 @@ export function samplePrivateContextFor(position: Position) {
 }
 
 /**
- * The reconstituted client state should look just like the full state, but with the other players'
- * private info stripped out.
+ * The reconstituted client state should look just like the full state, but with only one player's
+ * private info.
  *
  * Each client will merge its public and private context together to result in an
  * object that looks like this.
  */
 export function sampleReconstitutedClientContextFor(position: Position) {
   const privateOnlyChildPiece =
-    SampleFullContext.theData.canBeNested.arbitrarily.private_onlyChild[
-      position
-    ];
+    SampleFullContext.theData.canBeNested.arbitrarily
+      .private_onlyChild_canMapComplexDataTypes[position];
   const privateSiblingPiece =
-    SampleFullContext.theData.canBeNested.private_sibling[position];
+    SampleFullContext.theData.canBeNested
+      .private_sibling_canMapPrimitiveDataTypes[position];
 
   return {
     eventCount: 153,
@@ -110,15 +112,15 @@ export function sampleReconstitutedClientContextFor(position: Position) {
     theData: {
       canBeNested: {
         arbitrarily: {
-          private_onlyChild: {
+          private_onlyChild_canMapComplexDataTypes: {
             [position]: privateOnlyChildPiece,
           },
         },
-        onlyThingsStartingWithPrivateUnderscoreAreConsideredPrivate: true,
-        allPrivateStateIsAssumedToBeA: 'PositionRecord',
-        private_sibling: {
+        private_sibling_canMapPrimitiveDataTypes: {
           [position]: privateSiblingPiece,
         },
+        privateDataWhoseKeyDoesNotStartWithPrivateUnderscoreIs:
+          'not actually private',
       },
       otherPositionRecordsAreNotPrivate: {
         north: ['public', 'data', 'for', 'north'],

@@ -47,6 +47,10 @@ export const TransitionTestStateMachine = Machine<
   id: 'TransitionTestStateMachine',
   strict: true,
   initial: 'entry',
+  context: {
+    eventCount: 4,
+    previousEventCount: null,
+  },
   states: {
     entry: {
       on: {
@@ -98,4 +102,8 @@ TEST6C responds to NEXT
 // Respond to event without the right condition from entry
 
 // Respond to event without the right condition from after an AUTO_TRANSITION
+
+// Increments the event counts correctly from X
+
+// Increments the event counts correctly from null
 */

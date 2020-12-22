@@ -141,12 +141,16 @@ describe('transitionStateMachine function', () => {
       );
     });
 
-    test('should abort if given an enumerated event but the guards are not met', () => {
-      const result = doTransition('transitionOnlyIfTruthy');
-      return expect(result).rejects.toBeInstanceOf(
-        INVALID_STATE_TRANSITION_ERROR
-      );
-    });
+    test(
+      'should abort if given an enumerated event but no change is effected ' +
+        '(e.g. the guards are not met)',
+      () => {
+        const result = doTransition('transitionOnlyIfTruthy');
+        return expect(result).rejects.toBeInstanceOf(
+          INVALID_STATE_TRANSITION_ERROR
+        );
+      }
+    );
   });
 
   describe('Updating event counts', () => {

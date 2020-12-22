@@ -14,7 +14,7 @@ import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDefe
 /**
  * Thrown if the state machine does not accept the event.
  */
-export class INVALID_STATE_TRANSITION_ERROR {}
+export class INVALID_STATE_TRANSITION_ERROR extends Error {}
 
 const AUTO_TRANSITION: AutoTransitionEvent['type'] = 'AUTO_TRANSITION';
 const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
@@ -81,13 +81,17 @@ export async function transitionStateMachine<
     });
 
     machineService.start(prev.hydratedState);
+
+    if (!machineService.machine.handles(event)) {
+      throw new INVALID_STATE_TRANSITION_ERROR();
+    }
     machineService.send(event);
     return await deferred.promise;
   } catch (e) {
     if (e instanceof Error) {
       throw e;
     } else {
-      throw new INVALID_STATE_TRANSITION_ERROR();
+      throw new INVALID_STATE_TRANSITION_ERROR(e);
     }
   } finally {
     machineService.stop();
@@ -120,8 +124,9 @@ function processNextState<
   finished: boolean;
   sendEvent?: typeof AUTO_TRANSITION | typeof SECRET_ACTION_COMPLETE;
 } {
-  // Non-enumerated events will get caught above, but it's still possible to send an event with the
-  // wrong parameters that doesn't match any conditions. Those events get caught here.
+  // Non-enumerated events should get caught by the machine itself, but it's still possible to send
+  // an event with the wrong parameters that doesn't match any conditions. Those events get caught
+  // here.
   if (!nextState.changed) {
     throw new INVALID_STATE_TRANSITION_ERROR();
   }

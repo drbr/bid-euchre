@@ -8,6 +8,7 @@ import {
   TransitionTestStateName,
   TransitionTestStateMachine,
 } from './TransitionTestStateMachine';
+import { EventCountContext } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 async function doTransition(testKey: TransitionTestStateName, data?: string) {
   const nextStates = await transitionStateMachine(
@@ -23,6 +24,7 @@ async function doTransition(testKey: TransitionTestStateName, data?: string) {
   return { nextStates, stateNames };
 }
 
+/* eslint jest/expect-expect: ["warn", { "assertFunctionNames": ["expect", "expectEventCountsToBeSequential"] }] */
 describe('transitionStateMachine function', () => {
   describe('Simple Transitions', () => {
     test('simple transition to another state', async () => {
@@ -154,8 +156,45 @@ describe('transitionStateMachine function', () => {
   });
 
   describe('Updating event counts', () => {
-    // Increments the event counts correctly from X
-    // Increments the event counts correctly from null
-    // (Test both via an auto-increment event)
+    function expectEventCountsToBeSequential(
+      states: ReadonlyArray<{ context: EventCountContext }>
+    ) {
+      const eventContexts = states.map((s) => s.context);
+      if (eventContexts.length === 0) {
+        throw new Error(
+          'Should have received at least one state to verify event counts'
+        );
+      }
+
+      const base = eventContexts[0].eventCount;
+      const expected = eventContexts.map((ctx, i) => ({
+        eventCount: base + i,
+        previousEventCount: base + i - 1,
+      }));
+
+      expect(eventContexts).toEqual(expected);
+    }
+
+    test('a single returned state should update event counts once', async () => {
+      const { nextStates } = await doTransition('simpleEvent');
+      expectEventCountsToBeSequential(nextStates);
+    });
+
+    test('multiple returned events should update the event counts each time', async () => {
+      const { nextStates } = await doTransition('autoTransition2');
+      expectEventCountsToBeSequential(nextStates);
+    });
+
+    test('going through a transient state does not update the event counts extra', async () => {
+      const { nextStates } = await doTransition(
+        'simpleEventWithTransientState'
+      );
+      expectEventCountsToBeSequential(nextStates);
+    });
+
+    test('going through a SECRET_ACTION_COMPLETE event does not update the event counts extra', async () => {
+      const { nextStates } = await doTransition('invokeSecretAction');
+      expectEventCountsToBeSequential(nextStates);
+    });
   });
 });

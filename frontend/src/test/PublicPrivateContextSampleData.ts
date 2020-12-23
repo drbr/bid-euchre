@@ -91,7 +91,7 @@ export function samplePrivateOnlyContextFor(position: Position) {
   };
 }
 
-export function sampleFullPrivateStateFor(position: Position) {
+export function sampleFullPrivateContextFor(position: Position) {
   const privateOnlyChildPiece =
     SampleFullContext.theData.canBeNested.arbitrarily
       .private_onlyChild_canMapComplexDataTypes[position];

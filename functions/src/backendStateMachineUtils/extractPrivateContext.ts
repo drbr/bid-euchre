@@ -3,6 +3,7 @@ import { PlayerIdentities } from '../../apiContract/database/DataModel';
 import _ from './importDeepdash';
 import { forEachPosition } from '../../../frontend/src/gameLogic/utils/ModelHelpers';
 import { EventCountContext } from '../../../frontend/src/gameLogic/stateMachineUtils/TypedStateInterfaces';
+import { mergePublicAndPrivateStateContexts } from '../../../frontend/src/gameLogic/stateMachineUtils/mergePublicAndPrivateStateContexts';
 
 export const PRIVATE_PREFIX = /\.?private_/;
 
@@ -53,7 +54,16 @@ export function extractPublicAndPrivateGameStateContexts<C>(
         }),
         ...eventCounts,
       };
-      privateContextsByPlayerId[playerId] = privateContextOnePlayer;
+      if (opts.includeInPlayerContext === 'all') {
+        privateContextsByPlayerId[
+          playerId
+        ] = mergePublicAndPrivateStateContexts({
+          privateContext: privateContextOnePlayer,
+          publicContext,
+        });
+      } else if (opts.includeInPlayerContext === 'privateOnly') {
+        privateContextsByPlayerId[playerId] = privateContextOnePlayer;
+      }
     }
   });
 

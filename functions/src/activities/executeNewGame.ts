@@ -25,7 +25,7 @@ const InitialGameInfo: AllGameInfo = {
   gameStates: {
     fullJson: '{}',
     publicJson: '{}',
-    privateContextsJson: {},
+    privateJson: {},
   },
   gameConfig: {
     gameStatus: 'waitingToStart',

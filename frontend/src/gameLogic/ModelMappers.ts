@@ -32,6 +32,10 @@ export function mapGameStateFromDatabase(
   return original ? getStateConfigFromJson(original) : null;
 }
 
+/**
+ * Previously, we stored the private game context by itself (ostensibly to save space) and then
+ * the client would merge it back in with the public state.
+ */
 export function parsePrivateGameContextFromDatabase(
   original: string | null | undefined
 ): PartialDeep<GameContext> & EventCountContext {

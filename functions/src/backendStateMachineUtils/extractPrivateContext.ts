@@ -10,16 +10,21 @@ export type PrivateContexts<C> = {
   [playerId: string]: PartialDeep<C> & EventCountContext;
 };
 
+export type ExtractContextsOpts = {
+  includeInPlayerContext: 'all' | 'privateOnly';
+};
+
 /**
- * Breaks the game machine context into "public" and "private" versions, suitable for sending to the
- * clients.
+ * Breaks the game machine _context_ (not the full state object) into "public" and "private"
+ * versions, suitable for sending to the clients.
  *
  * @param gameMachineContext
  * @param playerIdsByPosition
  */
 export function extractPublicAndPrivateGameStateContexts<C>(
   gameMachineContext: C & EventCountContext,
-  playerIdsByPosition: PlayerIdentities
+  playerIdsByPosition: PlayerIdentities,
+  opts: ExtractContextsOpts
 ): {
   publicContext: PartialDeep<C> & EventCountContext;
   privateContextsByPlayerId: PrivateContexts<C>;

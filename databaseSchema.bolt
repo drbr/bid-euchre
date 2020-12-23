@@ -19,7 +19,7 @@ path /games/{gameId}/gameStates/publicJson is String {
 }
 
 // Each player can read their own private state only, as long as they know the player ID.
-path /games/{gameId}/gameStates/privateContextsJson/{playerId} is String {
+path /games/{gameId}/gameStates/privateJson/{playerId} is String {
   read() { true }
 }
 

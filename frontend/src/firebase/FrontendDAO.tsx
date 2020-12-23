@@ -1,17 +1,11 @@
 import { GameConfig } from '../../../functions/apiContract/database/DataModel';
+import { GameStateConfig } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
   mapGameConfigFromDatabase,
   mapGameStateFromDatabase,
-  parsePrivateGameContextFromDatabase,
 } from '../gameLogic/ModelMappers';
-import {
-  GameContext,
-  GameStateConfig,
-} from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { Subscription, UnsubscribeFn } from '../uiHelpers/useObservedState';
 import { firebaseDatabase } from './FirebaseWebClientInFrontend';
-import { PartialDeep } from 'type-fest';
-import { EventCountContext } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 export type GameIdParams = { gameId: string };
 
@@ -57,13 +51,13 @@ export const subscribeToPublicGameState: Subscription<
   );
 };
 
-export const subscribeToPrivateGameContext: Subscription<
+export const subscribeToPrivateGameState: Subscription<
   { gameId: string; playerId: string },
-  PartialDeep<GameContext> & EventCountContext
+  GameStateConfig
 > = ({ gameId, playerId }, callback) => {
   return subscribeToDatabaseNode(
-    `/games/${gameId}/gameStates/privateContextsJson/${playerId}`,
-    parsePrivateGameContextFromDatabase,
+    `/games/${gameId}/gameStates/privateJson/${playerId}`,
+    mapGameStateFromDatabase,
     callback
   );
 };

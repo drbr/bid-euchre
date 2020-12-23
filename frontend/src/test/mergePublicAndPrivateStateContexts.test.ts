@@ -3,7 +3,7 @@ import {
   samplePrivateContextFor,
   SamplePublicContext,
   sampleReconstitutedClientContextFor,
-} from './PublicPrivateStateSampleData';
+} from './PublicPrivateContextSampleData';
 
 describe('mergePublicAndPrivateStateContexts', () => {
   test('should reconstitute the full state object from the two sources', () => {

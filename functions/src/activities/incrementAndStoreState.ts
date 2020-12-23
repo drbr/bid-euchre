@@ -105,14 +105,14 @@ export async function storePublicAndPrivateStateViewsFromTransition(params: {
   for (const state of nextStates) {
     const {
       publicStateJson,
-      privateContextsJsonByPlayerId,
+      privateStatesJsonByPlayerId,
     } = preparePublicAndPrivateStateForStorage(state, playerIdentities);
 
     await Promise.all([
       DAO.setGameStatePublicJson({ gameId: gameId, publicStateJson }),
-      DAO.setGameStatePrivateContextsJson({
+      DAO.setGameStatePrivateJson({
         gameId: gameId,
-        privateContextsJsonByPlayerId,
+        privateStatesJsonByPlayerId,
       }),
     ]);
   }

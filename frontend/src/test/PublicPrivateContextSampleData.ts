@@ -65,7 +65,7 @@ export const SamplePublicContext = {
  *
  * Only the specific player gets this version of the context.
  */
-export function samplePrivateContextFor(position: Position) {
+export function samplePrivateOnlyContextFor(position: Position) {
   const privateOnlyChildPiece =
     SampleFullContext.theData.canBeNested.arbitrarily
       .private_onlyChild_canMapComplexDataTypes[position];
@@ -86,6 +86,40 @@ export function samplePrivateContextFor(position: Position) {
         private_sibling_canMapPrimitiveDataTypes: {
           [position]: privateSiblingPiece,
         },
+      },
+    },
+  };
+}
+
+export function sampleFullPrivateStateFor(position: Position) {
+  const privateOnlyChildPiece =
+    SampleFullContext.theData.canBeNested.arbitrarily
+      .private_onlyChild_canMapComplexDataTypes[position];
+  const privateSiblingPiece =
+    SampleFullContext.theData.canBeNested
+      .private_sibling_canMapPrimitiveDataTypes[position];
+
+  return {
+    eventCount: 153,
+    previousEventCount: 150,
+    theData: {
+      canBeNested: {
+        arbitrarily: {
+          private_onlyChild_canMapComplexDataTypes: {
+            [position]: privateOnlyChildPiece,
+          },
+        },
+        private_sibling_canMapPrimitiveDataTypes: {
+          [position]: privateSiblingPiece,
+        },
+        privateDataWhoseKeyDoesNotStartWithPrivateUnderscoreIs:
+          'not actually private',
+      },
+      otherPositionRecordsAreNotPrivate: {
+        north: ['public', 'data', 'for', 'north'],
+        south: ['public', 'data', 'for', 'south'],
+        east: ['public', 'data', 'for', 'east'],
+        west: ['public', 'data', 'for', 'west'],
       },
     },
   };

@@ -109,13 +109,13 @@ export async function setGameStatePublicJson(props: {
     .set(props.publicStateJson);
 }
 
-export async function setGameStatePrivateContextsJson(props: {
+export async function setGameStatePrivateJson(props: {
   gameId: string;
-  privateContextsJsonByPlayerId: Record<string, string>;
+  privateStatesJsonByPlayerId: Record<string, string>;
 }): Promise<void> {
   return await firebaseDatabaseAdminClient
-    .ref(`/games/${props.gameId}/gameStates/privateContextsJson`)
-    .set(props.privateContextsJsonByPlayerId);
+    .ref(`/games/${props.gameId}/gameStates/privateJson`)
+    .set(props.privateStatesJsonByPlayerId);
 }
 
 export async function pushGameEvent(props: {

@@ -12,7 +12,7 @@ export type DatabaseSchema = {
 export type GameStates = {
   fullJson: string;
   publicJson: string;
-  privateContextsJson: PrivateGameContextsJson;
+  privateJson: PrivateGameStatesJson;
 };
 
 export type AllGameInfo = {
@@ -56,11 +56,13 @@ export type PlayerIdentities = Record<Position, string | null>;
  * player has their own separate instance of this state for each game they are a part of, keyed by
  * Game ID and Player ID. Since a player knows only their own ID, this is "security by obscurity".
  *
- * The JSON object represented here is a partial listing of the secret fields from the State Machine
- * Context, and should be merged back into the context client-side before use.
+ * ~The JSON object represented here is a partial listing of the secret fields from the State
+ * Machine Context, and should be merged back into the context client-side before use.~ The JSON
+ * object represented here is a copy of the state, but with only the secret fields that pertain to
+ * each particular player.
  *
  * This object will exist during a game's `inProgress` phase.
  */
-export type PrivateGameContextsJson = {
+export type PrivateGameStatesJson = {
   [playerId: string]: string;
 };

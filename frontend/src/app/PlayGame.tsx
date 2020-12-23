@@ -1,225 +1,172 @@
-import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
-import { PartialDeep } from 'type-fest';
+import { Dispatch, Reducer, useCallback, useEffect, useReducer } from 'react';
 import { AnyEventObject } from 'xstate';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { sendGameEvent } from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
-import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
-import {
-  GameContext,
-  GameEvent,
-  GameState,
-  GameStateConfig,
-} from '../gameLogic/euchreStateMachine/GameStateTypes';
-import { mergePublicAndPrivateStateContexts } from '../gameLogic/stateMachineUtils/mergePublicAndPrivateStateContexts';
+import { GameStateConfig } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
   HydratedGameState,
   hydrateStateFromConfig,
 } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { EventCountContext } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
-import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
-import { GameDisplay } from '../gameScreens/GameDisplay';
+import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
 import { UIActions } from '../uiHelpers/UIActions';
-import {
-  ObservedState,
-  Subscription,
-  useObservedState,
-} from '../uiHelpers/useObservedState';
+import { Subscription } from '../uiHelpers/useObservedState';
+import { PlayGameForStatePure } from './PlayGameWithState';
 
-export type PlayGameContainerProps = {
+export type PlayGameProps = {
   gameId: string;
   playerId: string | null;
   gameConfig: InProgressGameConfig;
   seatedAt: Position | null;
 };
 
-export function PlayGameContainer(props: PlayGameContainerProps) {
+export function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
-  const fetchedPublicGameState = useObservedState(
-    { gameId },
-    DAO.subscribeToPublicGameState,
-    onPublicGameStateFetched
-  );
+  const [gameStateBuffer, dispatch] = useReducer(stateBufferReducer, {
+    currentIndex: null,
+    states: [],
+  });
 
-  const fetchedPrivateGameContext = useObservedState(
-    { gameId, playerId },
-    privateGameContextSubscription,
-    onPrivateGameContextFetched
-  );
-
-  const [
-    syncedGameState,
-    setSyncedGameState,
-  ] = useState<HydratedGameState | null>(null);
+  const currentGameState = gameStateBuffer.currentIndex
+    ? gameStateBuffer.states[gameStateBuffer.currentIndex]
+    : null;
 
   useEffect(
     () =>
-      reconstituteGameStateIfInSync(
-        fetchedPublicGameState,
-        fetchedPrivateGameContext,
+      subscribeToGameStateToAddToBuffer({
+        gameId,
         playerId,
-        setSyncedGameState
-      ),
-    [fetchedPublicGameState, fetchedPrivateGameContext, playerId]
+        dispatch,
+      }),
+    [gameId, playerId]
   );
 
-  if (!syncedGameState) {
+  const sendGameEventToStateMachine = useCallback(
+    async (event: AnyEventObject) => {
+      try {
+        if (currentGameState) {
+          await sendGameEvent({
+            event,
+            existingEventCount:
+              currentGameState.hydratedState.context.eventCount,
+            gameId: props.gameId,
+            playerId: props.playerId,
+          });
+        }
+      } catch (e) {
+        UIActions.showErrorAlert(e, {
+          message: 'Could not send game event. See log for details.',
+        });
+      }
+    },
+    [currentGameState, props.gameId, props.playerId]
+  );
+
+  if (!currentGameState) {
     return <div>Loading…</div>;
   }
 
   return (
-    <PlayGameWithKnownStatePure
+    <PlayGameForStatePure
       {...props}
-      gameState={syncedGameState.hydratedState}
+      gameState={currentGameState.hydratedState}
+      sendGameEvent={sendGameEventToStateMachine}
+      dispatchStateBufferAction={dispatch}
     />
   );
 }
 
-type PlayGameProps = PlayGameContainerProps & {
-  gameState: GameState;
+type StateBuffer = {
+  currentIndex: number | null;
+  states: ReadonlyArray<HydratedGameState>;
 };
 
-const PlayGameWithKnownStatePure = memo(function PlayGameWithKnownState(
-  props: PlayGameProps
-) {
-  async function sendEventToStateMachine(event: AnyEventObject) {
-    try {
-      await sendGameEvent({
-        event,
-        existingEventCount: props.gameState.context.eventCount,
-        gameId: props.gameId,
-        playerId: props.playerId,
-      });
-    } catch (e) {
-      UIActions.showErrorAlert(e, {
-        message: 'Could not send game event. See log for details.',
-      });
+export type StateBufferAction =
+  | {
+      type: 'add';
+      newState: HydratedGameState;
     }
-  }
+  | { type: 'switchTo'; index: number }
+  | { type: 'goForward' }
+  | { type: 'goBack' };
 
-  function isEventValid(event: AnyEventObject): boolean {
-    return willEventApply(
-      GameStateMachine,
-      props.gameState,
-      event as GameEvent
-    );
-  }
-
-  /* Add stuff to the window for debugging */
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  (window as any).gameState = props.gameState;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-
-  return (
-    <div>
-      <p>
-        {props.playerId ? null : 'You are a spectator of the current game!'}
-      </p>
-      <GameDisplay
-        stateValue={props.gameState.value}
-        stateContext={props.gameState.context}
-        gameConfig={props.gameConfig}
-        seatedAt={props.seatedAt}
-        sendGameEvent={sendEventToStateMachine}
-        isEventValid={isEventValid}
-      />
-    </div>
-  );
-});
-
-function onPublicGameStateFetched(
-  prev: GameStateConfig,
-  next: GameStateConfig
-) {
-  return onStateMachineContextFetched(prev.context, next.context, 'public');
-}
-
-function onPrivateGameContextFetched(
-  prev: EventCountContext,
-  next: EventCountContext
-) {
-  return onStateMachineContextFetched(prev, next, 'private');
-}
-
-function onStateMachineContextFetched(
-  prev: EventCountContext,
-  next: EventCountContext,
-  type: string
-) {
-  const actualPrevCount = prev.eventCount;
-  const expectedPrevCount = next.previousEventCount || 0;
-  const nextCount = next.eventCount;
-  console.debug(`Received new ${type} state machine context from the database`);
-  console.debug(next);
-  if (actualPrevCount !== expectedPrevCount) {
-    console.warn(
-      `Possible error in state transition: previous local state had event count ${actualPrevCount}, ` +
-        `new state has previous eventCount ${expectedPrevCount} and current count ${nextCount}`
-    );
-  }
-}
-
-/**
- * The public and private game states are fetched separately and must be combined in order to
- * correctly render the game. This effect waits until the private and public state are both in sync,
- * then combines them and dispatches the reconstituted value.
- */
-function reconstituteGameStateIfInSync(
-  publicGameState: ObservedState<GameStateConfig>,
-  privateGameContext: ObservedState<
-    PartialDeep<GameContext> & EventCountContext
-  >,
-  playerId: string | null,
-  setSyncedGameState: Dispatch<SetStateAction<HydratedGameState | null>>
-): void {
-  if (publicGameState === 'loading' || publicGameState === 'gameNotFound') {
-    return; // Can't sync the state until we have it
-  }
-
-  // If the player isn't part of the game, we'll never get any private state,
-  // so no special merging needs to happen.
-  if (!playerId) {
-    const hydratedState = hydrateStateFromConfig(publicGameState);
-    setSyncedGameState(hydratedState);
-    return;
-  }
-
-  if (
-    privateGameContext === 'loading' ||
-    privateGameContext === 'gameNotFound'
-  ) {
-    return; // Can't sync the state until we have it
-  }
-
-  // Merge the private and public state only when they match.
-  // Otherwise, do nothing; we'll try again when the inputs change.
-  const publicEventCount = publicGameState.context.eventCount;
-  const privateEventCount = privateGameContext.eventCount;
-  if (publicEventCount === privateEventCount) {
-    const mergedContext = mergePublicAndPrivateStateContexts({
-      publicContext: publicGameState.context,
-      privateContext: privateGameContext,
-    }) as GameContext;
-    const newStateConfig = {
-      ...publicGameState,
-      context: mergedContext,
+const stateBufferReducer: Reducer<StateBuffer, StateBufferAction> = (
+  prevBuffer,
+  action
+) => {
+  function goToIndex(i: number) {
+    if (!prevBuffer.states[i]) {
+      throw new Error('Tried to switch to a state not present in the client');
+    }
+    return {
+      currentIndex: i,
+      states: prevBuffer.states,
     };
-    const hydratedState = hydrateStateFromConfig(newStateConfig);
-    setSyncedGameState(hydratedState);
-    return;
   }
+
+  switch (action.type) {
+    case 'add': {
+      const index = action.newState.hydratedState.context.eventCount;
+      return {
+        currentIndex: prevBuffer.currentIndex,
+        states: {
+          ...prevBuffer.states,
+          [index]: action.newState,
+        },
+      };
+    }
+    case 'switchTo':
+      return goToIndex(action.index);
+    case 'goForward':
+      return goToIndex((prevBuffer.currentIndex ?? 0) + 1);
+    case 'goBack':
+      return goToIndex((prevBuffer.currentIndex ?? 0) - 1);
+    default:
+      assertUnreachable(action);
+      return prevBuffer;
+  }
+};
+
+function subscribeToGameStateToAddToBuffer(params: {
+  gameId: string;
+  playerId: string | null;
+  dispatch: Dispatch<StateBufferAction>;
+}) {
+  const { gameId, playerId, dispatch } = params;
+  const stateSubscription = subscribeToPublicOrPrivateGameState;
+  console.debug('Subscribing to game state');
+  console.debug(stateSubscription);
+
+  const unsubscribeFn = stateSubscription({ gameId, playerId }, (data) => {
+    if (!data) {
+      throw new Error(`Game with ID ${gameId} was not found!`);
+    } else {
+      const hydrated = hydrateStateFromConfig(data);
+      dispatch({ type: 'add', newState: hydrated });
+    }
+  });
+
+  return () => {
+    console.debug('Unsubscribing from game state');
+    console.debug(stateSubscription);
+    if (unsubscribeFn) {
+      unsubscribeFn();
+    }
+  };
 }
 
-const privateGameContextSubscription: Subscription<
+const subscribeToPublicOrPrivateGameState: Subscription<
   { gameId: string; playerId: string | null },
-  PartialDeep<GameContext> & EventCountContext
+  GameStateConfig
 > = (params, callback) => {
   if (params.playerId) {
-    return DAO.subscribeToPrivateGameContext(
+    return DAO.subscribeToPrivateGameState(
       { gameId: params.gameId, playerId: params.playerId },
       callback
     );
+  } else {
+    return DAO.subscribeToPublicGameState({ gameId: params.gameId }, callback);
   }
 };

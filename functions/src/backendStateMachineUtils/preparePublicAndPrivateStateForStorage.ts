@@ -1,11 +1,8 @@
 import * as _ from 'lodash';
 import { PlayerIdentities } from '../../apiContract/database/DataModel';
 import { GameState } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
-import { extractPublicAndPrivateGameStateContexts } from './extractPrivateState';
-import {
-  sanitizeStateMetadata,
-  serializeState,
-} from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { extractPublicAndPrivateGameStateContexts } from './extractPrivateContext';
+import { serializeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 
 /**
  * Sanitizes the state and breaks it apart into "public state" and "private contexts".
@@ -20,22 +17,32 @@ export function preparePublicAndPrivateStateForStorage(
   playerIdentities: PlayerIdentities
 ): {
   publicStateJson: string;
-  privateContextsJsonByPlayerId: Record<string, string>;
+  privateStatesJsonByPlayerId: Record<string, string>;
 } {
-  const sanitizedState = sanitizeStateMetadata(state);
-
   const {
     publicContext,
     privateContextsByPlayerId,
-  } = extractPublicAndPrivateGameStateContexts(state.context, playerIdentities);
-
-  const publicState = { ...sanitizedState, context: publicContext };
-  const publicStateJson = serializeState(publicState);
-
-  const privateContextsJsonByPlayerId = _.mapValues(
-    privateContextsByPlayerId,
-    (context) => JSON.stringify(context)
+  } = extractPublicAndPrivateGameStateContexts(
+    state.context,
+    playerIdentities,
+    { includeInPlayerContext: 'all' }
   );
 
-  return { publicStateJson, privateContextsJsonByPlayerId };
+  const publicState = { ...state, context: publicContext };
+  const publicStateJson = serializeState(publicState);
+
+  const privateStatesJsonByPlayerId = _.mapValues(
+    privateContextsByPlayerId,
+    (privateContext) => {
+      // If storing all the data in the player-private contexts, insert it into the state and
+      // serialize. If storing only the private data, serialize the context directly. Doing so will
+      // require changes in the frontend, but will save space and bandwidth. For now, we're passing
+      // all the data in the private states, so the frontend doesn't need to worry about reconciling
+      // them.
+      const privateState = { ...state, context: privateContext };
+      return JSON.stringify(privateState);
+    }
+  );
+
+  return { publicStateJson, privateStatesJsonByPlayerId };
 }

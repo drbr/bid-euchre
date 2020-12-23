@@ -4,7 +4,6 @@ import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import React from 'react';
 import { Hand } from '../../../functions/apiContract/database/Cards';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { HandDisplay } from './HandDisplay';

@@ -40,6 +40,7 @@ export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
       return <NameTrumpDisplay {...props} />;
     case 'checkWinningBidder':
     case 'waitForDeal':
+    case 'dealDone':
     case 'roundComplete':
     case 'scoring':
     case 'thePlay':

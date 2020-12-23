@@ -37,7 +37,6 @@ export const RoundStates: StateNodeConfig<
         id: 'dealHands',
         src: (context, event) => (callback, onReceive) => {
           callback({ type: 'ASSIGN_HANDS', hands: deal() });
-          callback({ type: 'SECRET_ACTION_COMPLETE' });
         },
       },
       on: {
@@ -45,10 +44,14 @@ export const RoundStates: StateNodeConfig<
           actions: assign({
             private_hands: (context, event) => event.hands,
           }),
+          target: 'dealDone',
         },
-        SECRET_ACTION_COMPLETE: {
-          target: 'bidding',
-        },
+      },
+    },
+
+    dealDone: {
+      on: {
+        SECRET_ACTION_COMPLETE: 'bidding',
       },
     },
 

@@ -1,13 +1,13 @@
 import { useMachine } from '@xstate/react';
 import { AnyEventObject } from 'xstate';
-import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
-import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
+import { InProgressGameConfig } from '../../../../functions/apiContract/database/DataModel';
+import { GameStateMachine } from '../../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
   GameState,
-} from '../gameLogic/euchreStateMachine/GameStateTypes';
-import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
-import { GameDisplay } from '../gameScreens/GameDisplay';
+} from '../../gameLogic/euchreStateMachine/GameStateTypes';
+import { willEventApply } from '../../gameLogic/stateMachineUtils/willEventApply';
+import { GameDisplay } from '../../gameScreens/GameDisplay';
 import * as LocalGameStates from './LocalGameStates';
 
 export function LocalGame() {

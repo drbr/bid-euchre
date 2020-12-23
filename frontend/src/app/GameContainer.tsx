@@ -6,7 +6,7 @@ import {
   PlayerInfoStorage,
   retrievePlayerInfoForGame,
 } from '../uiHelpers/LocalStorageClient';
-import { PlayGame } from './PlayGame';
+import { PlayGame } from './playGame/PlayGame';
 import { useObservedState } from '../uiHelpers/useObservedState';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 

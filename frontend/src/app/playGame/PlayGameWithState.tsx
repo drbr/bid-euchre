@@ -1,12 +1,12 @@
 import { Dispatch, memo } from 'react';
 import { AnyEventObject } from 'xstate';
-import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
+import { GameStateMachine } from '../../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameState,
   GameEvent,
-} from '../gameLogic/euchreStateMachine/GameStateTypes';
-import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
-import { GameDisplay } from '../gameScreens/GameDisplay';
+} from '../../gameLogic/euchreStateMachine/GameStateTypes';
+import { willEventApply } from '../../gameLogic/stateMachineUtils/willEventApply';
+import { GameDisplay } from '../../gameScreens/GameDisplay';
 import { PlayGameProps, StateBufferAction } from './PlayGame';
 
 export type PlayGameWithStateProps = PlayGameProps & {

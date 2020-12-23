@@ -1,17 +1,17 @@
 import { Dispatch, Reducer, useCallback, useEffect, useReducer } from 'react';
 import { AnyEventObject } from 'xstate';
-import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
-import { Position } from '../../../functions/apiContract/database/GameState';
-import { sendGameEvent } from '../firebase/CloudFunctionsClient';
-import * as DAO from '../firebase/FrontendDAO';
-import { GameStateConfig } from '../gameLogic/euchreStateMachine/GameStateTypes';
+import { InProgressGameConfig } from '../../../../functions/apiContract/database/DataModel';
+import { Position } from '../../../../functions/apiContract/database/GameState';
+import { sendGameEvent } from '../../firebase/CloudFunctionsClient';
+import * as DAO from '../../firebase/FrontendDAO';
+import { GameStateConfig } from '../../gameLogic/euchreStateMachine/GameStateTypes';
 import {
   HydratedGameState,
   hydrateStateFromConfig,
-} from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
-import { UIActions } from '../uiHelpers/UIActions';
-import { Subscription } from '../uiHelpers/useObservedState';
+} from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { assertUnreachable } from '../../uiHelpers/TypescriptUtils';
+import { UIActions } from '../../uiHelpers/UIActions';
+import { Subscription } from '../../uiHelpers/useObservedState';
 import { PlayGameForStatePure } from './PlayGameWithState';
 
 export type PlayGameProps = {
@@ -79,7 +79,7 @@ export function PlayGame(props: PlayGameProps) {
   );
 }
 
-type StateBuffer = {
+export type StateBuffer = {
   currentIndex: number | null;
   states: ReadonlyArray<HydratedGameState>;
 };

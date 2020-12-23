@@ -1,14 +1,15 @@
 import { RouteComponentProps, Router } from '@reach/router';
-import { XStateViz, XStateVizProps } from '../XStateViz';
-import { GameContainer } from './GameContainer';
-import { Lobby } from './Lobby';
-import { LocalGame } from './LocalGame';
-import { App } from './App';
-import { GamePathRouteProps } from './paths';
-import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import { Experiment } from '../experiment/Experiment';
 import { ExperimentStateMachine } from '../experiment/ExperimentStateMachine';
+import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import { TransitionTestStateMachine } from '../test/TransitionTestStateMachine';
+import { XStateViz, XStateVizProps } from '../XStateViz';
+import { App } from './App';
+import { GameContainer } from './GameContainer';
+import { Lobby } from './Lobby';
+import { GamePathRouteProps } from './paths';
+import { BufferStateMachine } from './playGame/BufferMachine';
+import { LocalGame } from './playGame/LocalGame';
 
 export function AppRouter() {
   return (
@@ -32,6 +33,8 @@ export function AppRouter() {
         childrenWithMachine={<LocalGameRoute />}
       />
 
+      <StateMachineRoute path="/bufferMachine" machine={BufferStateMachine} />
+
       <StateMachineRoute
         path="/transitionTestStateMachine"
         machine={TransitionTestStateMachine}
@@ -52,9 +55,8 @@ function GameRoute(props: RouteComponentProps & GamePathRouteProps) {
   if (!props.gameId) {
     return <div>No Game ID specified!</div>;
   } else {
-    // Mount a fresh component any time the Game ID changes. There used to be a reason for this, but
-    // I'm not sure anymore why. It's likely fine to remove it, but it's safer to keep it in and it
-    // won't negatively impact the user experience.
+    // Mount a fresh component any time the Game ID changes. This will ensure a fresh state buffer
+    // is initialized when we switch from one game to another.
     return (
       <App>
         <GameContainer key={props.gameId} gameId={props.gameId} />

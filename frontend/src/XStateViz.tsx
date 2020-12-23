@@ -22,8 +22,20 @@ function createIFrame() {
 export type AnyStateMachine = StateMachine<any, any, any, any>;
 
 export type XStateVizProps = {
+  /**
+   * Send this prop to launch the visualizer in-place (in an iframe) and run the machine standalone.
+   */
   machine?: AnyStateMachine;
+
+  /**
+   * Send this prop to render the given element, but attach it to a visualizer that opens in a new
+   * tab.
+   */
   childrenWithMachine?: JSX.Element;
+
+  /**
+   * The title of the browser tab.
+   */
   title?: string;
 };
 

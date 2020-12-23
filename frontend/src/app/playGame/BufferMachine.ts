@@ -7,7 +7,7 @@ export type StateBuffer = {
   states: ReadonlyArray<HydratedGameState>;
 };
 
-export const LINGER_DELAY_MS = 3000;
+export const LINGER_DELAY_MS = 500;
 
 export type BufferStatesGeneric<T> = {
   entry: T;

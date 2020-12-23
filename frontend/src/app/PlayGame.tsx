@@ -32,6 +32,7 @@ export function PlayGame(props: PlayGameProps) {
   const currentGameState = gameStateBuffer.currentIndex
     ? gameStateBuffer.states[gameStateBuffer.currentIndex]
     : null;
+  console.log('State buffer: %o', gameStateBuffer);
 
   useEffect(
     () =>
@@ -108,9 +109,12 @@ const stateBufferReducer: Reducer<StateBuffer, StateBufferAction> = (
 
   switch (action.type) {
     case 'add': {
+      if (!action.newState) {
+        throw new Error('Tried to add a null object into the state buffer');
+      }
       const index = action.newState.hydratedState.context.eventCount;
       return {
-        currentIndex: prevBuffer.currentIndex,
+        currentIndex: prevBuffer.currentIndex ?? index,
         states: {
           ...prevBuffer.states,
           [index]: action.newState,

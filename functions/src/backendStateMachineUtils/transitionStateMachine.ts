@@ -41,37 +41,31 @@ export async function transitionStateMachine<
   stateMachine: StateMachine<C, SS, E>,
   prev: HydratedState<C, E, SS>,
   event: E
-): Promise<State<C, E, SS>[]> {
+): Promise<ReadonlyArray<State<C, E>>> {
   const machineService = interpret(stateMachine);
 
   try {
-    const deferred = new SimpleDeferred<State<C, E, SS>[]>();
+    const deferred = new SimpleDeferred<void>();
     const transitionedStates: State<C, E, SS>[] = [];
 
     let ignoredInitialStateCallback = false;
     machineService.onTransition((state) => {
-      const mostRecentPreviousState =
-        _.last(transitionedStates) ?? prev.hydratedState;
-
       // The `onTransition` callback gets invoked on the machine's initial state, so we need to
       // ignore the first invocation otherwise we'd resolve the promise before the transition even
       // happens. We continue to let the state machine run until it's finished executing all of
       // its internal activities.
       if (ignoredInitialStateCallback) {
         try {
-          const { processedState, finished, sendEvent } = processNextState(
-            mostRecentPreviousState,
-            state
-          );
+          const { expose, finished, sendEvent } = processNextState(state);
 
-          if (processedState) {
-            transitionedStates.push(processedState);
+          if (expose) {
+            transitionedStates.push(state);
           }
+
           if (sendEvent) {
             machineService.send(sendEvent);
-          }
-          if (finished) {
-            deferred.resolve(transitionedStates);
+          } else if (finished) {
+            deferred.resolve();
           }
         } catch (e) {
           deferred.reject(e);
@@ -85,8 +79,13 @@ export async function transitionStateMachine<
     if (!machineService.machine.handles(event)) {
       throw new INVALID_STATE_TRANSITION_ERROR();
     }
+
     machineService.send(event);
-    return await deferred.promise;
+    await deferred.promise;
+    return sanitizeStateAndAssignEventCounts(
+      transitionedStates,
+      prev.hydratedState.context.eventCount || 0
+    );
   } catch (e) {
     if (e instanceof Error) {
       throw e;
@@ -99,7 +98,7 @@ export async function transitionStateMachine<
 }
 
 /**
- * Processes the transitioned state, adding the `eventCount` bookkeeping in-place.
+ * Processes the transitioned state to figure out how we should respond.
  *
  * @throws
  *   - `INVALID_STATE_TRANSITION_ERROR` if `nextState` is not changed.
@@ -107,7 +106,7 @@ export async function transitionStateMachine<
  *     machine's expectations
  * @returns
  *   - `finished` – true if this is the last state we expect to get from the machine
- *   - `processedState` – the version of the state to expose externally, or undefined if it
+ *   - `expose` – true if this state should be exposed to the outside world
  *     shouldn't be exposed
  *   - `sendEvent` – the type of the event (if any) that should be sent back into the machine to
  *     continue the transition
@@ -117,10 +116,9 @@ function processNextState<
   E extends AnyEventObject,
   SS
 >(
-  prevState: { context: C },
   nextState: State<C, E, SS>
 ): {
-  processedState?: State<C, E, SS>;
+  expose: boolean;
   finished: boolean;
   sendEvent?: typeof AUTO_TRANSITION | typeof SECRET_ACTION_COMPLETE;
 } {
@@ -131,16 +129,6 @@ function processNextState<
     throw new INVALID_STATE_TRANSITION_ERROR();
   }
 
-  // Manually increment the event count to help keep the clients and server in sync. For every
-  // transition, we'll increase the event count by 1. Previously, we had the state machine do this
-  // automatically via a parallel state node at the root, but that caused every state's `changed`
-  // attribute to be true even when nothing else changed. So now we do it manually.
-  const prevEventCount = prevState?.context.eventCount ?? null;
-  const nextEventCount = (prevEventCount || 0) + 1;
-  nextState.context.eventCount = nextEventCount;
-  nextState.context.previousEventCount = prevEventCount;
-
-  const processedState = sanitizeStateMetadata(nextState) as State<C, E, SS>;
   const hasAnyOutstandingActivities = _.some(nextState.activities);
   const nextEvents = nextState.nextEvents;
 
@@ -156,7 +144,7 @@ function processNextState<
       );
     }
     return {
-      processedState,
+      expose: true,
       finished: false,
       sendEvent: 'AUTO_TRANSITION',
     };
@@ -172,13 +160,48 @@ function processNextState<
       );
     }
     return {
+      expose: false,
       finished: false,
       sendEvent: 'SECRET_ACTION_COMPLETE',
     };
   } else {
     return {
-      processedState,
+      expose: true,
       finished: !hasAnyOutstandingActivities,
     };
   }
+}
+
+/**
+ * Sanitizes the state to reduce its size and also to hide fields that are unnecessary and may
+ * contain secret data.
+ *
+ * Manually increments the event count to help keep the clients and server in sync. For every
+ * transition, we'll increase the event count by 1. Previously, we had the state machine do this
+ * automatically via a parallel state node at the root, but that caused every state's `changed`
+ * attribute to be true even when nothing else changed. So now we do it manually.
+ *
+ * @param states The states to expose from the machine
+ * @param countBasis The event count before this set of transitions happened – the `eventCount` on
+ * `prevState`.
+ */
+function sanitizeStateAndAssignEventCounts<
+  C extends EventCountContext,
+  E extends AnyEventObject,
+  SS
+>(
+  states: ReadonlyArray<State<C, E, SS>>,
+  countBasis: number
+): ReadonlyArray<State<C, E>> {
+  return states.map(
+    (s, i) =>
+      ({
+        ...sanitizeStateMetadata(s),
+        context: {
+          ...s.context,
+          previousEventCount: countBasis + i,
+          eventCount: countBasis + i + 1,
+        },
+      } as State<C, E, SS>)
+  );
 }

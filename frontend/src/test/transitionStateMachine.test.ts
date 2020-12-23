@@ -7,13 +7,15 @@ import {
 import {
   TransitionTestStateName,
   TransitionTestStateMachine,
+  INITIAL_EVENT_COUNT,
 } from './TransitionTestStateMachine';
 import { EventCountContext } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 async function doTransition(testKey: TransitionTestStateName, data?: string) {
+  const initialState = TransitionTestStateMachine.initialState;
   const nextStates = await transitionStateMachine(
     TransitionTestStateMachine,
-    { hydratedState: TransitionTestStateMachine.initialState },
+    { hydratedState: initialState },
     {
       type: testKey,
       data,
@@ -24,7 +26,6 @@ async function doTransition(testKey: TransitionTestStateName, data?: string) {
   return { nextStates, stateNames };
 }
 
-/* eslint jest/expect-expect: ["warn", { "assertFunctionNames": ["expect", "expectEventCountsToBeSequential"] }] */
 describe('transitionStateMachine function', () => {
   describe('Simple Transitions', () => {
     test('simple transition to another state', async () => {
@@ -156,8 +157,10 @@ describe('transitionStateMachine function', () => {
   });
 
   describe('Updating event counts', () => {
-    function expectEventCountsToBeSequential(
-      states: ReadonlyArray<{ context: EventCountContext }>
+    /* eslint jest/expect-expect: ["warn", { "assertFunctionNames": ["expect", "expectEventCounts"] }] */
+    function expectEventCounts(
+      states: ReadonlyArray<{ context: EventCountContext }>,
+      ...counts: ReadonlyArray<number>
     ) {
       const eventContexts = states.map((s) => s.context);
       if (eventContexts.length === 0) {
@@ -166,10 +169,10 @@ describe('transitionStateMachine function', () => {
         );
       }
 
-      const base = eventContexts[0].eventCount;
-      const expected = eventContexts.map((ctx, i) => ({
-        eventCount: base + i,
-        previousEventCount: base + i - 1,
+      const basis = INITIAL_EVENT_COUNT;
+      const expected = counts.map((c) => ({
+        eventCount: c + basis,
+        previousEventCount: c - 1 + basis,
       }));
 
       expect(eventContexts).toEqual(expected);
@@ -177,24 +180,24 @@ describe('transitionStateMachine function', () => {
 
     test('a single returned state should update event counts once', async () => {
       const { nextStates } = await doTransition('simpleEvent');
-      expectEventCountsToBeSequential(nextStates);
+      expectEventCounts(nextStates, 1);
     });
 
     test('multiple returned events should update the event counts each time', async () => {
       const { nextStates } = await doTransition('autoTransition2');
-      expectEventCountsToBeSequential(nextStates);
+      expectEventCounts(nextStates, 1, 2, 3);
     });
 
     test('going through a transient state does not update the event counts extra', async () => {
       const { nextStates } = await doTransition(
         'simpleEventWithTransientState'
       );
-      expectEventCountsToBeSequential(nextStates);
+      expectEventCounts(nextStates, 1);
     });
 
     test('going through a SECRET_ACTION_COMPLETE event does not update the event counts extra', async () => {
       const { nextStates } = await doTransition('invokeSecretAction');
-      expectEventCountsToBeSequential(nextStates);
+      expectEventCounts(nextStates, 1, 2);
     });
   });
 });

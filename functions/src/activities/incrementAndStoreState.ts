@@ -98,7 +98,7 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
 
 export async function storePublicAndPrivateStateViewsFromTransition(params: {
   gameId: string;
-  nextStates: GameState[];
+  nextStates: ReadonlyArray<GameState>;
   playerIdentities: PlayerIdentities;
 }): Promise<void> {
   const { gameId, nextStates, playerIdentities } = params;

@@ -47,6 +47,8 @@ export type TransitionTestState = State<
   TransitionTestStateSchema
 >;
 
+export const INITIAL_EVENT_COUNT = 4;
+
 /**
  * This machine is used in the unit tests to exercise the `transitionStateMachine` function.
  */
@@ -59,7 +61,7 @@ export const TransitionTestStateMachine = Machine<
   strict: true,
   initial: 'entry',
   context: {
-    eventCount: 4,
+    eventCount: INITIAL_EVENT_COUNT,
     previousEventCount: null,
   },
   states: {

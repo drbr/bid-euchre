@@ -1,4 +1,4 @@
-import { Dispatch, memo } from 'react';
+import { memo } from 'react';
 import { AnyEventObject } from 'xstate';
 import { GameStateMachine } from '../../gameLogic/euchreStateMachine/GameStateMachine';
 import {
@@ -7,20 +7,21 @@ import {
 } from '../../gameLogic/euchreStateMachine/GameStateTypes';
 import { willEventApply } from '../../gameLogic/stateMachineUtils/willEventApply';
 import { GameDisplay } from '../../gameScreens/GameDisplay';
-import { PlayGameProps, StateBufferAction } from './PlayGame';
+import { BufferEvent } from './BufferMachine';
+import { PlayGameProps } from './PlayGame';
 
 export type PlayGameWithStateProps = PlayGameProps & {
   gameState: GameState;
   sendGameEvent: (event: AnyEventObject) => void;
-  dispatchStateBufferAction: Dispatch<StateBufferAction>;
+  dispatchStateBufferAction: (event: BufferEvent) => void;
 };
 
 export const PlayGameForStatePure = memo(function PlayGameForState(
   props: PlayGameWithStateProps
 ) {
   const goForward = () =>
-    props.dispatchStateBufferAction({ type: 'goForward' });
-  const goBack = () => props.dispatchStateBufferAction({ type: 'goBack' });
+    props.dispatchStateBufferAction({ type: 'GO_FORWARD_ONE' });
+  const goBack = () => props.dispatchStateBufferAction({ type: 'GO_BACK_ONE' });
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -1,17 +1,15 @@
-import { Dispatch, Reducer, useCallback, useEffect, useReducer } from 'react';
+import { useMachine } from '@xstate/react';
+import { useCallback, useEffect } from 'react';
 import { AnyEventObject } from 'xstate';
 import { InProgressGameConfig } from '../../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../../functions/apiContract/database/GameState';
 import { sendGameEvent } from '../../firebase/CloudFunctionsClient';
 import * as DAO from '../../firebase/FrontendDAO';
 import { GameStateConfig } from '../../gameLogic/euchreStateMachine/GameStateTypes';
-import {
-  HydratedGameState,
-  hydrateStateFromConfig,
-} from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { assertUnreachable } from '../../uiHelpers/TypescriptUtils';
+import { hydrateStateFromConfig } from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { UIActions } from '../../uiHelpers/UIActions';
 import { Subscription } from '../../uiHelpers/useObservedState';
+import { BufferEvent, BufferStateMachine } from './BufferMachine';
 import { PlayGameForStatePure } from './PlayGameWithState';
 
 export type PlayGameProps = {
@@ -24,15 +22,13 @@ export type PlayGameProps = {
 export function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
-  const [gameStateBuffer, dispatch] = useReducer(stateBufferReducer, {
-    currentIndex: null,
-    states: [],
-  });
+  const [bufferState, dispatch] = useMachine(BufferStateMachine);
 
-  const currentGameState = gameStateBuffer.currentIndex
-    ? gameStateBuffer.states[gameStateBuffer.currentIndex]
+  const buffer = bufferState.context;
+  const currentGameState = buffer.currentIndex
+    ? buffer.states[buffer.currentIndex]
     : null;
-  console.log('State buffer: %o', gameStateBuffer);
+  console.log('State buffer: %o', buffer);
 
   useEffect(
     () =>
@@ -41,7 +37,7 @@ export function PlayGame(props: PlayGameProps) {
         playerId,
         dispatch,
       }),
-    [gameId, playerId]
+    [gameId, playerId, dispatch]
   );
 
   const sendGameEventToStateMachine = useCallback(
@@ -79,64 +75,10 @@ export function PlayGame(props: PlayGameProps) {
   );
 }
 
-export type StateBuffer = {
-  currentIndex: number | null;
-  states: ReadonlyArray<HydratedGameState>;
-};
-
-export type StateBufferAction =
-  | {
-      type: 'add';
-      newState: HydratedGameState;
-    }
-  | { type: 'switchTo'; index: number }
-  | { type: 'goForward' }
-  | { type: 'goBack' };
-
-const stateBufferReducer: Reducer<StateBuffer, StateBufferAction> = (
-  prevBuffer,
-  action
-) => {
-  function goToIndex(i: number) {
-    if (!prevBuffer.states[i]) {
-      throw new Error('Tried to switch to a state not present in the client');
-    }
-    return {
-      currentIndex: i,
-      states: prevBuffer.states,
-    };
-  }
-
-  switch (action.type) {
-    case 'add': {
-      if (!action.newState) {
-        throw new Error('Tried to add a null object into the state buffer');
-      }
-      const index = action.newState.hydratedState.context.eventCount;
-      return {
-        currentIndex: prevBuffer.currentIndex ?? index,
-        states: {
-          ...prevBuffer.states,
-          [index]: action.newState,
-        },
-      };
-    }
-    case 'switchTo':
-      return goToIndex(action.index);
-    case 'goForward':
-      return goToIndex((prevBuffer.currentIndex ?? 0) + 1);
-    case 'goBack':
-      return goToIndex((prevBuffer.currentIndex ?? 0) - 1);
-    default:
-      assertUnreachable(action);
-      return prevBuffer;
-  }
-};
-
 function subscribeToGameStateToAddToBuffer(params: {
   gameId: string;
   playerId: string | null;
-  dispatch: Dispatch<StateBufferAction>;
+  dispatch: (event: BufferEvent) => void;
 }) {
   const { gameId, playerId, dispatch } = params;
   const stateSubscription = subscribeToPublicOrPrivateGameState;
@@ -148,7 +90,7 @@ function subscribeToGameStateToAddToBuffer(params: {
       throw new Error(`Game with ID ${gameId} was not found!`);
     } else {
       const hydrated = hydrateStateFromConfig(data);
-      dispatch({ type: 'add', newState: hydrated });
+      dispatch({ type: 'RECV_NEXT_STATE', newState: hydrated });
     }
   });
 

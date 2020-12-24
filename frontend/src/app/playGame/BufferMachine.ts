@@ -38,9 +38,17 @@ export type BufferEvent =
   | { type: 'GO_FORWARD_ONE' }
   | { type: 'GO_BACK_ONE' }
   | SwitchToIndexEvent
-  | { type: 'UNBLOCK' };
+  | { type: 'UNBLOCK' }
+  | { type: 'RESET' };
 
 export type BufferState = State<StateBuffer, BufferEvent, BufferStateSchema>;
+
+const initialState: BufferStateName = 'showStateUnblocked';
+
+const initialContext: StateBuffer = {
+  currentIndex: null,
+  states: [],
+};
 
 /**
  * This machine controls how the UI transitions through the game states. The states can be sent to
@@ -55,11 +63,8 @@ export const BufferStateMachine = Machine<
 >({
   id: 'BufferMachine',
   strict: true,
-  initial: 'showStateUnblocked',
-  context: {
-    currentIndex: null,
-    states: [],
-  },
+  initial: initialState,
+  context: initialContext,
   on: {
     RECV_NEXT_STATE: { actions: assign(addStateToBuffer) },
     SWITCH_TO: {
@@ -83,6 +88,10 @@ export const BufferStateMachine = Machine<
           index: (context.currentIndex || 0) - 1,
         })
       ),
+    },
+    RESET: {
+      target: initialState,
+      actions: assign(() => initialContext),
     },
   },
   states: {

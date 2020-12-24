@@ -7,10 +7,9 @@ export type StateBuffer = {
   states: ReadonlyArray<HydratedGameState>;
 };
 
-export const LINGER_DELAY_MS = 500;
+export const LINGER_DELAY_MS = 2000;
 
 export type BufferStatesGeneric<T> = {
-  entry: T;
   showStateLingering: T;
   showStateBlocking: T;
   showStateUnblocked: T;
@@ -29,17 +28,17 @@ type RecvNextStateEvent = {
   newState: HydratedGameState;
 };
 
+type SwitchToIndexEvent = {
+  type: 'SWITCH_TO';
+  index: number;
+};
+
 export type BufferEvent =
   | RecvNextStateEvent
-  | { type: 'GO_FORWARD' }
-  | { type: 'GO_BACK' }
-  | {
-      type: 'SWITCH_TO';
-      index: number;
-    }
-  | {
-      type: 'UNBLOCK';
-    };
+  | { type: 'GO_FORWARD_ONE' }
+  | { type: 'GO_BACK_ONE' }
+  | SwitchToIndexEvent
+  | { type: 'UNBLOCK' };
 
 export type BufferState = State<StateBuffer, BufferEvent, BufferStateSchema>;
 
@@ -56,20 +55,37 @@ export const BufferStateMachine = Machine<
 >({
   id: 'BufferMachine',
   strict: true,
-  initial: 'entry',
+  initial: 'showStateUnblocked',
   context: {
     currentIndex: null,
     states: [],
   },
-  states: {
-    entry: {
-      on: {
-        RECV_NEXT_STATE: {
-          target: 'prepareToShowNextState',
-          actions: assign(addStateToBuffer),
-        },
-      },
+  on: {
+    RECV_NEXT_STATE: { actions: assign(addStateToBuffer) },
+    SWITCH_TO: {
+      target: 'showStateDetached',
+      actions: assign(setCurrentIndex),
     },
+    GO_FORWARD_ONE: {
+      target: 'showStateDetached',
+      actions: assign((context) =>
+        setCurrentIndex(context, {
+          type: 'SWITCH_TO',
+          index: (context.currentIndex || 0) + 1,
+        })
+      ),
+    },
+    GO_BACK_ONE: {
+      target: 'showStateDetached',
+      actions: assign((context) =>
+        setCurrentIndex(context, {
+          type: 'SWITCH_TO',
+          index: (context.currentIndex || 0) - 1,
+        })
+      ),
+    },
+  },
+  states: {
     showStateLingering: {
       entry: send('UNBLOCK', { delay: LINGER_DELAY_MS }),
       always: { target: 'showStateBlocking' },
@@ -77,7 +93,6 @@ export const BufferStateMachine = Machine<
     showStateBlocking: {
       on: {
         UNBLOCK: { target: 'showStateUnblocked' },
-        RECV_NEXT_STATE: { actions: assign(addStateToBuffer) },
       },
     },
     showStateUnblocked: {
@@ -86,12 +101,9 @@ export const BufferStateMachine = Machine<
         cond: nextStateIsAvailable,
         target: 'prepareToShowNextState',
       },
-      on: {
-        RECV_NEXT_STATE: { actions: assign(addStateToBuffer) },
-      },
     },
     prepareToShowNextState: {
-      entry: assign(advanceToNextState),
+      entry: assign(safelyAdvanceToNextState),
       always: [
         {
           cond: nextStateLingers,
@@ -106,7 +118,12 @@ export const BufferStateMachine = Machine<
         },
       ],
     },
-    showStateDetached: {},
+    showStateDetached: {
+      always: {
+        target: 'showStateUnblocked',
+        cond: isOnMostRecentState,
+      },
+    },
   },
 });
 
@@ -119,14 +136,14 @@ function addStateToBuffer(
   }
 
   const index = event.newState.hydratedState.context.eventCount;
+  const clonedStates = Array.from(prevBuffer.states);
+  clonedStates[index] = event.newState;
+
   return {
     // If this is the first event to be populated, set the current index to one less,
     // so the newly-populated event will be the "next state"
     currentIndex: prevBuffer.currentIndex ?? index - 1,
-    states: {
-      ...prevBuffer.states,
-      [index]: event.newState,
-    },
+    states: clonedStates,
   };
 }
 
@@ -135,7 +152,12 @@ function nextStateIsAvailable(context: StateBuffer): boolean {
   return !!context.states[nextIndex];
 }
 
-function advanceToNextState(prevBuffer: StateBuffer): StateBuffer {
+function isOnMostRecentState(context: StateBuffer): boolean {
+  const lastIndex = context.states.length - 1;
+  return context.currentIndex === lastIndex;
+}
+
+function safelyAdvanceToNextState(prevBuffer: StateBuffer): StateBuffer {
   if (!nextStateIsAvailable(prevBuffer)) {
     throw new Error(
       'Tried to advance to the next state, but it is not in buffer'
@@ -147,6 +169,16 @@ function advanceToNextState(prevBuffer: StateBuffer): StateBuffer {
   return {
     ...prevBuffer,
     currentIndex: prevBuffer.currentIndex + 1,
+  };
+}
+
+function setCurrentIndex(
+  prevBuffer: StateBuffer,
+  event: SwitchToIndexEvent
+): StateBuffer {
+  return {
+    ...prevBuffer,
+    currentIndex: event.index,
   };
 }
 

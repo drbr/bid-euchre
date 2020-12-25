@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import { StateValue } from 'xstate';
 import {
   BufferEvent,
-  BufferState,
+  BufferMachineState,
   createBufferStateMachine,
   StateBuffer,
 } from '../app/playGame/BufferMachine';
@@ -27,7 +27,7 @@ function getStartStateWithHead(head: number, stateValue?: StateValue) {
 function getStartState(
   context: StateBuffer<string>,
   stateValue?: StateValue
-): BufferState<string> {
+): BufferMachineState<string> {
   return BufferMachine.getInitialState(
     stateValue ?? BufferMachine.initialState.value,
     context
@@ -43,9 +43,9 @@ function recvSnapshot(index: number): BufferEvent<string> {
 }
 
 function applyTransitions(
-  startingState: BufferState<string>,
+  startingState: BufferMachineState<string>,
   ...transitions: EventWithExpectedContext[]
-): BufferState<string> {
+): BufferMachineState<string> {
   let current = startingState;
   for (const t of transitions) {
     current = BufferMachine.transition(current, t.event);

@@ -17,7 +17,7 @@ export type PlayGameWithStateProps = PlayGameProps & {
   dispatchStateBufferAction: (event: BufferEvent<HydratedGameState>) => void;
 };
 
-export const PlayGameForStatePure = memo(function PlayGameForState(
+export const PlayGameWithSingleStatePure = memo(function PlayGameWithSingleState(
   props: PlayGameWithStateProps
 ) {
   const goForward = () =>

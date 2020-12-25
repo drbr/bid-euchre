@@ -1,29 +1,77 @@
-import { useMachine } from '@xstate/react';
+import { useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
 import { InProgressGameConfig } from '../../../../functions/apiContract/database/DataModel';
+import { transitionStateMachine } from '../../gameLogic/stateMachineUtils/transitionStateMachine';
 import { GameStateMachine } from '../../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
   GameState,
 } from '../../gameLogic/euchreStateMachine/GameStateTypes';
+import {
+  HydratedGameState,
+  hydrateStateFromConfig,
+} from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { willEventApply } from '../../gameLogic/stateMachineUtils/willEventApply';
 import { GameDisplay } from '../../gameScreens/GameDisplay';
-import * as LocalGameStates from './LocalGameStates';
+import { BufferEvent } from './BufferMachine';
+import { useStateBuffer } from './useStateBuffer';
 
-export function LocalGame() {
-  const [state, send] = useMachine(GameStateMachine, {
-    devTools: true,
-    state: LocalGameStates.freshGame,
-  });
+export function LocalGameContainer() {
+  const [
+    currentGameState,
+    addSnapshotToBuffer,
+    dispatchToBuffer,
+  ] = useStateBuffer();
 
-  function isEventValid(event: AnyEventObject): boolean {
-    return willEventApply(GameStateMachine, state, event as GameEvent);
+  if (!currentGameState) {
+    return <div>ERROR: Game state is not defined</div>;
   }
+
+  return (
+    <LocalGame
+      gameState={currentGameState}
+      addSnapshotToBuffer={addSnapshotToBuffer}
+      dispatchToBuffer={dispatchToBuffer}
+    />
+  );
+}
+
+export type LocalGameProps = {
+  gameState: HydratedGameState;
+  addSnapshotToBuffer: (snapshot: HydratedGameState) => void;
+  dispatchToBuffer: (event: BufferEvent<HydratedGameState>) => void;
+};
+
+export function LocalGame(props: LocalGameProps) {
+  const { addSnapshotToBuffer, gameState } = props;
+
+  const sendGameEventToStateMachine = useCallback(
+    async (event: GameEvent) => {
+      const nextStates = await transitionStateMachine(
+        GameStateMachine,
+        gameState,
+        event
+      );
+      for (const next of nextStates) {
+        addSnapshotToBuffer(hydrateStateFromConfig(next));
+      }
+      // Add the new events to the buffer
+    },
+    [gameState, addSnapshotToBuffer]
+  );
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  (window as any).gameState = state;
+  (window as any).gameState = props.gameState.hydratedState;
   /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  function isEventValid(event: AnyEventObject): boolean {
+    return willEventApply(
+      GameStateMachine,
+      props.gameState.hydratedState,
+      event as GameEvent
+    );
+  }
 
   return (
     <div>
@@ -33,26 +81,26 @@ export function LocalGame() {
         server.
       </p>
       <div>
-        <ButtonToIncrementState
+        <ButtonToIncrementGameState
           eventName="START_GAME"
-          state={state}
-          send={send}
+          state={gameState.hydratedState}
+          send={sendGameEventToStateMachine}
         />
-        <ButtonToIncrementState
+        <ButtonToIncrementGameState
           eventName="AUTO_TRANSITION"
-          state={state}
-          send={send}
+          state={gameState.hydratedState}
+          send={sendGameEventToStateMachine}
         />
-        <ButtonToIncrementState
+        <ButtonToIncrementGameState
           eventName="SECRET_ACTION_COMPLETE"
-          state={state}
-          send={send}
+          state={gameState.hydratedState}
+          send={sendGameEventToStateMachine}
         />
       </div>
       <GameDisplay
-        stateValue={state.value}
-        stateContext={state.context}
-        sendGameEvent={send}
+        stateValue={gameState.hydratedState.value}
+        stateContext={gameState.hydratedState.context}
+        sendGameEvent={sendGameEventToStateMachine}
         isEventValid={isEventValid}
         gameConfig={DummyGameConfig}
         seatedAt="south"
@@ -61,10 +109,10 @@ export function LocalGame() {
   );
 }
 
-function ButtonToIncrementState(props: {
+function ButtonToIncrementGameState(props: {
   eventName: GameEvent['type'];
   state: GameState;
-  send: (eventName: GameEvent['type']) => void;
+  send: (event: GameEvent) => void;
 }) {
   const buttonStyle: React.CSSProperties = { padding: 5, margin: 5 };
   const enabled = props.state.nextEvents.includes(props.eventName);
@@ -72,7 +120,7 @@ function ButtonToIncrementState(props: {
     <button
       disabled={!enabled}
       style={buttonStyle}
-      onClick={() => props.send(props.eventName)}
+      onClick={() => props.send({ type: props.eventName })}
     >
       {props.eventName}
     </button>

@@ -1,4 +1,3 @@
-import { useMachine } from '@xstate/react';
 import { useCallback, useEffect } from 'react';
 import { AnyEventObject } from 'xstate';
 import { InProgressGameConfig } from '../../../../functions/apiContract/database/DataModel';
@@ -12,8 +11,8 @@ import {
 } from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { UIActions } from '../../uiHelpers/UIActions';
 import { Subscription } from '../../uiHelpers/useObservedState';
-import { BufferEvent, createBufferStateMachine } from './BufferMachine';
-import { PlayGameForStatePure } from './PlayGameWithState';
+import { PlayGameWithSingleStatePure } from './PlayGameWithState';
+import { useStateBuffer } from './useStateBuffer';
 
 export type PlayGameProps = {
   gameId: string;
@@ -22,27 +21,23 @@ export type PlayGameProps = {
   seatedAt: Position | null;
 };
 
-const BufferMachine = createBufferStateMachine<HydratedGameState>();
-
 export function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
-  const [bufferState, dispatch] = useMachine(BufferMachine);
-
-  const buffer = bufferState.context;
-  const currentGameState = buffer.currentIndexShowing
-    ? buffer.gameStateSnapshots[buffer.currentIndexShowing]
-    : null;
-  console.log('State buffer: %o', buffer);
+  const [
+    currentGameState,
+    addSnapshotToBuffer,
+    dispatchToBuffer,
+  ] = useStateBuffer();
 
   useEffect(
     () =>
       subscribeToGameStateToAddToBuffer({
         gameId,
         playerId,
-        dispatch,
+        addSnapshotToBuffer,
       }),
-    [gameId, playerId, dispatch]
+    [gameId, playerId, addSnapshotToBuffer]
   );
 
   const sendGameEventToStateMachine = useCallback(
@@ -71,11 +66,11 @@ export function PlayGame(props: PlayGameProps) {
   }
 
   return (
-    <PlayGameForStatePure
+    <PlayGameWithSingleStatePure
       {...props}
       gameState={currentGameState.hydratedState}
       sendGameEvent={sendGameEventToStateMachine}
-      dispatchStateBufferAction={dispatch}
+      dispatchStateBufferAction={dispatchToBuffer}
     />
   );
 }
@@ -83,9 +78,9 @@ export function PlayGame(props: PlayGameProps) {
 function subscribeToGameStateToAddToBuffer(params: {
   gameId: string;
   playerId: string | null;
-  dispatch: (event: BufferEvent<HydratedGameState>) => void;
+  addSnapshotToBuffer: (snapshot: HydratedGameState) => void;
 }) {
-  const { gameId, playerId, dispatch } = params;
+  const { gameId, playerId, addSnapshotToBuffer } = params;
   const stateSubscription = subscribeToPublicOrPrivateGameState;
   console.debug('Subscribing to game state');
   console.debug(stateSubscription);
@@ -95,11 +90,7 @@ function subscribeToGameStateToAddToBuffer(params: {
       throw new Error(`Game with ID ${gameId} was not found!`);
     } else {
       const hydrated = hydrateStateFromConfig(data);
-      dispatch({
-        type: 'RECV_SNAPSHOT',
-        snapshot: hydrated,
-        index: hydrated.hydratedState.context.eventCount,
-      });
+      addSnapshotToBuffer(hydrated);
     }
   });
 

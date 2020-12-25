@@ -12,7 +12,7 @@ import {
 import { SendGameEventRequest } from '../../apiContract/cloudFunctions/SendGameEvent';
 import { PlayerIdentities } from '../../apiContract/database/DataModel';
 import { preparePublicAndPrivateStateForStorage } from '../backendStateMachineUtils/preparePublicAndPrivateStateForStorage';
-import { transitionStateMachine } from '../backendStateMachineUtils/transitionStateMachine';
+import { transitionStateMachine } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { assertEventsAreInSync } from './assertEventsAreInSync';
 

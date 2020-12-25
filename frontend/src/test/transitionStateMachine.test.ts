@@ -3,7 +3,7 @@ import './CustomMatchers';
 import {
   INVALID_STATE_TRANSITION_ERROR,
   transitionStateMachine,
-} from '../../../functions/src/backendStateMachineUtils/transitionStateMachine';
+} from '../gameLogic/stateMachineUtils/transitionStateMachine';
 import {
   TransitionTestStateName,
   TransitionTestStateMachine,

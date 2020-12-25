@@ -3,13 +3,13 @@ import { AnyEventObject, interpret, State, StateMachine } from 'xstate';
 import {
   HydratedState,
   sanitizeStateMetadata,
-} from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+} from './serializeAndHydrateState';
 import {
   AutoTransitionEvent,
   SecretActionCompleteEvent,
-} from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
-import { EventCountContext } from '../../../frontend/src/gameLogic/stateMachineUtils/TypedStateInterfaces';
-import { SimpleDeferred } from '../../../frontend/src/gameLogic/utils/SimpleDeferred';
+} from './SpecialEvents';
+import { EventCountContext } from './TypedStateInterfaces';
+import { SimpleDeferred } from '../utils/SimpleDeferred';
 
 /**
  * Thrown if the state machine does not accept the event.
@@ -29,6 +29,9 @@ const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
  * is equivalent to running `machine.transition(prev, event)`, except that this function may take
  * the machine through multiple transitions in a single invocation. As such, it returns an array of
  * states in the order that they were reached.
+ *
+ * TODO: The type definition may be wrong here – does it return a hydrated State object, or
+ * merely a sanitized StateConfig?
  *
  * @throws rejects the promise with `INVALID_STATE_TRANSITION_ERROR` if the event does not cause any
  * state changes.

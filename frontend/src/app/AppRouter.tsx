@@ -9,7 +9,7 @@ import { GameContainer } from './GameContainer';
 import { Lobby } from './Lobby';
 import { GamePathRouteProps } from './paths';
 import { createBufferStateMachine } from './playGame/BufferMachine';
-import { LocalGame } from './playGame/LocalGame';
+import { LocalGameContainer } from './playGame/LocalGame';
 
 export function AppRouter() {
   return (
@@ -28,10 +28,6 @@ export function AppRouter() {
       />
 
       <LocalGameRoute path="/localGame" />
-      <StateMachineRoute
-        path="/localGame/stateMachine"
-        childrenWithMachine={<LocalGameRoute />}
-      />
 
       <StateMachineRoute
         path="/bufferMachine"
@@ -84,7 +80,7 @@ function ExperimentRoute(props: RouteComponentProps) {
 function LocalGameRoute(props: RouteComponentProps) {
   return (
     <App>
-      <LocalGame />
+      <LocalGameContainer />
     </App>
   );
 }

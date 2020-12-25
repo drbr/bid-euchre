@@ -34,7 +34,7 @@ export type StateBuffer<S> = {
 
 export const LINGER_DELAY_MS = 1000;
 
-export type BufferStatesGeneric<X> = {
+type BufferStatesGeneric<X> = {
   /**
    * The machine starts in this state until the buffer has populated all the snapshots up to and
    * including the head.
@@ -75,7 +75,7 @@ export type BufferStatesGeneric<X> = {
   };
 };
 
-export type BufferStateSchema<S> = {
+type BufferStateSchema<S> = {
   states: BufferStatesGeneric<TypedStateSchema<unknown, StateBuffer<S>>>;
 };
 
@@ -98,7 +98,7 @@ export type BufferEvent<S> =
   | { type: 'UNBLOCK_HEAD' }
   | { type: 'RESET' };
 
-export type BufferState<S> = State<
+export type BufferMachineState<S> = State<
   StateBuffer<S>,
   BufferEvent<S>,
   BufferStateSchema<S>

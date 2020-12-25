@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions';
-import { INVALID_STATE_TRANSITION_ERROR } from './backendStateMachineUtils/transitionStateMachine';
+import { INVALID_STATE_TRANSITION_ERROR } from '../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import {
   ID_COLLISION_ERROR,
   TRANSACTION_FAILED_ERROR,

@@ -226,23 +226,6 @@ export function createBufferStateMachine<S>(): StateMachine<
               target: 'showHeadUnblocked',
               cond: isAtHead,
             },
-            // on: {
-            //   DETACHED_GO_FORWARD: {
-            //     cond: (context) =>
-            //       (context.currentIndexShowing ?? NaN) + 1 === context.head,
-            //     target: 'showHeadUnblocked',
-            //     actions: assign({
-            //       currentIndexShowing: (context) => context.head,
-            //     }),
-            //   },
-            //   DETACHED_GO_TO_INDEX: {
-            //     cond: (context, event) => event.index === context.head,
-            //     target: 'showHeadUnblocked',
-            //     actions: assign({
-            //       currentIndexShowing: (context, event) => event.index,
-            //     }),
-            //   },
-            // },
           },
         },
       },
@@ -326,7 +309,7 @@ function safelyAdvanceHead<S>(prevBuffer: StateBuffer<S>): StateBuffer<S> {
     throw new Error('Tried to advance the head, but it is not yet in buffer');
   }
   if (!prevBuffer.currentIndexShowing) {
-    throw new Error('Buffer is not currently displaying any state');
+    throw new Error('currentIndexShowing was unexpectedly null');
   }
   const nextIndex = prevBuffer.currentIndexShowing + 1;
 

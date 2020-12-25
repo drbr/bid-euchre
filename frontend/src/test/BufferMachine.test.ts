@@ -365,16 +365,40 @@ describe('BufferMachine', () => {
         });
       });
 
-      test("jumping to an index > head that hasn't been fetched does what?", () => {
-        //
+      test("jumping to an index > head that hasn't been fetched should have no effect", () => {
+        applyTransitions(state_showHeadAt4Unblocked, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: 5 },
+          expectedContext: state_showHeadAt4Unblocked.context,
+          expectValueToEqual: state_showHeadAt4Unblocked.value,
+        });
       });
 
-      test('jumping to an index > head that has already been fetched does what?', () => {
-        //
+      test('jumping to an index > head that has already been fetched should have no effect', () => {
+        applyTransitions(
+          state_showHeadAt4Unblocked,
+          { event: recvSnapshot(6) },
+          {
+            event: { type: 'DETACHED_GO_TO_INDEX', index: 6 },
+            expectedContext: {
+              ...state_showHeadAt4Unblocked.context,
+              gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 6]),
+            },
+            expectValueToEqual: state_showHeadAt4Unblocked.value,
+          }
+        );
       });
 
-      test('jumping to an index < 1 does what?', () => {
-        //
+      test('jumping to an index < 1 should have no effect', () => {
+        applyTransitions(state_showHeadAt4Unblocked, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: 0 },
+          expectedContext: state_showHeadAt4Blocked.context,
+          expectValueToEqual: state_showHeadAt4Unblocked.value,
+        });
+        applyTransitions(state_showHeadAt4Unblocked, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: -1 },
+          expectedContext: state_showHeadAt4Blocked.context,
+          expectValueToEqual: state_showHeadAt4Unblocked.value,
+        });
       });
     });
 
@@ -395,16 +419,40 @@ describe('BufferMachine', () => {
         });
       });
 
-      test("jumping to an index > head that hasn't been fetched does what?", () => {
-        //
+      test("jumping to an index > head that hasn't been fetched should have no effect", () => {
+        applyTransitions(state_detachedAt3_headIs4, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: 5 },
+          expectedContext: state_detachedAt3_headIs4.context,
+          expectValueToEqual: state_detachedAt3_headIs4.value,
+        });
       });
 
-      test('jumping to an index > head that has already been fetched does what?', () => {
-        //
+      test('jumping to an index > head that has already been fetched should have no effect', () => {
+        applyTransitions(
+          state_detachedAt3_headIs4,
+          { event: recvSnapshot(6) },
+          {
+            event: { type: 'DETACHED_GO_TO_INDEX', index: 6 },
+            expectedContext: {
+              ...state_detachedAt3_headIs4.context,
+              gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 6]),
+            },
+            expectValueToEqual: state_detachedAt3_headIs4.value,
+          }
+        );
       });
 
-      test('jumping to an index < 1 does what?', () => {
-        //
+      test('jumping to an index < 1 should have no effect', () => {
+        applyTransitions(state_detachedAt3_headIs4, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: 0 },
+          expectedContext: state_detachedAt3_headIs4.context,
+          expectValueToEqual: state_detachedAt3_headIs4.value,
+        });
+        applyTransitions(state_detachedAt3_headIs4, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: -1 },
+          expectedContext: state_detachedAt3_headIs4.context,
+          expectValueToEqual: state_detachedAt3_headIs4.value,
+        });
       });
     });
 
@@ -412,9 +460,7 @@ describe('BufferMachine', () => {
       applyTransitions(state_detachedAt3_headIs4, {
         event: recvSnapshot(5),
         expectedContext: {
-          head: state_detachedAt3_headIs4.context.head,
-          currentIndexShowing:
-            state_detachedAt3_headIs4.context.currentIndexShowing,
+          ...state_detachedAt3_headIs4.context,
           gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 5]),
         },
         expectValueToEqual: DETACHED,

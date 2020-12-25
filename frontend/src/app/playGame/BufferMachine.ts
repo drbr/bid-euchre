@@ -1,4 +1,4 @@
-import { assign, Machine, send, State } from 'xstate';
+import { assign, Machine, send, State, StateMachine } from 'xstate';
 import { TypedStateSchema } from '../../gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 /**
@@ -104,7 +104,11 @@ export type BufferState<S> = State<
  * block or linger on certain states, storing the newer states in the buffer and transitioning only
  * when the appropriate user interactions have occurred.
  */
-export function createBufferStateMachine<S>() {
+export function createBufferStateMachine<S>(): StateMachine<
+  StateBuffer<S>,
+  BufferStateSchema<S>,
+  BufferEvent<S>
+> {
   const initialContext: StateBuffer<S> = {
     currentIndexShowing: null,
     head: null,

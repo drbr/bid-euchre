@@ -22,7 +22,7 @@ export type PlayGameProps = {
   seatedAt: Position | null;
 };
 
-const BufferMachine = createBufferStateMachine();
+const BufferMachine = createBufferStateMachine<HydratedGameState>();
 
 export function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
@@ -95,7 +95,11 @@ function subscribeToGameStateToAddToBuffer(params: {
       throw new Error(`Game with ID ${gameId} was not found!`);
     } else {
       const hydrated = hydrateStateFromConfig(data);
-      dispatch({ type: 'RECV_NEXT_STATE', newState: hydrated });
+      dispatch({
+        type: 'RECV_SNAPSHOT',
+        snapshot: hydrated,
+        index: hydrated.hydratedState.context.eventCount,
+      });
     }
   });
 

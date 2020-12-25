@@ -79,8 +79,6 @@ export type BufferStateSchema<S> = {
   states: BufferStatesGeneric<TypedStateSchema<unknown, StateBuffer<S>>>;
 };
 
-export type BufferStateName = keyof BufferStatesGeneric<unknown>;
-
 type RecvSnapshotEvent<S> = {
   type: 'RECV_SNAPSHOT';
   snapshot: S;
@@ -221,7 +219,7 @@ export function createBufferStateMachine<S>(): StateMachine<
             always: {
               cond: nextSnapshotIsAvailable,
               target: 'enterHead',
-              actions: safelyAdvanceHead,
+              actions: assign((context) => safelyAdvanceHead(context)),
             },
           },
           showSnapshotDetached: {

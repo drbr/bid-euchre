@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import { StateValue } from 'xstate';
 import {
   BufferEvent,
@@ -11,7 +12,8 @@ const BufferMachine = createBufferStateMachine<string>();
 type EventWithExpectedContext = {
   event: BufferEvent<string>;
   expectedContext?: StateBuffer<string>;
-  do?: (state: BufferState<string>) => void;
+  expectValueToEqual?: StateValue;
+  expectValueNotToEqual?: StateValue;
 };
 
 function getStartStateWithHead(head: number, stateValue?: StateValue) {
@@ -40,6 +42,28 @@ function recvSnapshot(index: number): BufferEvent<string> {
   };
 }
 
+function contextShowingHeadAt(
+  index: number,
+  opts?: { loadedSnapshotIndexes?: number[] }
+): StateBuffer<string> {
+  let gameStateSnapshots = [
+    undefined,
+    ..._.range(1, index + 1).map((x) => `Snapshot ${x}`),
+  ];
+  if (opts?.loadedSnapshotIndexes) {
+    gameStateSnapshots = [];
+    for (const i of opts.loadedSnapshotIndexes) {
+      gameStateSnapshots[i] = `Snapshot ${i}`;
+    }
+  }
+
+  return {
+    currentIndexShowing: index,
+    head: index,
+    gameStateSnapshots,
+  };
+}
+
 function applyTransitions(
   startingState: BufferState<string>,
   ...transitions: EventWithExpectedContext[]
@@ -50,8 +74,11 @@ function applyTransitions(
     if (t.expectedContext) {
       expect(current.context).toEqual(t.expectedContext);
     }
-    if (t.do) {
-      t.do(current);
+    if (t.expectValueToEqual) {
+      expect(current.value).toEqual(t.expectValueToEqual);
+    }
+    if (t.expectValueNotToEqual) {
+      expect(current.value).not.toEqual(t.expectValueNotToEqual);
     }
   }
   return current;
@@ -82,16 +109,12 @@ describe('BufferMachine', () => {
             head: 2,
             gameStateSnapshots: [undefined, undefined, 'Snapshot 2'],
           },
-          do: (s) => expect(s.value).toEqual('loading'),
+          expectValueToEqual: 'loading',
         },
         {
           event: recvSnapshot(1),
-          expectedContext: {
-            currentIndexShowing: 2,
-            head: 2,
-            gameStateSnapshots: [undefined, 'Snapshot 1', 'Snapshot 2'],
-          },
-          do: (s) => expect(s.value).not.toEqual('loading'),
+          expectedContext: contextShowingHeadAt(2),
+          expectValueNotToEqual: 'loading',
         }
       );
     });
@@ -105,18 +128,53 @@ describe('BufferMachine', () => {
         { event: recvSnapshot(2) },
         {
           event: recvSnapshot(3),
-          do: (s) => expect(s.value).toEqual('loading'),
+          expectValueToEqual: 'loading',
         }
       );
     });
   });
 
   describe('Head mode', () => {
-    // starts in blocked
-    // from blocked, send unblock and it should stay there if next is unavailable
-    // from blocked, send unblock and it should immediately transition if next is available
+    test('starts showing the head state in "blocked"', () => {
+      applyTransitions(getStartStateWithHead(1), {
+        event: recvSnapshot(1),
+        expectValueToEqual: { loaded: 'showHeadBlocking' },
+      });
+    });
+
+    test('when unblocking, transitions to "unblocked" if the next index is not available', () => {
+      applyTransitions(
+        getStartStateWithHead(1),
+        { event: recvSnapshot(1) },
+        {
+          event: { type: 'UNBLOCK_HEAD' },
+          expectedContext: contextShowingHeadAt(1),
+          expectValueToEqual: { loaded: 'showHeadUnblocked' },
+        }
+      );
+    });
+
+    test('when unblocking, immediately advances the head if the next index is available', () => {
+      applyTransitions(
+        getStartStateWithHead(1),
+        { event: recvSnapshot(1) },
+        {
+          event: recvSnapshot(2),
+          expectedContext: contextShowingHeadAt(1, {
+            loadedSnapshotIndexes: [1, 2],
+          }),
+          expectValueToEqual: { loaded: 'showHeadBlocking' },
+        },
+        {
+          event: { type: 'UNBLOCK_HEAD' },
+          expectedContext: contextShowingHeadAt(2),
+          expectValueToEqual: { loaded: 'showHeadBlocking' },
+        }
+      );
+    });
     // from unblock, on RECV, transitions to the next head if it's available
     // from unblock, on RECV, stays put if the next head is not available
+    // from unblock, on RECV, stays put if the next head is not available, and stays put after unblock
     // from unblock, load h+2, then h+1, it should transition to h+1
     // on reset, go back to loading and clear out the context
   });
@@ -134,5 +192,6 @@ describe('BufferMachine', () => {
     // from detached, go to arbitrary index == head, goes back to head mode unblocked
     // from detached, go to arbitrary index > head, throws an error
     // back one, while in detached, receive a newer snapshot, go forward one and it should go back to the original head
+    // on reset, go back to loading and clear out the context
   });
 });

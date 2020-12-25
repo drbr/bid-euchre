@@ -6,10 +6,13 @@ import { Position } from '../../../../functions/apiContract/database/GameState';
 import { sendGameEvent } from '../../firebase/CloudFunctionsClient';
 import * as DAO from '../../firebase/FrontendDAO';
 import { GameStateConfig } from '../../gameLogic/euchreStateMachine/GameStateTypes';
-import { hydrateStateFromConfig } from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import {
+  HydratedGameState,
+  hydrateStateFromConfig,
+} from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { UIActions } from '../../uiHelpers/UIActions';
 import { Subscription } from '../../uiHelpers/useObservedState';
-import { BufferEvent, BufferStateMachine } from './BufferMachine';
+import { BufferEvent, createBufferStateMachine } from './BufferMachine';
 import { PlayGameForStatePure } from './PlayGameWithState';
 
 export type PlayGameProps = {
@@ -19,10 +22,12 @@ export type PlayGameProps = {
   seatedAt: Position | null;
 };
 
+const BufferMachine = createBufferStateMachine();
+
 export function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
-  const [bufferState, dispatch] = useMachine(BufferStateMachine);
+  const [bufferState, dispatch] = useMachine(BufferMachine);
 
   const buffer = bufferState.context;
   const currentGameState = buffer.currentIndexShowing
@@ -78,7 +83,7 @@ export function PlayGame(props: PlayGameProps) {
 function subscribeToGameStateToAddToBuffer(params: {
   gameId: string;
   playerId: string | null;
-  dispatch: (event: BufferEvent) => void;
+  dispatch: (event: BufferEvent<HydratedGameState>) => void;
 }) {
   const { gameId, playerId, dispatch } = params;
   const stateSubscription = subscribeToPublicOrPrivateGameState;

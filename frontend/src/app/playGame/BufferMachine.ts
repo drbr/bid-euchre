@@ -1,12 +1,11 @@
 import { assign, Machine, send, State } from 'xstate';
-import { HydratedGameState } from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { TypedStateSchema } from '../../gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 /**
  * This buffer stores all the known game state snapshots and controls how the client moves through
  * them over time.
  */
-export type StateBuffer = {
+export type StateBuffer<S> = {
   /**
    * The index of the snapshot currently being displayed
    */
@@ -22,17 +21,17 @@ export type StateBuffer = {
    * All the snapshots that are known to the client, including those past the head that have never
    * been displayed
    */
-  readonly gameStateSnapshots: ReadonlyArray<HydratedGameState>;
+  readonly gameStateSnapshots: ReadonlyArray<S>;
 };
 
 export const LINGER_DELAY_MS = 1000;
 
-export type BufferStatesGeneric<T> = {
+export type BufferStatesGeneric<X> = {
   /**
    * The machine starts in this state until the buffer has populated all the snapshots up to and
    * including the head.
    */
-  loading: T;
+  loading: X;
 
   loaded: {
     states: {
@@ -40,43 +39,44 @@ export type BufferStatesGeneric<T> = {
        * The entry point for showing a new head state. This transient node decides which of the
        * "showHead*" states should be used, based on the new head's configuration.
        */
-      enterHead: T;
+      enterHead: X;
 
       /**
        * Showing the head while it's in the mandatory "linger" period. This is implemented by invoking
        * a delayed UNBLOCK_HEAD event and immediately transitioning to showHeadBlocking.
        */
-      showHeadLingering: T;
+      showHeadLingering: X;
 
       /**
        * Showing the head while it's blocked – the machine will not advance the head until it receives
        * the UNBLOCK_HEAD event.
        */
-      showHeadBlocking: T;
+      showHeadBlocking: X;
 
       /**
        * Showing the head while unblocked – the head can be advanced at any time.
        */
-      showHeadUnblocked: T;
+      showHeadUnblocked: X;
 
       /**
        * Showing a state older than the head (one that the player has already played). In detached mode,
        * the machine can move freely from state to state, ignoring blocks or lingers.
        */
-      showSnapshotDetached: T;
+      showSnapshotDetached: X;
     };
   };
 };
 
-export type BufferStateSchema = {
-  states: BufferStatesGeneric<TypedStateSchema<unknown, StateBuffer>>;
+export type BufferStateSchema<S> = {
+  states: BufferStatesGeneric<TypedStateSchema<unknown, StateBuffer<S>>>;
 };
 
 export type BufferStateName = keyof BufferStatesGeneric<unknown>;
 
-type RecvNextStateEvent = {
-  type: 'RECV_NEXT_STATE';
-  newState: HydratedGameState;
+type RecvSnapshotEvent<S> = {
+  type: 'RECV_SNAPSHOT';
+  snapshot: S;
+  index: number;
 };
 
 type SwitchToDetachedIndexEvent = {
@@ -84,21 +84,19 @@ type SwitchToDetachedIndexEvent = {
   index: number;
 };
 
-export type BufferEvent =
-  | RecvNextStateEvent
+export type BufferEvent<S> =
+  | RecvSnapshotEvent<S>
   | { type: 'DETACHED_GO_FORWARD' }
   | { type: 'DETACHED_GO_BACK' }
   | SwitchToDetachedIndexEvent
   | { type: 'UNBLOCK_HEAD' }
   | { type: 'RESET' };
 
-export type BufferState = State<StateBuffer, BufferEvent, BufferStateSchema>;
-
-const initialContext: StateBuffer = {
-  currentIndexShowing: null,
-  head: null,
-  gameStateSnapshots: [],
-};
+export type BufferState<S> = State<
+  StateBuffer<S>,
+  BufferEvent<S>,
+  BufferStateSchema<S>
+>;
 
 /**
  * This machine controls how the UI transitions through the game states. The state snapshots can be sent to
@@ -106,125 +104,128 @@ const initialContext: StateBuffer = {
  * block or linger on certain states, storing the newer states in the buffer and transitioning only
  * when the appropriate user interactions have occurred.
  */
-export const BufferStateMachine = Machine<
-  StateBuffer,
-  BufferStateSchema,
-  BufferEvent
->({
-  id: 'BufferMachine',
-  strict: true,
-  initial: 'loading',
-  context: initialContext,
-  on: {
-    RECV_NEXT_STATE: { actions: assign(addSnapshotToBuffer) },
-    RESET: {
-      target: 'loading',
-      actions: assign(() => initialContext),
-    },
-  },
-  states: {
-    loading: {
-      always: {
-        target: 'loaded',
-        cond: isLoadingComplete,
-        actions: assign({
-          currentIndexShowing: (context) => context.head,
-        }),
+export function createBufferStateMachine<S>() {
+  const initialContext: StateBuffer<S> = {
+    currentIndexShowing: null,
+    head: null,
+    gameStateSnapshots: [],
+  };
+
+  return Machine<StateBuffer<S>, BufferStateSchema<S>, BufferEvent<S>>({
+    id: 'BufferMachine',
+    strict: true,
+    initial: 'loading',
+    context: initialContext,
+    on: {
+      RECV_SNAPSHOT: { actions: assign(addSnapshotToBuffer) },
+      RESET: {
+        target: 'loading',
+        actions: assign(() => initialContext),
       },
     },
-    loaded: {
-      initial: 'enterHead',
-      on: {
-        DETACHED_GO_TO_INDEX: {
-          cond: (context, event) =>
-            detachedIndexHasBeenSeenBefore(context, event.index),
-          target: 'showSnapshotDetached',
+    states: {
+      loading: {
+        always: {
+          target: 'loaded',
+          cond: isLoadingComplete,
           actions: assign({
-            currentIndexShowing: (context, event) => event.index,
+            currentIndexShowing: (context) => context.head,
           }),
         },
-        DETACHED_GO_FORWARD: [
-          {
-            target: 'showSnapshotDetached',
+      },
+      loaded: {
+        initial: 'enterHead',
+        on: {
+          DETACHED_GO_TO_INDEX: {
+            cond: (context, event) =>
+              detachedIndexHasBeenSeenBefore(context, event.index),
+            target: 'loaded.showSnapshotDetached',
+            actions: assign({
+              currentIndexShowing: (context, event) => event.index,
+            }),
+          },
+          DETACHED_GO_FORWARD: [
+            {
+              target: 'loaded.showSnapshotDetached',
+              cond: (context) =>
+                detachedIndexHasBeenSeenBefore(
+                  context,
+                  (context.currentIndexShowing || 0) + 1
+                ),
+              actions: assign({
+                currentIndexShowing: (context) =>
+                  (context.currentIndexShowing || 0) + 1,
+              }),
+            },
+          ],
+          DETACHED_GO_BACK: {
+            target: 'loaded.showSnapshotDetached',
             cond: (context) =>
               detachedIndexHasBeenSeenBefore(
                 context,
-                (context.currentIndexShowing || 0) + 1
+                (context.currentIndexShowing || 0) - 1
               ),
             actions: assign({
               currentIndexShowing: (context) =>
-                (context.currentIndexShowing || 0) + 1,
+                (context.currentIndexShowing || 0) - 1,
             }),
           },
-        ],
-        DETACHED_GO_BACK: {
-          target: 'showStateDetached',
-          cond: (context) =>
-            detachedIndexHasBeenSeenBefore(
-              context,
-              (context.currentIndexShowing || 0) - 1
-            ),
-          actions: assign({
-            currentIndexShowing: (context) =>
-              (context.currentIndexShowing || 0) - 1,
-          }),
         },
-      },
-      states: {
-        enterHead: {
-          always: [
-            {
-              cond: nextHeadLingers,
-              target: 'showHeadLingering',
-            },
-            {
-              cond: nextHeadBlocks,
-              target: 'showHeadBlocking',
-            },
-            {
-              target: 'showHeadUNBLOCK_HEADed',
-            },
-          ],
-        },
-        showHeadLingering: {
-          entry: send('UNBLOCK_HEAD', { delay: LINGER_DELAY_MS }),
-          always: { target: 'showHeadBlocking' },
-        },
-        showHeadBlocking: {
-          on: {
-            UNBLOCK_HEAD: { target: 'showHeadUnblocked' },
+        states: {
+          enterHead: {
+            always: [
+              {
+                cond: nextHeadLingers,
+                target: 'showHeadLingering',
+              },
+              {
+                cond: nextHeadBlocks,
+                target: 'showHeadBlocking',
+              },
+              {
+                target: 'showHeadUnblocked',
+              },
+            ],
           },
-        },
-        showHeadUnblocked: {
-          always: {
-            cond: nextSnapshotIsAvailable,
-            target: 'enterHead',
-            actions: safelyAdvanceHead,
+          showHeadLingering: {
+            entry: send('UNBLOCK_HEAD', { delay: LINGER_DELAY_MS }),
+            always: { target: 'showHeadBlocking' },
           },
-        },
-        showSnapshotDetached: {
-          // If we're on the head, leave detached mode
-          always: {
-            target: 'enterHead',
-            cond: isAtHead,
+          showHeadBlocking: {
+            on: {
+              UNBLOCK_HEAD: { target: 'showHeadUnblocked' },
+            },
+          },
+          showHeadUnblocked: {
+            always: {
+              cond: nextSnapshotIsAvailable,
+              target: 'enterHead',
+              actions: safelyAdvanceHead,
+            },
+          },
+          showSnapshotDetached: {
+            // If we're on the head, leave detached mode
+            always: {
+              target: 'enterHead',
+              cond: isAtHead,
+            },
           },
         },
       },
     },
-  },
-});
+  });
+}
 
-function addSnapshotToBuffer(
-  prevBuffer: StateBuffer,
-  event: RecvNextStateEvent
-): StateBuffer {
-  if (!event.newState) {
+function addSnapshotToBuffer<S>(
+  prevBuffer: StateBuffer<S>,
+  event: RecvSnapshotEvent<S>
+): StateBuffer<S> {
+  if (!event.snapshot) {
     throw new Error('Tried to add a null object into the state buffer');
   }
 
-  const index = event.newState.hydratedState.context.eventCount;
   const clonedSnapshots = prevBuffer.gameStateSnapshots.slice(0);
-  clonedSnapshots[index] = event.newState;
+  clonedSnapshots[event.index] = event.snapshot;
 
   return {
     ...prevBuffer,
@@ -232,7 +233,7 @@ function addSnapshotToBuffer(
   };
 }
 
-function isLoadingComplete(context: StateBuffer) {
+function isLoadingComplete(context: StateBuffer<unknown>) {
   const { head, gameStateSnapshots } = context;
   if (head == null) {
     return false;
@@ -248,7 +249,7 @@ function isLoadingComplete(context: StateBuffer) {
   return true;
 }
 
-function nextSnapshotIsAvailable(prevBuffer: StateBuffer): boolean {
+function nextSnapshotIsAvailable(prevBuffer: StateBuffer<unknown>): boolean {
   const { currentIndexShowing, head } = prevBuffer;
   if (
     currentIndexShowing == null ||
@@ -264,19 +265,25 @@ function nextSnapshotIsAvailable(prevBuffer: StateBuffer): boolean {
   return !!prevBuffer.gameStateSnapshots[nextIndex];
 }
 
-function nextHeadLingers(context: StateBuffer, event: BufferEvent): boolean {
+function nextHeadLingers<S>(
+  context: StateBuffer<S>,
+  event: BufferEvent<S>
+): boolean {
   // Possibly in the future we will have a special action or some way to indicate
   // that the next state should not block or linger
   return true;
 }
 
-function nextHeadBlocks(context: StateBuffer, event: BufferEvent): boolean {
+function nextHeadBlocks<S>(
+  context: StateBuffer<S>,
+  event: BufferEvent<S>
+): boolean {
   // Possibly in the future we will have a special action or some way to indicate
   // that the next state should not block or linger
   return false;
 }
 
-function safelyAdvanceHead(prevBuffer: StateBuffer): StateBuffer {
+function safelyAdvanceHead<S>(prevBuffer: StateBuffer<S>): StateBuffer<S> {
   if (!nextSnapshotIsAvailable(prevBuffer)) {
     throw new Error('Tried to advance the head, but it is not yet in buffer');
   }
@@ -292,12 +299,12 @@ function safelyAdvanceHead(prevBuffer: StateBuffer): StateBuffer {
   };
 }
 
-function isAtHead(context: StateBuffer): boolean {
+function isAtHead(context: StateBuffer<unknown>): boolean {
   return context.currentIndexShowing === context.head;
 }
 
 function detachedIndexHasBeenSeenBefore(
-  context: StateBuffer,
+  context: StateBuffer<unknown>,
   index: number
 ): boolean {
   if (context.head === null) {

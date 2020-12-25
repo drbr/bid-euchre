@@ -20,8 +20,9 @@ export const PlayGameForStatePure = memo(function PlayGameForState(
   props: PlayGameWithStateProps
 ) {
   const goForward = () =>
-    props.dispatchStateBufferAction({ type: 'GO_FORWARD_ONE' });
-  const goBack = () => props.dispatchStateBufferAction({ type: 'GO_BACK_ONE' });
+    props.dispatchStateBufferAction({ type: 'DETACHED_GO_FORWARD' });
+  const goBack = () =>
+    props.dispatchStateBufferAction({ type: 'DETACHED_GO_BACK' });
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */

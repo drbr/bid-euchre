@@ -347,11 +347,13 @@ describe('BufferMachine', () => {
         });
       });
 
-      test('from "blocked", jumping to the head index stays in "blocked"', () => {
+      test('from "blocked", jumping to the head index goes to "unblocked"', () => {
+        // We really don't care too much about this case; it's just as acceptible to stay in BLOCKED
+        // if that makes for simpler code
         applyTransitions(state_showHeadAt4Blocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToEqual: BLOCKED,
+          expectValueToEqual: UNBLOCKED,
         });
       });
 
@@ -359,7 +361,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_showHeadAt4Unblocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToEqual: BLOCKED,
+          expectValueToEqual: UNBLOCKED,
         });
       });
 

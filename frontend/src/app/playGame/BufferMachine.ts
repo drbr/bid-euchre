@@ -156,31 +156,29 @@ export function createBufferStateMachine<S>(): StateMachine<
         initial: 'enterHead',
         on: {
           DETACHED_GO_TO_INDEX: {
-            cond: (context, event) =>
-              detachedIndexHasBeenSeenBefore(context, event.index),
             target: 'loaded.showSnapshotDetached',
+            cond: (context, event) =>
+              indexIsWithinDetachableRange(context, event.index),
             actions: assign({
               currentIndexShowing: (context, event) => event.index,
             }),
           },
-          DETACHED_GO_FORWARD: [
-            {
-              target: 'loaded.showSnapshotDetached',
-              cond: (context) =>
-                detachedIndexHasBeenSeenBefore(
-                  context,
-                  (context.currentIndexShowing || 0) + 1
-                ),
-              actions: assign({
-                currentIndexShowing: (context) =>
-                  (context.currentIndexShowing || 0) + 1,
-              }),
-            },
-          ],
+          DETACHED_GO_FORWARD: {
+            target: 'loaded.showSnapshotDetached',
+            cond: (context) =>
+              indexIsWithinDetachableRange(
+                context,
+                (context.currentIndexShowing || 0) + 1
+              ),
+            actions: assign({
+              currentIndexShowing: (context) =>
+                (context.currentIndexShowing || 0) + 1,
+            }),
+          },
           DETACHED_GO_BACK: {
             target: 'loaded.showSnapshotDetached',
             cond: (context) =>
-              detachedIndexHasBeenSeenBefore(
+              indexIsWithinDetachableRange(
                 context,
                 (context.currentIndexShowing || 0) - 1
               ),
@@ -228,6 +226,23 @@ export function createBufferStateMachine<S>(): StateMachine<
               target: 'showHeadUnblocked',
               cond: isAtHead,
             },
+            // on: {
+            //   DETACHED_GO_FORWARD: {
+            //     cond: (context) =>
+            //       (context.currentIndexShowing ?? NaN) + 1 === context.head,
+            //     target: 'showHeadUnblocked',
+            //     actions: assign({
+            //       currentIndexShowing: (context) => context.head,
+            //     }),
+            //   },
+            //   DETACHED_GO_TO_INDEX: {
+            //     cond: (context, event) => event.index === context.head,
+            //     target: 'showHeadUnblocked',
+            //     actions: assign({
+            //       currentIndexShowing: (context, event) => event.index,
+            //     }),
+            //   },
+            // },
           },
         },
       },
@@ -326,12 +341,14 @@ function isAtHead(context: StateBuffer<unknown>): boolean {
   return context.currentIndexShowing === context.head;
 }
 
-function detachedIndexHasBeenSeenBefore(
+function indexIsWithinDetachableRange(
   context: StateBuffer<unknown>,
   index: number
 ): boolean {
   if (context.head === null) {
     throw new Error('Head was unexpectedly null');
   }
-  return index <= context.head;
+
+  // There is no index 0
+  return index <= context.head && index >= 1;
 }

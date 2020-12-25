@@ -1,30 +1,22 @@
 {
   "games": {
-    "test-game": {
+    "sample": {
       "gameConfig": {
-        "gameStatus": "inProgress",
+        "gameStatus": "waitingToStart",
         "playerFriendlyNames": {
-          "east": "Eddie",
-          "north": "Nancy",
-          "south": "Susan",
-          "west": "West"
+          "north": "N",
+          "south": "S",
+          "west": "W"
         }
       },
       "gameStates": {
-        "fullJson": "{\"actions\":[],\"activities\":{},\"meta\":{},\"events\":[],\"value\":{\"runGame\":{\"round\":\"waitForDeal\"}},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null,\"currentDealer\":\"north\"},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"_sessionid\":null,\"event\":{\"type\":\"xstate.init\"},\"children\":{},\"done\":false,\"changed\":true}",
-        "privateJson": {
-          "HwULycbL7LakHBMrNdsXf": "{\"eventCount\":0,\"previousEventCount\":null}",
-          "g_c2S3z-nZ9cFNadOBOu4": "{\"eventCount\":0,\"previousEventCount\":null}",
-          "h9ZvMEpzbVWAs0IxcxCOu": "{\"eventCount\":0,\"previousEventCount\":null}",
-          "ywL1GBB3sd5872oL86xSf": "{\"eventCount\":0,\"previousEventCount\":null}"
-        },
-        "publicJson": "{\"value\":{\"runGame\":{\"round\":\"waitForDeal\"}},\"actions\":[],\"event\":{\"type\":\"xstate.init\"},\"_event\":{\"name\":\"xstate.init\",\"data\":{\"type\":\"xstate.init\"},\"$$type\":\"scxml\",\"type\":\"external\"},\"context\":{\"score\":{\"eastwest\":0,\"northsouth\":0},\"eventCount\":0,\"previousEventCount\":null,\"currentDealer\":\"north\"}}"
+        "fullJson": "{}",
+        "publicJson": "{}"
       },
       "playerIdentities": {
-        "east": "HwULycbL7LakHBMrNdsXf",
-        "north": "h9ZvMEpzbVWAs0IxcxCOu",
-        "south": "ywL1GBB3sd5872oL86xSf",
-        "west": "g_c2S3z-nZ9cFNadOBOu4"
+        "north": "bd1pbf5M606tOFpGt5ype",
+        "south": "EXVulcOMD9gIrIIGzxl8_",
+        "west": "LR-XTn9JzhTn5BbIXYrsn"
       }
     }
   }

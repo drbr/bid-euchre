@@ -3,6 +3,7 @@ import {
   Position,
   Bid,
 } from '../../../../functions/apiContract/database/GameState';
+import { AutoTransitionEvent } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type BiddingContext = {
@@ -24,11 +25,13 @@ export type BiddingStateSchema = {
   states: BiddingStatesGeneric<TypedStateSchema<BiddingMeta, BiddingContext>>;
 };
 
-export type BiddingEvent = {
+export type PlayerBidEvent = {
   type: 'PLAYER_BID';
   bid: Bid;
   position: Position;
 };
+
+export type BiddingEvent = AutoTransitionEvent | PlayerBidEvent;
 
 export type BiddingState = State<
   BiddingContext,

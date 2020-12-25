@@ -1,16 +1,16 @@
 import * as _ from 'lodash';
-
 import { assign, StateNodeConfig } from 'xstate';
 import {
   Bid,
   Position,
 } from '../../../../functions/apiContract/database/GameState';
+import { forEachPosition, NextPlayer } from '../utils/ModelHelpers';
 import {
   BiddingContext,
   BiddingEvent,
   BiddingStateSchema,
+  PlayerBidEvent,
 } from './BiddingStateTypes';
-import { forEachPosition, NextPlayer } from '../utils/ModelHelpers';
 import { RoundContext } from './RoundStateTypes';
 
 export const BiddingStates: StateNodeConfig<
@@ -23,13 +23,22 @@ export const BiddingStates: StateNodeConfig<
   states: {
     waitForPlayerToBid: {
       on: {
-        PLAYER_BID: {
+        // PLAYER_BID: {
+        //   target: 'checkIfBiddingIsComplete',
+        //   cond: isBidEventValid,
+        //   actions: assign({
+        //     bids: (context, event) => ({
+        //       ...context.bids,
+        //       [event.position]: event.bid,
+        //     }),
+        //   }),
+        // },
+        AUTO_TRANSITION: {
           target: 'checkIfBiddingIsComplete',
-          cond: isBidEventValid,
           actions: assign({
-            bids: (context, event) => ({
+            bids: (context) => ({
               ...context.bids,
-              [event.position]: event.bid,
+              [context.awaitedPlayer]: 4,
             }),
           }),
         },
@@ -73,12 +82,12 @@ export function assignInitialBiddingContext(
 
 function wasBidMadeByAwaitedPlayer(
   context: BiddingContext,
-  event: BiddingEvent
+  event: PlayerBidEvent
 ): boolean {
   return event.position === context.awaitedPlayer;
 }
 
-function isBidValid(context: BiddingContext, event: BiddingEvent): boolean {
+function isBidValid(context: BiddingContext, event: PlayerBidEvent): boolean {
   // A player can always pass
   if (event.bid === 'pass') {
     return true;
@@ -92,7 +101,7 @@ function isBidValid(context: BiddingContext, event: BiddingEvent): boolean {
 
 function isBidEventValid(
   context: BiddingContext,
-  event: BiddingEvent
+  event: PlayerBidEvent
 ): boolean {
   return (
     wasBidMadeByAwaitedPlayer(context, event) && isBidValid(context, event)

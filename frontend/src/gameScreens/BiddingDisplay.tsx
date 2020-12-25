@@ -6,18 +6,19 @@ import FlexView from 'react-flexview/lib';
 import { Bid } from '../../../functions/apiContract/database/GameState';
 import {
   getHighestBid,
-  UltimateBidChart
+  UltimateBidChart,
 } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import {
   BiddingContext,
-  BiddingEvent
+  BiddingEvent,
+  PlayerBidEvent,
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { DebugButton } from './DebugButton';
 import {
   ScopedGameDisplayProps,
-  UnscopedGameDisplayProps
+  UnscopedGameDisplayProps,
 } from './GameDisplay';
 import { GameLayout, PLACEHOLDER } from './GameLayout';
 
@@ -125,7 +126,7 @@ export function PlayerBidCard(props: { playerName: string; bid: Bid | null }) {
 }
 
 function BiddingDebugControls(props: BiddingDisplayProps) {
-  function renderButton(event: BiddingEvent) {
+  function renderButton(event: PlayerBidEvent) {
     return (
       <DebugButton
         {...props}

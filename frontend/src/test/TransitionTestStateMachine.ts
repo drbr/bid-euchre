@@ -16,6 +16,12 @@ export type TransitionTestStatesGeneric<T> = {
   autoTransition1: T;
   autoTransition2: T;
   respondsToAutoTransitionAndNext: T;
+  respondsToAutoTransitionAndDone: {
+    states: {
+      first: T;
+      second: T;
+    };
+  };
   secretAction: T;
   invokeSecretAction: T;
   respondsToSecretActionAndNext: T;
@@ -72,6 +78,7 @@ export const TransitionTestStateMachine = Machine<
         autoTransition1: 'autoTransition1',
         autoTransition2: 'autoTransition2',
         respondsToAutoTransitionAndNext: 'respondsToAutoTransitionAndNext',
+        respondsToAutoTransitionAndDone: 'respondsToAutoTransitionAndDone',
         secretAction: 'secretAction',
         invokeSecretAction: 'invokeSecretAction',
         respondsToSecretActionAndNext: 'respondsToSecretActionAndNext',
@@ -103,6 +110,16 @@ export const TransitionTestStateMachine = Machine<
         AUTO_TRANSITION: 'entry',
         NEXT: 'entry',
       },
+    },
+    respondsToAutoTransitionAndDone: {
+      initial: 'first',
+      states: {
+        first: {
+          on: { AUTO_TRANSITION: 'second' },
+        },
+        second: { type: 'final' },
+      },
+      onDone: 'destination',
     },
     secretAction: {
       on: { SECRET_ACTION_COMPLETE: 'destination' },

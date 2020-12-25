@@ -25,8 +25,8 @@ export function PlayGame(props: PlayGameProps) {
   const [bufferState, dispatch] = useMachine(BufferStateMachine);
 
   const buffer = bufferState.context;
-  const currentGameState = buffer.currentIndex
-    ? buffer.states[buffer.currentIndex]
+  const currentGameState = buffer.currentIndexShowing
+    ? buffer.gameStateSnapshots[buffer.currentIndexShowing]
     : null;
   console.log('State buffer: %o', buffer);
 

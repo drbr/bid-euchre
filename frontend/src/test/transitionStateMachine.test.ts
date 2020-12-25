@@ -69,6 +69,20 @@ describe('transitionStateMachine function', () => {
     });
 
     test(
+      'the "done" event of a hierarchical machine does not count as an additional event ' +
+        'when evaluating AUTO_TRANSITION',
+      async () => {
+        const { stateNames } = await doTransition(
+          'respondsToAutoTransitionAndDone'
+        );
+        expect(stateNames).toEqual([
+          { respondsToAutoTransitionAndDone: 'first' },
+          'destination',
+        ]);
+      }
+    );
+
+    test(
       'when an event contains secret data, its immediate destination can be passed over ' +
         'in the exposed transitions by responding to the SECRET_ACTION_COMPLETE event',
       async () => {

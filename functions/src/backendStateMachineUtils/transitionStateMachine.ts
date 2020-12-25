@@ -130,12 +130,14 @@ function processNextState<
   }
 
   const hasAnyOutstandingActivities = _.some(nextState.activities);
-  const nextEvents = nextState.nextEvents;
+  const nextEvents = getRealisticNextEvents(nextState);
 
   if (nextEvents.includes(AUTO_TRANSITION)) {
     if (nextEvents.length > 1) {
       throw new Error(
-        `State ${nextState.value} may not respond to events in addition to AUTO_TRANSITION`
+        `State ${JSON.stringify(
+          nextState.value
+        )} may not respond to events in addition to AUTO_TRANSITION`
       );
     }
     if (hasAnyOutstandingActivities) {
@@ -151,7 +153,9 @@ function processNextState<
   } else if (nextEvents.includes(SECRET_ACTION_COMPLETE)) {
     if (nextEvents.length > 1) {
       throw new Error(
-        `State ${nextState.value} may not respond to events in addition to SECRET_ACTION_COMPLETE`
+        `State ${JSON.stringify(
+          nextState.value
+        )} may not respond to events in addition to SECRET_ACTION_COMPLETE`
       );
     }
     if (hasAnyOutstandingActivities) {
@@ -170,6 +174,20 @@ function processNextState<
       finished: !hasAnyOutstandingActivities,
     };
   }
+}
+
+/**
+ * If the state is within a hierarchical state machine, it responds to the `done` event, but that's
+ * not something that will actually realistically get sent in, so when we're making sure an event
+ * doesn't respond to automatic events and something else, we filter out certain "unrealistic"
+ * events.
+ */
+function getRealisticNextEvents<
+  C extends EventCountContext,
+  E extends AnyEventObject,
+  SS
+>(state: State<C, E, SS>): string[] {
+  return state.nextEvents.filter((e) => !e.startsWith('done.'));
 }
 
 /**

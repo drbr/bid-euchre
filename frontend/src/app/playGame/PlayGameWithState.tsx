@@ -5,6 +5,7 @@ import {
   GameState,
   GameEvent,
 } from '../../gameLogic/euchreStateMachine/GameStateTypes';
+import { HydratedGameState } from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { willEventApply } from '../../gameLogic/stateMachineUtils/willEventApply';
 import { GameDisplay } from '../../gameScreens/GameDisplay';
 import { BufferEvent } from './BufferMachine';
@@ -13,7 +14,7 @@ import { PlayGameProps } from './PlayGame';
 export type PlayGameWithStateProps = PlayGameProps & {
   gameState: GameState;
   sendGameEvent: (event: AnyEventObject) => void;
-  dispatchStateBufferAction: (event: BufferEvent) => void;
+  dispatchStateBufferAction: (event: BufferEvent<HydratedGameState>) => void;
 };
 
 export const PlayGameForStatePure = memo(function PlayGameForState(

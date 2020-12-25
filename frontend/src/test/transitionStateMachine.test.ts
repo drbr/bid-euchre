@@ -26,6 +26,7 @@ async function doTransition(testKey: TransitionTestStateName, data?: string) {
   return { nextStates, stateNames };
 }
 
+/* eslint jest/expect-expect: ["warn", { "assertFunctionNames": ["expect", "expectEventCounts"] }] */
 describe('transitionStateMachine function', () => {
   describe('Simple Transitions', () => {
     test('simple transition to another state', async () => {
@@ -171,7 +172,6 @@ describe('transitionStateMachine function', () => {
   });
 
   describe('Updating event counts', () => {
-    /* eslint jest/expect-expect: ["warn", { "assertFunctionNames": ["expect", "expectEventCounts"] }] */
     function expectEventCounts(
       states: ReadonlyArray<{ context: EventCountContext }>,
       ...counts: ReadonlyArray<number>

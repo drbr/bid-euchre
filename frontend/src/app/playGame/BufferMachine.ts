@@ -1,4 +1,12 @@
-import { assign, Machine, send, State, StateMachine } from 'xstate';
+import {
+  assign,
+  Machine,
+  MachineConfig,
+  send,
+  State,
+  StateMachine,
+  Typestate,
+} from 'xstate';
 import { TypedStateSchema } from '../../gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 /**
@@ -21,7 +29,7 @@ export type StateBuffer<S> = {
    * All the snapshots that are known to the client, including those past the head that have never
    * been displayed
    */
-  readonly gameStateSnapshots: ReadonlyArray<S>;
+  readonly gameStateSnapshots: ReadonlyArray<S | undefined>;
 };
 
 export const LINGER_DELAY_MS = 1000;
@@ -107,7 +115,8 @@ export type BufferState<S> = State<
 export function createBufferStateMachine<S>(): StateMachine<
   StateBuffer<S>,
   BufferStateSchema<S>,
-  BufferEvent<S>
+  BufferEvent<S>,
+  Typestate<StateBuffer<S>>
 > {
   const initialContext: StateBuffer<S> = {
     currentIndexShowing: null,
@@ -115,13 +124,21 @@ export function createBufferStateMachine<S>(): StateMachine<
     gameStateSnapshots: [],
   };
 
-  return Machine<StateBuffer<S>, BufferStateSchema<S>, BufferEvent<S>>({
+  const machineConfig: MachineConfig<
+    StateBuffer<S>,
+    BufferStateSchema<S>,
+    BufferEvent<S>
+  > = {
     id: 'BufferMachine',
     strict: true,
     initial: 'loading',
     context: initialContext,
     on: {
-      RECV_SNAPSHOT: { actions: assign(addSnapshotToBuffer) },
+      RECV_SNAPSHOT: {
+        actions: assign((context, event) =>
+          addSnapshotToBuffer(context, event)
+        ),
+      },
       RESET: {
         target: 'loading',
         actions: assign(() => initialContext),
@@ -217,7 +234,11 @@ export function createBufferStateMachine<S>(): StateMachine<
         },
       },
     },
-  });
+  };
+
+  return Machine<StateBuffer<S>, BufferStateSchema<S>, BufferEvent<S>>(
+    machineConfig
+  );
 }
 
 function addSnapshotToBuffer<S>(

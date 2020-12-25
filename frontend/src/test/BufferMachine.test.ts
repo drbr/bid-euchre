@@ -66,20 +66,21 @@ const BLOCKED = { loaded: 'showHeadBlocked' };
 const UNBLOCKED = { loaded: 'showHeadUnblocked' };
 const DETACHED = { loaded: 'showSnapshotDetached' };
 
+function makeSnapshots(loadedIndexes: number[]) {
+  const snapshots = [];
+  for (const i of loadedIndexes) {
+    snapshots[i] = `Snapshot ${i}`;
+  }
+  return snapshots;
+}
+
 function contextShowingHeadAt(
   index: number,
   opts?: { loadedSnapshotIndexes?: number[] }
 ): StateBuffer<string> {
-  let gameStateSnapshots = [
-    undefined,
-    ..._.range(1, index + 1).map((x) => `Snapshot ${x}`),
-  ];
-  if (opts?.loadedSnapshotIndexes) {
-    gameStateSnapshots = [];
-    for (const i of opts.loadedSnapshotIndexes) {
-      gameStateSnapshots[i] = `Snapshot ${i}`;
-    }
-  }
+  const gameStateSnapshots = makeSnapshots(
+    opts?.loadedSnapshotIndexes ?? _.range(1, index + 1)
+  );
 
   return {
     currentIndexShowing: index,
@@ -101,7 +102,7 @@ describe('BufferMachine', () => {
       expect(initial.nextEvents).toEqual(['RECV_SNAPSHOT', 'RESET', '']);
     });
 
-    test('transitions only when all the states up to the head are loaded', () => {
+    test('transitions only when all the states up through the head are loaded', () => {
       const start = getStartStateWithHead(2);
 
       applyTransitions(
@@ -255,9 +256,12 @@ describe('BufferMachine', () => {
       UNBLOCKED
     );
 
-    const state_detachedAt3 = applyTransitions(state_showHeadAt4Unblocked, {
-      event: { type: 'DETACHED_GO_BACK' },
-    });
+    const state_detachedAt3_headIs4 = applyTransitions(
+      state_showHeadAt4Unblocked,
+      {
+        event: { type: 'DETACHED_GO_BACK' },
+      }
+    );
 
     function contextShowingDetachedIndex(index: number): StateBuffer<string> {
       return {
@@ -290,7 +294,7 @@ describe('BufferMachine', () => {
       });
 
       test('stepping forward into the head state should go back into unblocked head mode', () => {
-        applyTransitions(state_detachedAt3, {
+        applyTransitions(state_detachedAt3_headIs4, {
           event: { type: 'DETACHED_GO_FORWARD' },
           expectedContext: contextShowingHeadAt(4),
           expectValueToEqual: UNBLOCKED,
@@ -301,12 +305,28 @@ describe('BufferMachine', () => {
         'stepping forward from the head state should have no effect, ' +
           'even if another state is available',
         () => {
-          //
+          applyTransitions(state_showHeadAt4Unblocked, {
+            event: { type: 'DETACHED_GO_FORWARD' },
+            expectedContext: contextShowingHeadAt(4),
+            expectValueToEqual: UNBLOCKED,
+          });
         }
       );
 
-      test('stepping backward from 0 should have no effect', () => {
-        //
+      test('stepping backward from 1 should have no effect (there is no index 0)', () => {
+        applyTransitions(
+          state_detachedAt3_headIs4,
+          {
+            event: { type: 'DETACHED_GO_TO_INDEX', index: 1 },
+            expectedContext: contextShowingDetachedIndex(1),
+            expectValueToEqual: DETACHED,
+          },
+          {
+            event: { type: 'DETACHED_GO_BACK' },
+            expectedContext: contextShowingDetachedIndex(1),
+            expectValueToEqual: DETACHED,
+          }
+        );
       });
     });
 
@@ -320,7 +340,11 @@ describe('BufferMachine', () => {
       });
 
       test('from "unblocked", can jump to an index < head', () => {
-        //
+        applyTransitions(state_showHeadAt4Unblocked, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: 2 },
+          expectedContext: contextShowingDetachedIndex(2),
+          expectValueToEqual: DETACHED,
+        });
       });
 
       test('from "blocked", jumping to the head index stays in "blocked"', () => {
@@ -331,37 +355,72 @@ describe('BufferMachine', () => {
         });
       });
 
-      test('from "unblocked", jumping to the head index stays in "unblocked"', () => {});
+      test('from "unblocked", jumping to the head index stays in "unblocked"', () => {
+        applyTransitions(state_showHeadAt4Unblocked, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
+          expectedContext: contextShowingHeadAt(4),
+          expectValueToEqual: BLOCKED,
+        });
+      });
 
-      test('from "blocked", jumping to an index > head does what?', () => {
+      test("jumping to an index > head that hasn't been fetched does what?", () => {
         //
       });
 
-      // What if newer states exist?
-
-      test('from "unblocked", jumping to an index > head does what?', () => {
+      test('jumping to an index > head that has already been fetched does what?', () => {
         //
       });
 
-      test('jumping to an index < 0 throws an error', () => {});
+      test('jumping to an index < 1 does what?', () => {
+        //
+      });
     });
 
     describe('jumping to a given index from detached mode', () => {
-      // from detached, go to arbitrary index < head
-      // from detached, go to arbitrary index == head, goes back to head mode unblocked
-      // from detached, go to arbitrary index > head, throws an error
+      test('can jump to an index < head', () => {
+        applyTransitions(state_detachedAt3_headIs4, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: 1 },
+          expectedContext: contextShowingDetachedIndex(1),
+          expectValueToEqual: DETACHED,
+        });
+      });
+
+      test('jumping to the head index goes back to "unblocked"', () => {
+        applyTransitions(state_detachedAt3_headIs4, {
+          event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
+          expectedContext: contextShowingHeadAt(4),
+          expectValueToEqual: UNBLOCKED,
+        });
+      });
+
+      test("jumping to an index > head that hasn't been fetched does what?", () => {
+        //
+      });
+
+      test('jumping to an index > head that has already been fetched does what?', () => {
+        //
+      });
+
+      test('jumping to an index < 1 does what?', () => {
+        //
+      });
     });
 
     test('on RECV, the current shown index and head should not change', () => {
-      applyTransitions(state_detachedAt3, {
+      applyTransitions(state_detachedAt3_headIs4, {
         event: recvSnapshot(5),
-        expectedContext: contextShowingDetachedIndex(3),
+        expectedContext: {
+          head: state_detachedAt3_headIs4.context.head,
+          currentIndexShowing:
+            state_detachedAt3_headIs4.context.currentIndexShowing,
+          gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 5]),
+        },
         expectValueToEqual: DETACHED,
       });
     });
 
     test('on RESET, goes back to loading and clears the context', () => {
-      applyTransitions(state_detachedAt3, {
+      applyTransitions(state_detachedAt3_headIs4, {
         event: { type: 'RESET' },
         expectedContext: BufferMachine.initialState.context,
         expectValueToEqual: 'loading',

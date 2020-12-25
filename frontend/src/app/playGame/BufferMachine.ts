@@ -51,7 +51,7 @@ export type BufferStatesGeneric<X> = {
 
       /**
        * Showing the head while it's in the mandatory "linger" period. This is implemented by invoking
-       * a delayed UNBLOCK_HEAD event and immediately transitioning to showHeadBlocking.
+       * a delayed UNBLOCK_HEAD event and immediately transitioning to showHeadBlocked.
        */
       showHeadLingering: X;
 
@@ -59,7 +59,7 @@ export type BufferStatesGeneric<X> = {
        * Showing the head while it's blocked – the machine will not advance the head until it receives
        * the UNBLOCK_HEAD event.
        */
-      showHeadBlocking: X;
+      showHeadBlocked: X;
 
       /**
        * Showing the head while unblocked – the head can be advanced at any time.
@@ -199,7 +199,7 @@ export function createBufferStateMachine<S>(): StateMachine<
               },
               {
                 cond: nextHeadBlocks,
-                target: 'showHeadBlocking',
+                target: 'showHeadBlocked',
               },
               {
                 target: 'showHeadUnblocked',
@@ -208,9 +208,9 @@ export function createBufferStateMachine<S>(): StateMachine<
           },
           showHeadLingering: {
             entry: send('UNBLOCK_HEAD', { delay: LINGER_DELAY_MS }),
-            always: { target: 'showHeadBlocking' },
+            always: { target: 'showHeadBlocked' },
           },
-          showHeadBlocking: {
+          showHeadBlocked: {
             on: {
               UNBLOCK_HEAD: { target: 'showHeadUnblocked' },
             },
@@ -225,7 +225,7 @@ export function createBufferStateMachine<S>(): StateMachine<
           showSnapshotDetached: {
             // If we're on the head, leave detached mode
             always: {
-              target: 'enterHead',
+              target: 'showHeadUnblocked',
               cond: isAtHead,
             },
           },

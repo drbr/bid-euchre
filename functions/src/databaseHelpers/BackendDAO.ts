@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import { AnyEventObject } from 'xstate';
 import { GameStateConfig } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import {
@@ -102,20 +103,29 @@ export async function transactionallySetGameStateFullJson(props: {
 
 export async function setGameStatePublicJson(props: {
   gameId: string;
+  eventCount: number;
   publicStateJson: string;
 }): Promise<void> {
   return await firebaseDatabaseAdminClient
-    .ref(`/games/${props.gameId}/gameStates/publicJson`)
+    .ref(`/games/${props.gameId}/gameStates/publicJson/${props.eventCount}`)
     .set(props.publicStateJson);
 }
 
 export async function setGameStatePrivateJson(props: {
   gameId: string;
+  eventCount: number;
   privateStatesJsonByPlayerId: Record<string, string>;
 }): Promise<void> {
-  return await firebaseDatabaseAdminClient
-    .ref(`/games/${props.gameId}/gameStates/privateJson`)
-    .set(props.privateStatesJsonByPlayerId);
+  const writePromises = _.map(
+    props.privateStatesJsonByPlayerId,
+    (playerPrivateStateJson, playerId) =>
+      firebaseDatabaseAdminClient
+        .ref(
+          `/games/${props.gameId}/gameStates/privateJson/${playerId}/${props.eventCount}`
+        )
+        .set(playerPrivateStateJson)
+  );
+  await Promise.all(writePromises);
 }
 
 export async function pushGameEvent(props: {

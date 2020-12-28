@@ -81,7 +81,7 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
     },
   });
 
-  await storePublicAndPrivateStateViewsFromTransition({
+  await storePublicAndPrivateSnapshotsFromTransition({
     gameId,
     nextStates,
     playerIdentities,
@@ -96,23 +96,30 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
   }
 }
 
-export async function storePublicAndPrivateStateViewsFromTransition(params: {
+export async function storePublicAndPrivateSnapshotsFromTransition(params: {
   gameId: string;
   nextStates: ReadonlyArray<GameState>;
   playerIdentities: PlayerIdentities;
 }): Promise<void> {
   const { gameId, nextStates, playerIdentities } = params;
-  for (const state of nextStates) {
+  for (const snapshot of nextStates) {
     const {
       publicStateJson,
       privateStatesJsonByPlayerId,
-    } = preparePublicAndPrivateStateForStorage(state, playerIdentities);
+    } = preparePublicAndPrivateStateForStorage(snapshot, playerIdentities);
+
+    const eventCount = snapshot.context.eventCount;
 
     await Promise.all([
-      DAO.setGameStatePublicJson({ gameId: gameId, publicStateJson }),
+      DAO.setGameStatePublicJson({
+        gameId: gameId,
+        publicStateJson,
+        eventCount,
+      }),
       DAO.setGameStatePrivateJson({
         gameId: gameId,
         privateStatesJsonByPlayerId,
+        eventCount,
       }),
     ]);
   }

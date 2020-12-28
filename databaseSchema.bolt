@@ -14,12 +14,16 @@ path /games/{gameId}/gameStates/fullJson is String {
   read() { false }
 }
 
-path /games/{gameId}/gameStates/publicJson is String {
+// The client-visible game state is an array containing every update that has happened
+// in the game, indexed by eventCount.
+path /games/{gameId}/gameStates/publicJson is String[] {
   read() { true }
 }
 
+// The client-visible game state is an array containing every update that has happened
+// in the game, indexed by eventCount.
 // Each player can read their own private state only, as long as they know the player ID.
-path /games/{gameId}/gameStates/privateJson/{playerId} is String {
+path /games/{gameId}/gameStates/privateJson/{playerId} is String[] {
   read() { true }
 }
 

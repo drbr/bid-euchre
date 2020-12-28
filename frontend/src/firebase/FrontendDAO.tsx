@@ -1,3 +1,5 @@
+import firebase from 'firebase/app';
+
 import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import { GameStateConfig } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
@@ -12,14 +14,15 @@ export type GameIdParams = { gameId: string };
 function subscribeToDatabaseNode<D, T>(
   path: string,
   mapper: (value: D | null | undefined) => T | null,
-  callback: (data: T | null) => void
+  callback: (data: T | null) => void,
+  event: firebase.database.EventType = 'value'
 ): UnsubscribeFn {
   const ref = firebaseDatabase.ref(path);
-  const unsubscribeKey = ref.on('value', (snapshot) => {
+  const unsubscribeKey = ref.on(event, (snapshot) => {
     const mapped = mapper(snapshot.val());
     callback(mapped);
   });
-  return () => ref.off('value', unsubscribeKey);
+  return () => ref.off(event, unsubscribeKey);
 }
 
 export const subscribeToEntireDatabase: Subscription<
@@ -47,7 +50,8 @@ export const subscribeToPublicGameState: Subscription<
   return subscribeToDatabaseNode(
     `/games/${gameId}/gameStates/publicJson`,
     mapGameStateFromDatabase,
-    callback
+    callback,
+    'child_added'
   );
 };
 
@@ -58,6 +62,7 @@ export const subscribeToPrivateGameState: Subscription<
   return subscribeToDatabaseNode(
     `/games/${gameId}/gameStates/privateJson/${playerId}`,
     mapGameStateFromDatabase,
-    callback
+    callback,
+    'child_added'
   );
 };

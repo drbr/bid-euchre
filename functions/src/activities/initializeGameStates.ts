@@ -6,7 +6,7 @@ import { PlayerIdentities } from '../../apiContract/database/DataModel';
 import { getInitialMachineState } from '../backendStateMachineUtils/getInitialMachineState';
 import { transitionStateMachine } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import * as DAO from '../databaseHelpers/BackendDAO';
-import { storePublicAndPrivateStateViewsFromTransition } from './incrementAndStoreState';
+import { storePublicAndPrivateSnapshotsFromTransition } from './incrementAndStoreState';
 
 export async function initializeGameStates(params: {
   gameId: string;
@@ -33,7 +33,7 @@ export async function initializeGameStates(params: {
     transactionUpdate: () => serializeState(finalState),
   });
 
-  await storePublicAndPrivateStateViewsFromTransition({
+  await storePublicAndPrivateSnapshotsFromTransition({
     gameId: params.gameId,
     nextStates,
     playerIdentities: params.playerIdentities,

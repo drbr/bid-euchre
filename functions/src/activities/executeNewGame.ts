@@ -24,7 +24,7 @@ const nullPositionRecord: Record<Position, null> = {
 const InitialGameInfo: AllGameInfo = {
   gameStates: {
     fullJson: '{}',
-    publicJson: '{}',
+    publicJson: [],
     privateJson: {},
   },
   gameConfig: {

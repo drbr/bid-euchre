@@ -1,12 +1,14 @@
+import { useMemo } from 'react';
+import createPersistedState from 'use-persisted-state';
 import { Position } from '../../../functions/apiContract/database/GameState';
 
-export function retrieveColorSchemeId(): number {
-  const rawStorageValue = localStorage.getItem('colorSchemeId');
-  return Number(rawStorageValue) || 0;
-}
+export const StorageKey_StateHead = (gameId: string) =>
+  `game_${gameId}_stateHead`;
 
-export function storeColorSchemeId(i: number): void {
-  localStorage.setItem('colorSchemeId', String(i));
+export const useRawColorSchemeState = createPersistedState('colorSchemeId');
+export function useColorSchemeStorage(initial: number) {
+  const usePersistedStateColorScheme = useRawColorSchemeState<number>(initial);
+  return usePersistedStateColorScheme;
 }
 
 export type PlayerInfoStorage = {
@@ -15,20 +17,37 @@ export type PlayerInfoStorage = {
   playerId: string;
 };
 
-export function storePlayerInfoForGame(
-  params: PlayerInfoStorage & { gameId: string }
-): void {
-  const playerInfo: PlayerInfoStorage = {
-    position: params.position,
-    friendlyName: params.friendlyName,
-    playerId: params.playerId,
-  };
-  localStorage.setItem(`game_${params.gameId}`, JSON.stringify(playerInfo));
+/**
+ * Uses synced local storage to store the player info. When retrieving, returns
+ * `'gameNotFound'` if no record is found for that game ID.
+ */
+export function usePlayerInfoStorage(params: {
+  gameId: string;
+}): [PlayerInfoStorage | 'gameNotFound', (pi: PlayerInfoStorage) => void] {
+  const useRawState = useMemo(
+    () => createPersistedState(`game_${params.gameId}`),
+    [params.gameId]
+  );
+
+  const [rawPlayerInfo, setRawPlayerInfo] = useRawState<PlayerInfoStorage>();
+
+  return [rawPlayerInfo || 'gameNotFound', setRawPlayerInfo];
 }
 
-export function retrievePlayerInfoForGame(params: {
+/**
+ * Uses synced local storage to store the player info. When retrieving, returns
+ * `'gameNotFound'` if no record is found for that game ID.
+ *
+ * The initial value is 1, because that's the first event count that will have
+ * a state snapshot.
+ */
+export function useStateHeadStorage(params: {
   gameId: string;
-}): PlayerInfoStorage | undefined {
-  const maybeInfo = localStorage.getItem(`game_${params.gameId}`);
-  return maybeInfo ? JSON.parse(maybeInfo) : undefined;
+}): [number | 'gameNotFound', (h: number) => void] {
+  const useRawState = useMemo(
+    () => createPersistedState(`game_${params.gameId}_stateHead`),
+    [params.gameId]
+  );
+
+  return useRawState(1);
 }

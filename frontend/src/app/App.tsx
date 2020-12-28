@@ -1,5 +1,5 @@
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import FlexView from 'react-flexview/lib';
 import { classes } from 'typestyle';
 import {
@@ -10,18 +10,10 @@ import {
   FooterStyle,
   MaterialUITheme,
 } from '../style/AppStyle';
-import {
-  retrieveColorSchemeId,
-  storeColorSchemeId,
-} from '../uiHelpers/LocalStorageClient';
+import { useColorSchemeStorage } from '../uiHelpers/LocalStorageClient';
 
 export function App(props: { children?: React.ReactChild }) {
-  const [colorSchemeId, setColorSchemeId] = useState(retrieveColorSchemeId());
-
-  function saveAndRenderColorScheme(x: number) {
-    storeColorSchemeId(x);
-    setColorSchemeId(x);
-  }
+  const [colorSchemeId, setColorSchemeId] = useColorSchemeStorage(0);
 
   useEffect(() => {
     const newBackgroundColor = ColorSchemes[colorSchemeId].backgroundColor;
@@ -34,7 +26,7 @@ export function App(props: { children?: React.ReactChild }) {
         <FlexView grow>{props.children}</FlexView>
         <AppFooter
           colorScheme={colorSchemeId}
-          setColorScheme={saveAndRenderColorScheme}
+          setColorScheme={setColorSchemeId}
         ></AppFooter>
       </div>
     </MuiThemeProvider>

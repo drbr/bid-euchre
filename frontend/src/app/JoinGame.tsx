@@ -10,10 +10,7 @@ import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from '../gameScreens/GameLayout';
 import { joinGame } from '../firebase/CloudFunctionsClient';
-import {
-  PlayerInfoStorage,
-  storePlayerInfoForGame,
-} from '../uiHelpers/LocalStorageClient';
+import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
 import { UIActions } from '../uiHelpers/UIActions';
 
 const MAX_NAME_LENGTH = 12;
@@ -21,7 +18,7 @@ const MAX_NAME_LENGTH = 12;
 export type JoinGameProps = {
   gameId: string;
   gameConfig: GameConfig;
-  setPlayerInfoFromStorage: (x: PlayerInfoStorage) => void;
+  storePlayerInfo: (x: PlayerInfoStorage) => void;
   seatedAt: Position | null;
 };
 
@@ -55,7 +52,7 @@ export function JoinGame(props: JoinGameProps) {
               position,
               playerName,
               gameId: props.gameId,
-              setPlayerInfoFromStorage: props.setPlayerInfoFromStorage,
+              storePlayerInfo: props.storePlayerInfo,
             })
           }
         />
@@ -110,9 +107,9 @@ async function joinGameAtPosition(args: {
   gameId: string;
   playerName: string;
   position: Position;
-  setPlayerInfoFromStorage: (x: PlayerInfoStorage) => void;
+  storePlayerInfo: (x: PlayerInfoStorage) => void;
 }) {
-  const { playerName, position, gameId, setPlayerInfoFromStorage } = args;
+  const { playerName, position, gameId, storePlayerInfo } = args;
   try {
     const joinGameResult = await joinGame({
       friendlyName: playerName,
@@ -120,8 +117,7 @@ async function joinGameAtPosition(args: {
       position: position,
     });
 
-    storePlayerInfoForGame(joinGameResult);
-    setPlayerInfoFromStorage(joinGameResult);
+    storePlayerInfo(joinGameResult);
   } catch (e) {
     UIActions.showErrorAlert(e, {
       message: 'Could not join game. See log for details.',

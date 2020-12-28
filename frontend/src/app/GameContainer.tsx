@@ -1,14 +1,13 @@
-import { useState } from 'react';
+import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import * as DAO from '../firebase/FrontendDAO';
-import { JoinGame } from './JoinGame';
-import { GameNotFound } from './GameNotFound';
 import {
   PlayerInfoStorage,
-  retrievePlayerInfoForGame,
+  usePlayerInfoStorage,
 } from '../uiHelpers/LocalStorageClient';
-import { PlayGame } from './playGame/PlayGame';
 import { useObservedState } from '../uiHelpers/useObservedState';
-import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
+import { GameNotFound } from './GameNotFound';
+import { JoinGame } from './JoinGame';
+import { PlayGame } from './playGame/PlayGame';
 
 export type GameContainerProps = {
   gameId: string;
@@ -19,9 +18,9 @@ export function GameContainer(props: GameContainerProps) {
 
   const gameConfig = useObservedState({ gameId }, DAO.subscribeToGameConfig);
 
-  const [playerInfoFromStorage, setPlayerInfoFromStorage] = useState<
-    PlayerInfoStorage | 'gameNotFound'
-  >(() => retrievePlayerInfoForGame({ gameId }) || 'gameNotFound');
+  const [playerInfoFromStorage, storePlayerInfo] = usePlayerInfoStorage({
+    gameId,
+  });
 
   if (gameConfig === 'loading') {
     return <div>Loading…</div>;
@@ -50,7 +49,7 @@ export function GameContainer(props: GameContainerProps) {
         gameId={props.gameId}
         gameConfig={gameConfig}
         seatedAt={seatedAt}
-        setPlayerInfoFromStorage={setPlayerInfoFromStorage}
+        storePlayerInfo={storePlayerInfo}
       />
     );
   } else {

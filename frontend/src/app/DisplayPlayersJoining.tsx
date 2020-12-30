@@ -4,24 +4,22 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import _ from 'lodash';
-import { useState } from 'react';
+import { Dispatch, useState } from 'react';
 import FlexView from 'react-flexview/lib';
 import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from '../gameScreens/GameLayout';
-import { joinGameAndStorePlayerInfo } from '../routines/joinGameAndStorePlayerInfo';
-import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
 
 const MAX_NAME_LENGTH = 12;
 
-export type JoinGameProps = {
+export type DisplayPlayersJoiningProps = {
   gameId: string;
   gameConfig: GameConfig;
-  storePlayerInfo: (x: PlayerInfoStorage) => void;
+  joinGameAtPosition: Dispatch<{ playerName: string; position: Position }>;
   seatedAt: Position | null;
 };
 
-export function JoinGame(props: JoinGameProps) {
+export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
   const playerNames = props.gameConfig.playerFriendlyNames;
 
   const [playerName, setPlayerName] = useState('');
@@ -46,14 +44,7 @@ export function JoinGame(props: JoinGameProps) {
           playerNameAtPosition={playerNames[position]}
           canJoin={canTakeAnySeat()}
           seatedHere={props.seatedAt === position}
-          joinGame={() =>
-            joinGameAndStorePlayerInfo({
-              position,
-              playerName,
-              gameId: props.gameId,
-              storePlayerInfo: props.storePlayerInfo,
-            })
-          }
+          joinGame={() => props.joinGameAtPosition({ position, playerName })}
         />
       )}
       promptMessage={promptMessage}

@@ -6,8 +6,9 @@ import {
 } from '../uiHelpers/LocalStorageClient';
 import { useObservedState } from '../uiHelpers/useObservedState';
 import { GameNotFound } from './GameNotFound';
-import { JoinGame } from './JoinGame';
+import { DisplayPlayersJoining } from './DisplayPlayersJoining';
 import { PlayGame } from '../playGame/PlayGame';
+import { joinGameAndStorePlayerInfo } from '../routines/joinGameAndStorePlayerInfo';
 
 export type GameContainerProps = {
   gameId: string;
@@ -45,11 +46,18 @@ export function GameContainer(props: GameContainerProps) {
 
   if (gameConfig.gameStatus === 'waitingToStart') {
     return (
-      <JoinGame
+      <DisplayPlayersJoining
         gameId={props.gameId}
         gameConfig={gameConfig}
         seatedAt={seatedAt}
-        storePlayerInfo={storePlayerInfo}
+        joinGameAtPosition={({ playerName, position }) =>
+          joinGameAndStorePlayerInfo({
+            playerName,
+            position,
+            gameId,
+            storePlayerInfo,
+          })
+        }
       />
     );
   } else {

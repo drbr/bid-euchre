@@ -6,7 +6,7 @@ import {
   mapGameConfigFromDatabase,
   mapGameStateFromDatabase,
 } from '../gameLogic/ModelMappers';
-import { Subscription, UnsubscribeFn } from '../uiHelpers/useObservedState';
+import { Subscription, UnsubscribeFn } from "../uiHelpers/useSubscription";
 import { firebaseDatabase } from './FirebaseWebClientInFrontend';
 
 export type GameIdParams = { gameId: string };

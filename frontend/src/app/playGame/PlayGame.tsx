@@ -1,16 +1,13 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
 import { InProgressGameConfig } from '../../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../../functions/apiContract/database/GameState';
 import { sendGameEvent } from '../../firebase/CloudFunctionsClient';
 import * as DAO from '../../firebase/FrontendDAO';
 import { GameStateConfig } from '../../gameLogic/euchreStateMachine/GameStateTypes';
-import {
-  HydratedGameState,
-  hydrateStateFromConfig,
-} from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { hydrateStateFromConfig } from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { UIActions } from '../../uiHelpers/UIActions';
-import { Subscription } from '../../uiHelpers/useObservedState';
+import { Subscription, useSubscription } from '../../uiHelpers/useSubscription';
 import { PlayGameWithSingleStatePure } from './PlayGameWithState';
 import { useStateBuffer } from './useStateBuffer';
 
@@ -30,14 +27,22 @@ export function PlayGame(props: PlayGameProps) {
     dispatchToBuffer,
   ] = useStateBuffer();
 
-  useEffect(
-    () =>
-      subscribeToGameStateToAddToBuffer({
-        gameId,
-        playerId,
-        addSnapshotToBuffer,
-      }),
-    [gameId, playerId, addSnapshotToBuffer]
+  const processReceivedGameState = useCallback(
+    (data: GameStateConfig | null) => {
+      if (!data) {
+        throw new Error(`Game with ID ${gameId} was not found!`);
+      } else {
+        const hydrated = hydrateStateFromConfig(data);
+        addSnapshotToBuffer(hydrated);
+      }
+    },
+    [addSnapshotToBuffer, gameId]
+  );
+
+  useSubscription(
+    { gameId, playerId },
+    subscribeToPublicOrPrivateGameState,
+    processReceivedGameState
   );
 
   const sendGameEventToStateMachine = useCallback(
@@ -73,34 +78,6 @@ export function PlayGame(props: PlayGameProps) {
       dispatchStateBufferAction={dispatchToBuffer}
     />
   );
-}
-
-function subscribeToGameStateToAddToBuffer(params: {
-  gameId: string;
-  playerId: string | null;
-  addSnapshotToBuffer: (snapshot: HydratedGameState) => void;
-}) {
-  const { gameId, playerId, addSnapshotToBuffer } = params;
-  const stateSubscription = subscribeToPublicOrPrivateGameState;
-  console.debug('Subscribing to game state');
-  console.debug(stateSubscription);
-
-  const unsubscribeFn = stateSubscription({ gameId, playerId }, (data) => {
-    if (!data) {
-      throw new Error(`Game with ID ${gameId} was not found!`);
-    } else {
-      const hydrated = hydrateStateFromConfig(data);
-      addSnapshotToBuffer(hydrated);
-    }
-  });
-
-  return () => {
-    console.debug('Unsubscribing from game state');
-    console.debug(stateSubscription);
-    if (unsubscribeFn) {
-      unsubscribeFn();
-    }
-  };
 }
 
 const subscribeToPublicOrPrivateGameState: Subscription<

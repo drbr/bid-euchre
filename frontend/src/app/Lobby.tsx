@@ -1,7 +1,7 @@
 import Button from '@material-ui/core/Button';
 import FlexView from 'react-flexview/lib';
 import { useNavigate } from '@reach/router';
-import { makeNewGameAndNavigateThere } from '../uiHelpers/makeNewGameAndNavigateThere';
+import { makeNewGameAndNavigateThere } from '../routines/makeNewGameAndNavigateThere';
 
 export function Lobby() {
   return (

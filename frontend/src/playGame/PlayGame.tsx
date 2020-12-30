@@ -2,11 +2,10 @@ import { useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
-import { sendGameEvent } from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
 import { GameStateConfig } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { hydrateStateFromConfig } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { UIActions } from '../uiHelpers/UIActions';
+import { sendGameEventToServer } from '../routines/sendGameEventToServer';
 import { Subscription, useSubscription } from '../uiHelpers/useSubscription';
 import { PlayGameWithSingleStatePure } from './PlayGameWithState';
 import { useStateBuffer } from './useStateBuffer';
@@ -46,24 +45,15 @@ export function PlayGame(props: PlayGameProps) {
   );
 
   const sendGameEventToStateMachine = useCallback(
-    async (event: AnyEventObject) => {
-      try {
-        if (currentGameState) {
-          await sendGameEvent({
-            event,
-            existingEventCount:
-              currentGameState.hydratedState.context.eventCount,
-            gameId: props.gameId,
-            playerId: props.playerId,
-          });
-        }
-      } catch (e) {
-        UIActions.showErrorAlert(e, {
-          message: 'Could not send game event. See log for details.',
-        });
-      }
+    (event: AnyEventObject) => {
+      void sendGameEventToServer({
+        gameId,
+        playerId,
+        currentGameState,
+        event,
+      });
     },
-    [currentGameState, props.gameId, props.playerId]
+    [currentGameState, gameId, playerId]
   );
 
   if (!currentGameState) {

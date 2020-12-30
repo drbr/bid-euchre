@@ -1,17 +1,16 @@
-import _ from 'lodash';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import FlexView from 'react-flexview/lib';
+import _ from 'lodash';
 import { useState } from 'react';
+import FlexView from 'react-flexview/lib';
 import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { GameLayout } from '../gameScreens/GameLayout';
-import { joinGame } from '../firebase/CloudFunctionsClient';
+import { joinGameAndStorePlayerInfo } from '../routines/joinGameAndStorePlayerInfo';
 import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
-import { UIActions } from '../uiHelpers/UIActions';
 
 const MAX_NAME_LENGTH = 12;
 
@@ -48,7 +47,7 @@ export function JoinGame(props: JoinGameProps) {
           canJoin={canTakeAnySeat()}
           seatedHere={props.seatedAt === position}
           joinGame={() =>
-            joinGameAtPosition({
+            joinGameAndStorePlayerInfo({
               position,
               playerName,
               gameId: props.gameId,
@@ -101,28 +100,6 @@ function JoinButton(props: {
       )}
     </FlexView>
   );
-}
-
-async function joinGameAtPosition(args: {
-  gameId: string;
-  playerName: string;
-  position: Position;
-  storePlayerInfo: (x: PlayerInfoStorage) => void;
-}) {
-  const { playerName, position, gameId, storePlayerInfo } = args;
-  try {
-    const joinGameResult = await joinGame({
-      friendlyName: playerName,
-      gameId: gameId,
-      position: position,
-    });
-
-    storePlayerInfo(joinGameResult);
-  } catch (e) {
-    UIActions.showErrorAlert(e, {
-      message: 'Could not join game. See log for details.',
-    });
-  }
 }
 
 function nameInvalidHelperText(

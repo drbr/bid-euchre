@@ -1,5 +1,5 @@
 import { asEffect, useMachine } from '@xstate/react';
-import { useEffect, useState } from 'react';
+import { Reducer, useEffect, useReducer } from 'react';
 import FlexView from 'react-flexview/lib';
 import { State } from 'xstate';
 import { subscribeToEntireDatabase } from '../firebase/FrontendDAO';
@@ -20,6 +20,10 @@ const machineWithActions = machine.withConfig({
   },
 });
 
+function manualStateReducer<T>(prev: T, next: T): T {
+  return next;
+}
+
 export function Experiment() {
   useEffect(() => {
     document.title = 'Experiment';
@@ -29,9 +33,13 @@ export function Experiment() {
     runIsolatedMachine();
   }, []);
 
-  const [manualState, setManualState] = useState(
-    machine.resolveState(State.create(persistedExperimentState))
-    // machine.initialState
+  const initialState = machine.resolveState(
+    State.create(persistedExperimentState)
+  );
+
+  const [manualState, setManualState] = useReducer(
+    manualStateReducer as Reducer<typeof initialState, typeof initialState>,
+    initialState
   );
   const [machineState, sendToMachine] = useMachine(machine, {
     state: persistedExperimentState,
@@ -42,10 +50,16 @@ export function Experiment() {
   });
 
   function applyEventToMachine(event: ExperimentEvent) {
-    sendToMachine(event);
+    // void navigate('/game', { replace: false });
+    setTimeout(() => {
+      sendToMachine(event);
 
-    const incrementedState = machineWithActions.transition(manualState, event);
-    setManualState(incrementedState);
+      const incrementedState = machineWithActions.transition(
+        manualState,
+        event
+      );
+      setManualState(incrementedState);
+    }, 1000);
   }
 
   const databaseValue = useObservedState({}, subscribeToEntireDatabase);

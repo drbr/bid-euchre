@@ -8,8 +8,8 @@ import { App } from './App';
 import { GameContainer } from './GameContainer';
 import { Lobby } from './Lobby';
 import { GamePathRouteProps } from './paths';
-import { createBufferStateMachine } from './playGame/BufferMachine';
-import { LocalGameContainer } from './playGame/LocalGame';
+import { createBufferStateMachine } from '../playGame/BufferMachine';
+import { LocalGameContainer } from '../playGame/LocalGame';
 
 export function AppRouter() {
   return (

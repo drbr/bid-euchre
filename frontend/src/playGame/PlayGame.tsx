@@ -1,13 +1,13 @@
 import { useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
-import { InProgressGameConfig } from '../../../../functions/apiContract/database/DataModel';
-import { Position } from '../../../../functions/apiContract/database/GameState';
-import { sendGameEvent } from '../../firebase/CloudFunctionsClient';
-import * as DAO from '../../firebase/FrontendDAO';
-import { GameStateConfig } from '../../gameLogic/euchreStateMachine/GameStateTypes';
-import { hydrateStateFromConfig } from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { UIActions } from '../../uiHelpers/UIActions';
-import { Subscription, useSubscription } from '../../uiHelpers/useSubscription';
+import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
+import { Position } from '../../../functions/apiContract/database/GameState';
+import { sendGameEvent } from '../firebase/CloudFunctionsClient';
+import * as DAO from '../firebase/FrontendDAO';
+import { GameStateConfig } from '../gameLogic/euchreStateMachine/GameStateTypes';
+import { hydrateStateFromConfig } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { UIActions } from '../uiHelpers/UIActions';
+import { Subscription, useSubscription } from '../uiHelpers/useSubscription';
 import { PlayGameWithSingleStatePure } from './PlayGameWithState';
 import { useStateBuffer } from './useStateBuffer';
 

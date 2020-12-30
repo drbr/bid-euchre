@@ -1,6 +1,6 @@
 import { useMachine } from '@xstate/react';
 import { useCallback } from 'react';
-import { HydratedGameState } from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { HydratedGameState } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { BufferEvent, createBufferStateMachine } from './BufferMachine';
 
 /** The type-parameterized instance of the buffer machine for the Euchre game */

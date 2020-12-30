@@ -7,7 +7,7 @@ import {
 import { useObservedState } from '../uiHelpers/useObservedState';
 import { GameNotFound } from './GameNotFound';
 import { JoinGame } from './JoinGame';
-import { PlayGame } from './playGame/PlayGame';
+import { PlayGame } from '../playGame/PlayGame';
 
 export type GameContainerProps = {
   gameId: string;
@@ -55,6 +55,7 @@ export function GameContainer(props: GameContainerProps) {
   } else {
     return (
       <PlayGame
+        key={props.gameId} // Render fresh if we switch from one game to another
         gameId={props.gameId}
         gameConfig={gameConfig as InProgressGameConfig}
         seatedAt={seatedAt}

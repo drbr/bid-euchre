@@ -7,7 +7,7 @@ import {
   StateMachine,
   Typestate,
 } from 'xstate';
-import { TypedStateSchema } from '../../gameLogic/stateMachineUtils/TypedStateInterfaces';
+import { TypedStateSchema } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 /**
  * This buffer stores all the known game state snapshots and controls how the client moves through

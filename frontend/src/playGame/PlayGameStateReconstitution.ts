@@ -3,14 +3,14 @@ import { PartialDeep } from 'type-fest';
 import {
   GameContext,
   GameStateConfig,
-} from '../../gameLogic/euchreStateMachine/GameStateTypes';
-import { mergePublicAndPrivateStateContexts } from '../../gameLogic/stateMachineUtils/mergePublicAndPrivateStateContexts';
+} from '../gameLogic/euchreStateMachine/GameStateTypes';
+import { mergePublicAndPrivateStateContexts } from '../gameLogic/stateMachineUtils/mergePublicAndPrivateStateContexts';
 import {
   HydratedGameState,
   hydrateStateFromConfig,
-} from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { EventCountContext } from '../../gameLogic/stateMachineUtils/TypedStateInterfaces';
-import { ObservedState } from '../../uiHelpers/useObservedState';
+} from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { EventCountContext } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
+import { ObservedState } from '../uiHelpers/useObservedState';
 
 // export const privateGameContextSubscription: Subscription<
 //   { gameId: string; playerId: string | null },

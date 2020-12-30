@@ -1,18 +1,18 @@
 import { useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
-import { InProgressGameConfig } from '../../../../functions/apiContract/database/DataModel';
-import { transitionStateMachine } from '../../gameLogic/stateMachineUtils/transitionStateMachine';
-import { GameStateMachine } from '../../gameLogic/euchreStateMachine/GameStateMachine';
+import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
+import { transitionStateMachine } from '../gameLogic/stateMachineUtils/transitionStateMachine';
+import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
   GameState,
-} from '../../gameLogic/euchreStateMachine/GameStateTypes';
+} from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
   HydratedGameState,
   hydrateStateFromConfig,
-} from '../../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { willEventApply } from '../../gameLogic/stateMachineUtils/willEventApply';
-import { GameDisplay } from '../../gameScreens/GameDisplay';
+} from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
+import { GameDisplay } from '../gameScreens/GameDisplay';
 import { BufferEvent } from './BufferMachine';
 import { useStateBuffer } from './useStateBuffer';
 

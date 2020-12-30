@@ -5,7 +5,7 @@ import {
   BufferMachineState,
   createBufferStateMachine,
   StateBuffer,
-} from '../app/playGame/BufferMachine';
+} from '../playGame/BufferMachine';
 
 const BufferMachine = createBufferStateMachine<string>();
 

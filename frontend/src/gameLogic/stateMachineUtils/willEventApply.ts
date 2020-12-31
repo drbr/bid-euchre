@@ -1,4 +1,5 @@
-import { StateSchema, EventObject, StateMachine, State } from 'xstate';
+import { StateSchema, EventObject, StateMachine } from 'xstate';
+import { HydratedState } from './serializeAndHydrateState';
 
 /**
  * Runs the given event through the machine's pure transition function to see if it will effect any
@@ -11,11 +12,13 @@ export function willEventApply<
   E extends EventObject
 >(
   machine: StateMachine<C, SS, E>,
-  currentState: State<C, E>,
+  currentState: HydratedState<C, E, SS> | null | undefined,
   event: E
 ): boolean {
   try {
-    return machine.transition(currentState, event).changed ?? false;
+    return (
+      machine.transition(currentState?.hydratedState, event).changed ?? false
+    );
   } catch (e) {
     return false;
   }

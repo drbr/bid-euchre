@@ -39,7 +39,11 @@ export function EventSender<C, SS extends StateSchema, E extends EventObject>(
     /* It's okay if it can't parse, we just won't do anything with that event */
   }
   const isEventValidForTransition = eventObj
-    ? willEventApply(props.machine, props.currentState, eventObj)
+    ? willEventApply(
+        props.machine,
+        { hydratedState: props.currentState },
+        eventObj
+      )
     : null;
   return (
     <div>

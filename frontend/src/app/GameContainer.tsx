@@ -9,7 +9,7 @@ import {
 } from '../uiHelpers/LocalStorageClient';
 import { GameNotFound } from './GameNotFound';
 import { DisplayPlayersJoining } from './DisplayPlayersJoining';
-import { PlayGame } from '../playGame/PlayGame';
+import { PlayGamePure } from '../playGame/PlayGame';
 import {
   GameContainerContext,
   GameContainerEvent,
@@ -97,7 +97,7 @@ export function GameContainer(props: GameContainerProps) {
     );
   } else {
     return (
-      <PlayGame
+      <PlayGamePure
         key={props.gameId} // Render fresh if we switch from one game to another
         gameId={props.gameId}
         gameConfig={displayedGameConfig as InProgressGameConfig}

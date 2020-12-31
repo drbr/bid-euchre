@@ -12,7 +12,7 @@ import {
   hydrateStateFromConfig,
 } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
-import { GameDisplay } from '../gameScreens/GameDisplay';
+import { GameDisplayPure } from '../gameScreens/GameDisplay';
 import { BufferEvent } from './BufferMachine';
 import { useStateBuffer } from './useStateBuffer';
 
@@ -21,7 +21,7 @@ export function LocalGameContainer() {
     currentGameState,
     addSnapshotToBuffer,
     dispatchToBuffer,
-  ] = useStateBuffer();
+  ] = useStateBuffer({ initialHead: 1 });
 
   if (!currentGameState) {
     return <div>ERROR: Game state is not defined</div>;
@@ -55,7 +55,6 @@ export function LocalGame(props: LocalGameProps) {
       for (const next of nextStates) {
         addSnapshotToBuffer(hydrateStateFromConfig(next));
       }
-      // Add the new events to the buffer
     },
     [gameState, addSnapshotToBuffer]
   );
@@ -68,7 +67,7 @@ export function LocalGame(props: LocalGameProps) {
   function isEventValid(event: AnyEventObject): boolean {
     return willEventApply(
       GameStateMachine,
-      props.gameState.hydratedState,
+      props.gameState,
       event as GameEvent
     );
   }
@@ -97,7 +96,7 @@ export function LocalGame(props: LocalGameProps) {
           send={sendGameEventToStateMachine}
         />
       </div>
-      <GameDisplay
+      <GameDisplayPure
         stateValue={gameState.hydratedState.value}
         stateContext={gameState.hydratedState.context}
         sendGameEvent={sendGameEventToStateMachine}

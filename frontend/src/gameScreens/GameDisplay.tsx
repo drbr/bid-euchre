@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { EventObject, StateValue } from 'xstate';
 import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
 import { Position } from '../../../functions/apiContract/database/GameState';
@@ -33,7 +33,11 @@ export type UnscopedGameDisplayProps = {
 type GameDisplayProps = ScopedGameDisplayProps<GameContext, GameEvent> &
   UnscopedGameDisplayProps;
 
-export function GameDisplay(props: GameDisplayProps): JSX.Element {
+export const GameDisplayPure = memo(function GameDisplay(
+  props: GameDisplayProps
+): JSX.Element {
+  console.debug('Rendering GameDisplay component');
+
   const substate: GameStateNames = getScopedValueString(
     props.stateValue,
     'runGame'
@@ -52,4 +56,4 @@ export function GameDisplay(props: GameDisplayProps): JSX.Element {
       assertUnreachable(substate);
       return <></>;
   }
-}
+});

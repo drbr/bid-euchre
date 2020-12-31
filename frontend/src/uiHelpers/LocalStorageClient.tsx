@@ -44,7 +44,7 @@ export function usePlayerInfoStorage(params: { gameId: string }) {
  */
 export function useStateHeadStorage(params: {
   gameId: string;
-}): [number | 'gameNotFound', (h: number) => void] {
+}): [number, (h: number) => void] {
   const useRawState = useMemo(
     () => createPersistedState(`game_${params.gameId}_stateHead`),
     [params.gameId]

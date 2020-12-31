@@ -1,7 +1,7 @@
+import { inspect } from '@xstate/inspect';
+import { useMachine } from '@xstate/react';
 import { useEffect, useState } from 'react';
 import { StateMachine } from 'xstate';
-import { useMachine } from '@xstate/react';
-import { inspect } from '@xstate/inspect';
 
 let iFrameElement: HTMLIFrameElement | null = null;
 
@@ -28,10 +28,10 @@ export type XStateVizProps = {
   machine?: AnyStateMachine;
 
   /**
-   * Send this prop to render the given element, but attach it to a visualizer that opens in a new
-   * tab.
+   * Send this prop to render the given children (which should contain a state machine), and attach
+   * that machine to a vizualizer that opens in a new tab.
    */
-  childrenWithMachine?: JSX.Element;
+  children?: JSX.Element;
 
   /**
    * The title of the browser tab.
@@ -49,7 +49,7 @@ export type XStateVizProps = {
 export function XStateViz(props: XStateVizProps) {
   const [initialized, setInitialized] = useState(false);
 
-  const useIFrame = props.childrenWithMachine ? false : true;
+  const useIFrame = props.children ? false : true;
 
   useEffect(() => {
     createIFrame();
@@ -71,8 +71,8 @@ export function XStateViz(props: XStateVizProps) {
 
   if (initialized && props.machine) {
     return <StateMachineInstance machine={props.machine} />;
-  } else if (initialized && props.childrenWithMachine) {
-    return props.childrenWithMachine;
+  } else if (initialized && props.children) {
+    return props.children;
   } else {
     return null;
   }

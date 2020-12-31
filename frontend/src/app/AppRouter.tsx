@@ -64,19 +64,16 @@ function GameRoute(props: RouteComponentProps & GamePathRouteProps) {
     // is initialized when we switch from one game to another.
     return (
       <App>
-        <GameContainer key={props.gameId} gameId={props.gameId} />
+        <XStateViz>
+          <GameContainer key={props.gameId} gameId={props.gameId} />
+        </XStateViz>
       </App>
     );
   }
 }
 
 function StateMachineRoute(props: RouteComponentProps & XStateVizProps) {
-  return (
-    <XStateViz
-      machine={props.machine}
-      childrenWithMachine={props.childrenWithMachine}
-    />
-  );
+  return <XStateViz machine={props.machine}>{props.children}</XStateViz>;
 }
 
 function ExperimentRoute(props: RouteComponentProps) {

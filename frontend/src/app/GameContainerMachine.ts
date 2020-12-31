@@ -18,7 +18,12 @@ export type GameContainerStatesGeneric<T> = {
   joinNotInProgress: T; // user may or may not be already joined
   joinInProgress: {
     states: {
-      apiCall: T;
+      apiCall: {
+        states: {
+          wait: T;
+          complete: T;
+        };
+      };
       watchPlayerInfo: {
         states: {
           wait: T;
@@ -104,29 +109,38 @@ export const GameContainerMachine = Machine<
         },
         states: {
           apiCall: {
-            invoke: {
-              id: 'sendJoinGameEvent',
-              src: (context, ev) => {
-                const event = ev as StartJoinEvent;
-                return FunctionsClient.joinGame({
-                  friendlyName: event.playerName,
-                  gameId: event.gameId,
-                  position: event.position,
-                });
+            initial: 'wait',
+            states: {
+              wait: {
+                invoke: {
+                  id: 'sendJoinGameEvent',
+                  src: (context, ev) => {
+                    const event = ev as StartJoinEvent;
+                    return FunctionsClient.joinGame({
+                      friendlyName: event.playerName,
+                      gameId: event.gameId,
+                      position: event.position,
+                    });
+                  },
+                  onDone: {
+                    target: 'complete',
+                    actions: 'storeResult',
+                  },
+                  onError: {
+                    target: '#GameContainerMachine.joinNotInProgress',
+                    actions: [
+                      'resetDisplayedData',
+                      actions.pure((context, event) => ({
+                        type: 'uiAlert',
+                        error: event.data,
+                        message: 'Could not join game. See log for details.',
+                      })),
+                    ],
+                  },
+                },
               },
-              onDone: {
-                actions: 'storeResult',
-              },
-              onError: {
-                target: '#GameContainerMachine.joinNotInProgress',
-                actions: [
-                  'resetDisplayedData',
-                  actions.pure((context, event) => ({
-                    type: 'uiAlert',
-                    error: event.data,
-                    message: 'Could not join game. See log for details.',
-                  })),
-                ],
+              complete: {
+                type: 'final',
               },
             },
           },

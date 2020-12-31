@@ -20,6 +20,7 @@ export type ExperimentStateSchema = {
     runExperiment: {
       states: {
         count: TypedStateSchema<ExperimentMeta, ExperimentContext>;
+        initiateAsync: TypedStateSchema<ExperimentMeta, ExperimentContext>;
       };
     };
   };
@@ -28,7 +29,8 @@ export type ExperimentStateSchema = {
 export type ExperimentEvent =
   | { type: 'addOne'; value: undefined }
   | { type: 'subtractOne'; value: undefined }
-  | { type: 'addX'; value: number };
+  | { type: 'addX'; value: number }
+  | { type: 'addOneDelayed'; value: undefined };
 
 export const ExperimentActions: ActionFunctionMap<
   ExperimentContext,
@@ -82,7 +84,7 @@ export const ExperimentStateMachine = Machine<
             on: {
               addOne: {
                 target: 'count',
-                actions: ['increment'],
+                actions: 'increment',
               },
               subtractOne: {
                 target: 'count',
@@ -99,6 +101,13 @@ export const ExperimentStateMachine = Machine<
                 cond: (context, event) => event.value >= 3,
                 actions: ['increment'],
               },
+              addOneDelayed: 'initiateAsync',
+            },
+          },
+          initiateAsync: {
+            invoke: {
+              src: () => new Promise((resolve) => setTimeout(resolve, 500)),
+              onDone: { target: 'count', actions: 'increment' },
             },
           },
         },

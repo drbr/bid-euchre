@@ -1,3 +1,4 @@
+import { navigate } from '@reach/router';
 import { asEffect, useMachine } from '@xstate/react';
 import { Reducer, useEffect, useReducer } from 'react';
 import FlexView from 'react-flexview/lib';
@@ -50,16 +51,12 @@ export function Experiment() {
   });
 
   function applyEventToMachine(event: ExperimentEvent) {
-    // void navigate('/game', { replace: false });
-    setTimeout(() => {
-      sendToMachine(event);
+    sendToMachine(event);
 
-      const incrementedState = machineWithActions.transition(
-        manualState,
-        event
-      );
-      setManualState(incrementedState);
-    }, 1000);
+    const incrementedState = machineWithActions.transition(manualState, event);
+    setManualState(incrementedState);
+
+    void navigate('/game', { replace: false });
   }
 
   const databaseValue = useObservedState({}, subscribeToEntireDatabase);
@@ -82,6 +79,12 @@ export function Experiment() {
     machine,
     manualState
   );
+  const addOneDelayedActionSend = useEventSenderProps(
+    { type: 'addOneDelayed', value: undefined },
+    applyEventToMachine,
+    machine,
+    manualState
+  );
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
   (window as any).databaseValue = databaseValue;
@@ -94,6 +97,7 @@ export function Experiment() {
       <EventSender {...addOneActionSend} />
       <EventSender {...subtractOneActionSend} />
       <EventSender {...addXActionSend} />
+      <EventSender {...addOneDelayedActionSend} />
       <FlexView>
         <FlexView column grow>
           <h3>Machine State</h3>

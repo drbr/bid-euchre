@@ -20,7 +20,6 @@ export function useStateBuffer(params: {
   const currentGameState = buffer.currentIndexShowing
     ? buffer.gameStateSnapshots[buffer.currentIndexShowing]
     : null;
-  console.log('State buffer: %o', buffer);
 
   const addSnapshotToBuffer = useCallback(
     (snapshot: HydratedGameState) => {

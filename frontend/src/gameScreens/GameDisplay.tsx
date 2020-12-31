@@ -36,8 +36,6 @@ type GameDisplayProps = ScopedGameDisplayProps<GameContext, GameEvent> &
 export const GameDisplayPure = memo(function GameDisplay(
   props: GameDisplayProps
 ): JSX.Element {
-  console.debug('Rendering GameDisplay component');
-
   const substate: GameStateNames = getScopedValueString(
     props.stateValue,
     'runGame'

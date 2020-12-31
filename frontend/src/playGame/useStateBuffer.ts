@@ -1,16 +1,12 @@
 import { useMachine } from '@xstate/react';
 import { useCallback } from 'react';
 import { HydratedGameState } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { BufferEvent, createBufferStateMachine } from './BufferMachine';
+import { createBufferStateMachine } from './BufferMachine';
 
 /** The type-parameterized instance of the buffer machine for the Euchre game */
 const BufferMachine = createBufferStateMachine<HydratedGameState>();
 
-export function useStateBuffer(): [
-  HydratedGameState | null | undefined,
-  (snapshot: HydratedGameState) => void,
-  (event: BufferEvent<HydratedGameState>) => void
-] {
+export function useStateBuffer() {
   const [bufferMachineState, dispatch] = useMachine(BufferMachine);
   const buffer = bufferMachineState.context;
 
@@ -30,5 +26,9 @@ export function useStateBuffer(): [
     [dispatch]
   );
 
-  return [currentGameState, addSnapshotToBuffer, dispatch];
+  return [currentGameState, addSnapshotToBuffer, dispatch] as [
+    typeof currentGameState,
+    typeof addSnapshotToBuffer,
+    typeof dispatch
+  ];
 }

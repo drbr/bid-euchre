@@ -20,6 +20,40 @@ export type PlayGameProps = {
 export function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
+  const [currentGameState, dispatchToStateBuffer] = useBufferWithGameState(props);
+
+  const sendGameEventToStateMachine = useCallback(
+    (event: AnyEventObject) => {
+      void sendGameEventToServer({
+        gameId,
+        playerId,
+        currentGameState,
+        event,
+      });
+    },
+    [currentGameState, gameId, playerId]
+  );
+
+  if (!currentGameState) {
+    return <div>Loading…</div>;
+  }
+
+  return (
+    <PlayGameWithSingleStatePure
+      {...props}
+      gameState={currentGameState.hydratedState}
+      sendGameEvent={sendGameEventToStateMachine}
+      dispatchStateBufferAction={dispatchToStateBuffer}
+    />
+  );
+}
+
+function useBufferWithGameState(props: {
+  gameId: string;
+  playerId: string | null;
+}) {
+  const { gameId, playerId } = props;
+
   const [
     currentGameState,
     addSnapshotToBuffer,
@@ -44,30 +78,10 @@ export function PlayGame(props: PlayGameProps) {
     processReceivedGameState
   );
 
-  const sendGameEventToStateMachine = useCallback(
-    (event: AnyEventObject) => {
-      void sendGameEventToServer({
-        gameId,
-        playerId,
-        currentGameState,
-        event,
-      });
-    },
-    [currentGameState, gameId, playerId]
-  );
-
-  if (!currentGameState) {
-    return <div>Loading…</div>;
-  }
-
-  return (
-    <PlayGameWithSingleStatePure
-      {...props}
-      gameState={currentGameState.hydratedState}
-      sendGameEvent={sendGameEventToStateMachine}
-      dispatchStateBufferAction={dispatchToBuffer}
-    />
-  );
+  return [currentGameState, dispatchToBuffer] as [
+    typeof currentGameState,
+    typeof dispatchToBuffer
+  ];
 }
 
 const subscribeToPublicOrPrivateGameState: Subscription<

@@ -64,9 +64,7 @@ function GameRoute(props: RouteComponentProps & GamePathRouteProps) {
     // is initialized when we switch from one game to another.
     return (
       <App>
-        <XStateViz>
-          <GameContainer key={props.gameId} gameId={props.gameId} />
-        </XStateViz>
+        <GameContainer key={props.gameId} gameId={props.gameId} />
       </App>
     );
   }

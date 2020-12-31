@@ -51,7 +51,6 @@ export function GameContainer(props: GameContainerProps) {
         storePlayerInfo(event.data);
       },
     },
-    devTools: true,
   });
 
   useSubscribeMachineToGameConfig({ gameId }, send);
@@ -83,7 +82,7 @@ export function GameContainer(props: GameContainerProps) {
   if (displayedGameConfig.gameStatus === 'waitingToStart') {
     return (
       <DisplayPlayersJoining
-        gameId={props.gameId}
+        gameId={gameId}
         gameConfig={displayedGameConfig}
         seatedAt={seatedAt}
         joinGameAtPosition={({ playerName, position }) => {

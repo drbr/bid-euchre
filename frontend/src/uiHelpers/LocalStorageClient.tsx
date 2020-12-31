@@ -21,9 +21,7 @@ export type PlayerInfoStorage = {
  * Uses synced local storage to store the player info. When retrieving, returns
  * `'gameNotFound'` if no record is found for that game ID.
  */
-export function usePlayerInfoStorage(params: {
-  gameId: string;
-}): [PlayerInfoStorage | 'gameNotFound', (pi: PlayerInfoStorage) => void] {
+export function usePlayerInfoStorage(params: { gameId: string }) {
   const useRawState = useMemo(
     () => createPersistedState(`game_${params.gameId}`),
     [params.gameId]
@@ -31,7 +29,10 @@ export function usePlayerInfoStorage(params: {
 
   const [rawPlayerInfo, setRawPlayerInfo] = useRawState<PlayerInfoStorage>();
 
-  return [rawPlayerInfo || 'gameNotFound', setRawPlayerInfo];
+  return [rawPlayerInfo ?? 'gameNotFound', setRawPlayerInfo] as [
+    PlayerInfoStorage | 'gameNotFound',
+    typeof setRawPlayerInfo
+  ];
 }
 
 /**

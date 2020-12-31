@@ -4,11 +4,17 @@ import {
   PlayerInfoStorage,
   usePlayerInfoStorage,
 } from '../uiHelpers/LocalStorageClient';
-import { useObservedState } from '../uiHelpers/useObservedState';
 import { GameNotFound } from './GameNotFound';
 import { DisplayPlayersJoining } from './DisplayPlayersJoining';
 import { PlayGame } from '../playGame/PlayGame';
-import { joinGameAndStorePlayerInfo } from '../routines/joinGameAndStorePlayerInfo';
+import {
+  GameContainerContext,
+  GameContainerEvent,
+  GameContainerMachine,
+} from './GameContainerMachine';
+import { useSubscription } from '../uiHelpers/useSubscription';
+import { useMachine } from '@xstate/react';
+import { useEffect } from 'react';
 
 export type GameContainerProps = {
   gameId: string;
@@ -17,47 +23,66 @@ export type GameContainerProps = {
 export function GameContainer(props: GameContainerProps) {
   const { gameId } = props;
 
-  const gameConfig = useObservedState({ gameId }, DAO.subscribeToGameConfig);
+  const [machineState, send] = useMachine<
+    GameContainerContext,
+    GameContainerEvent
+  >(GameContainerMachine);
 
-  const [playerInfoFromStorage, storePlayerInfo] = usePlayerInfoStorage({
+  useSubscription({ gameId }, DAO.subscribeToGameConfig, (gameConfig) =>
+    send({
+      type: 'updateGameConfig',
+      gameConfig: gameConfig ?? 'gameNotFound',
+    })
+  );
+
+  const [_playerInfo, storePlayerInfo] = usePlayerInfoStorage({
     gameId,
   });
 
-  if (gameConfig === 'loading') {
+  useEffect(() => {
+    send({
+      type: 'updatePlayerInfo',
+      playerInfo: _playerInfo,
+    });
+  }, [send, _playerInfo]);
+
+  const { displayedGameConfig, displayedPlayerInfo } = machineState.context;
+
+  if (displayedGameConfig === 'loading' || displayedPlayerInfo === 'loading') {
     return <div>Loading…</div>;
   }
 
-  if (gameConfig === 'gameNotFound') {
+  if (displayedGameConfig === 'gameNotFound') {
     return <GameNotFound />;
   }
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  (window as any).gameConfig = gameConfig;
-  (window as any).playerInfoFromStorage = playerInfoFromStorage;
+  (window as any).gameConfig = displayedGameConfig;
+  (window as any).playerInfoFromStorage = displayedPlayerInfo;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  const seatedAt = isSpectator(playerInfoFromStorage)
+  const seatedAt = isSpectator(displayedPlayerInfo)
     ? null
-    : playerInfoFromStorage.position;
-  const playerId = isSpectator(playerInfoFromStorage)
+    : displayedPlayerInfo.position;
+  const playerId = isSpectator(displayedPlayerInfo)
     ? null
-    : playerInfoFromStorage.playerId;
+    : displayedPlayerInfo.playerId;
 
-  if (gameConfig.gameStatus === 'waitingToStart') {
+  if (displayedGameConfig.gameStatus === 'waitingToStart') {
     return (
       <DisplayPlayersJoining
         gameId={props.gameId}
-        gameConfig={gameConfig}
+        gameConfig={displayedGameConfig}
         seatedAt={seatedAt}
-        joinGameAtPosition={({ playerName, position }) =>
-          joinGameAndStorePlayerInfo({
+        joinGameAtPosition={({ playerName, position }) => {
+          send({
+            type: 'startJoin',
             playerName,
             position,
             gameId,
-            storePlayerInfo,
-          })
-        }
+          });
+        }}
       />
     );
   } else {
@@ -65,7 +90,7 @@ export function GameContainer(props: GameContainerProps) {
       <PlayGame
         key={props.gameId} // Render fresh if we switch from one game to another
         gameId={props.gameId}
-        gameConfig={gameConfig as InProgressGameConfig}
+        gameConfig={displayedGameConfig as InProgressGameConfig}
         seatedAt={seatedAt}
         playerId={playerId}
       />

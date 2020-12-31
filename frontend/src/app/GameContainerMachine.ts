@@ -18,12 +18,7 @@ export type GameContainerStatesGeneric<T> = {
   joinNotInProgress: T; // user may or may not be already joined
   joinInProgress: {
     states: {
-      apiCall: {
-        states: {
-          start: T;
-          complete: T;
-        };
-      };
+      apiCall: T;
       watchPlayerInfo: {
         states: {
           wait: T;
@@ -109,7 +104,6 @@ export const GameContainerMachine = Machine<
         },
         states: {
           apiCall: {
-            initial: 'start',
             invoke: {
               id: 'sendJoinGameEvent',
               src: (context, ev) => {
@@ -121,7 +115,6 @@ export const GameContainerMachine = Machine<
                 });
               },
               onDone: {
-                target: 'complete',
                 actions: 'storeResult',
               },
               onError: {
@@ -135,10 +128,6 @@ export const GameContainerMachine = Machine<
                   })),
                 ],
               },
-            },
-            states: {
-              start: {},
-              complete: { type: 'final' },
             },
           },
           watchPlayerInfo: {

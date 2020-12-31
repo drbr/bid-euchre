@@ -10,7 +10,7 @@ import { Lobby } from './Lobby';
 import { GamePathRouteProps } from './paths';
 import { createBufferStateMachine } from '../playGame/BufferMachine';
 import { LocalGameContainer } from '../playGame/LocalGame';
-import { GameContainerMachine } from '../routines/joinGameAndStorePlayerInfo';
+import { GameContainerMachine } from './GameContainerMachine';
 
 export function AppRouter() {
   return (

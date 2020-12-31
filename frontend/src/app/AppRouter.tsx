@@ -10,6 +10,7 @@ import { Lobby } from './Lobby';
 import { GamePathRouteProps } from './paths';
 import { createBufferStateMachine } from '../playGame/BufferMachine';
 import { LocalGameContainer } from '../playGame/LocalGame';
+import { GameContainerMachine } from '../routines/joinGameAndStorePlayerInfo';
 
 export function AppRouter() {
   return (
@@ -32,6 +33,11 @@ export function AppRouter() {
       <StateMachineRoute
         path="/bufferMachine"
         machine={createBufferStateMachine()}
+      />
+
+      <StateMachineRoute
+        path="/gameContainerMachine"
+        machine={GameContainerMachine}
       />
 
       <StateMachineRoute

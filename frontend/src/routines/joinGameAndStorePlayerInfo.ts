@@ -5,29 +5,7 @@ import { UIActions } from '../uiHelpers/UIActions';
 import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import { ObservedState } from '../uiHelpers/useObservedState';
 import { TypedStateSchema } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
-import { assign, Machine } from 'xstate';
-
-export async function joinGameAndStorePlayerInfo(args: {
-  gameId: string;
-  playerName: string;
-  position: Position;
-  storePlayerInfo: (x: PlayerInfoStorage) => void;
-}) {
-  const { playerName, position, gameId, storePlayerInfo } = args;
-  try {
-    const joinGameResult = await FunctionsClient.joinGame({
-      friendlyName: playerName,
-      gameId: gameId,
-      position: position,
-    });
-
-    storePlayerInfo(joinGameResult);
-  } catch (e) {
-    UIActions.showErrorAlert(e, {
-      message: 'Could not join game. See log for details.',
-    });
-  }
-}
+import { actions, assign, DoneInvokeEvent, Machine } from 'xstate';
 
 export type GameContainerContext = {
   displayedGameConfig: ObservedState<GameConfig>;
@@ -40,9 +18,9 @@ export type GameContainerStatesGeneric<T> = {
   joinNotInProgress: T; // user may or may not be already joined
   joinInProgress: {
     states: {
-      watchApiCall: {
+      apiCall: {
         states: {
-          wait: T;
+          start: T;
           complete: T;
         };
       };
@@ -68,10 +46,15 @@ export type GameContainerStateSchema = {
   >;
 };
 
+export type StartJoinEvent = {
+  type: 'startJoin';
+  gameId: string;
+  playerName: string;
+  position: Position;
+};
+
 export type GameContainerEvent =
-  | { type: 'startJoining' }
-  | { type: 'joinApiComplete' }
-  | { type: 'joinApiFailed' }
+  | StartJoinEvent
   | { type: 'updateGameConfig'; gameConfig: ObservedState<GameConfig> }
   | { type: 'updatePlayerInfo'; playerInfo: ObservedState<PlayerInfoStorage> };
 
@@ -103,7 +86,7 @@ export const GameContainerMachine = Machine<
               displayedPlayerInfo: (context, event) => event.playerInfo,
             }),
           },
-          startJoining: 'joinInProgress',
+          startJoin: { target: 'joinInProgress' },
         },
       },
       joinInProgress: {
@@ -125,18 +108,36 @@ export const GameContainerMachine = Machine<
           },
         },
         states: {
-          watchApiCall: {
-            initial: 'wait',
-            states: {
-              wait: {
-                on: {
-                  joinApiComplete: 'complete',
-                  joinApiFailed: {
-                    target: '#GameContainerMachine.joinNotInProgress',
-                    actions: 'resetDisplayedData',
-                  },
-                },
+          apiCall: {
+            initial: 'start',
+            invoke: {
+              id: 'sendJoinGameEvent',
+              src: (context, ev) => {
+                const event = ev as StartJoinEvent;
+                return FunctionsClient.joinGame({
+                  friendlyName: event.playerName,
+                  gameId: event.gameId,
+                  position: event.position,
+                });
               },
+              onDone: {
+                target: 'complete',
+                actions: 'storeResult',
+              },
+              onError: {
+                target: '#GameContainerMachine.joinNotInProgress',
+                actions: [
+                  'resetDisplayedData',
+                  actions.pure((context, event) => ({
+                    type: 'uiAlert',
+                    error: event.data,
+                    message: 'Could not join game. See log for details.',
+                  })),
+                ],
+              },
+            },
+            states: {
+              start: {},
               complete: { type: 'final' },
             },
           },
@@ -178,6 +179,13 @@ export const GameContainerMachine = Machine<
         latestGameConfig: (context) => undefined,
         latestPlayerInfo: (context) => undefined,
       }),
+      uiAlert: (context, event, meta) =>
+        UIActions.showErrorAlert(
+          ((event as unknown) as DoneInvokeEvent<unknown>).data,
+          {
+            message: meta.action.message,
+          }
+        ),
     },
     guards: {
       isPlayerInfoPresent: (context) => !!getPlayerInfo(context),

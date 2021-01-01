@@ -1,3 +1,4 @@
+import * as FunctionsClient from '../firebase/CloudFunctionsClient';
 import {
   GameConfig,
   InProgressGameConfig,
@@ -15,13 +16,13 @@ import {
   GameContainerEvent,
   GameContainerMachine,
   GameContainerStateSchema,
+  StartJoinEvent,
 } from './GameContainerMachine';
 import { useSubscription } from '../uiHelpers/useSubscription';
 import { useMachine } from '@xstate/react';
 import { useCallback, useEffect } from 'react';
-import { DoneInvokeEvent, Interpreter } from 'xstate';
+import { Interpreter } from 'xstate';
 import { ObservedState } from '../uiHelpers/useObservedState';
-import { JoinGameResult } from '../../../functions/apiContract/cloudFunctions/JoinGame';
 
 export type GameContainerProps = {
   gameId: string;
@@ -45,10 +46,15 @@ export function GameContainer(props: GameContainerProps) {
     GameContainerContext,
     GameContainerEvent
   >(GameContainerMachine, {
-    actions: {
-      storeResult: (context, ev) => {
-        const event = (ev as unknown) as DoneInvokeEvent<JoinGameResult>;
-        storePlayerInfo(event.data);
+    services: {
+      callJoinGameApiAndStoreResult: async (context, ev) => {
+        const event = ev as StartJoinEvent;
+        const joinResult = await FunctionsClient.joinGame({
+          friendlyName: event.playerName,
+          gameId: event.gameId,
+          position: event.position,
+        });
+        storePlayerInfo(joinResult);
       },
     },
   });
@@ -87,7 +93,7 @@ export function GameContainer(props: GameContainerProps) {
         seatedAt={seatedAt}
         joinGameAtPosition={({ playerName, position }) => {
           send({
-            type: 'startJoin',
+            type: 'START_JOIN',
             playerName,
             position,
             gameId,
@@ -112,7 +118,7 @@ function useSubscribeMachineToGameConfig(args: { gameId: string }, send: Send) {
   const setGameConfig = useCallback(
     (gameConfig: GameConfig | null) => {
       send({
-        type: 'updateGameConfig',
+        type: 'UPDATE_GAME_CONFIG',
         gameConfig: gameConfig ?? 'gameNotFound',
       });
     },
@@ -132,7 +138,7 @@ function useSubscribeMachineToPlayerInfo(
 ) {
   useEffect(() => {
     send({
-      type: 'updatePlayerInfo',
+      type: 'UPDATE_PLAYER_INFO',
       playerInfo: playerInfo,
     });
   }, [send, playerInfo]);

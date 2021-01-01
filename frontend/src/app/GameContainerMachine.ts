@@ -1,4 +1,3 @@
-import * as FunctionsClient from '../firebase/CloudFunctionsClient';
 import { Position } from '../../../functions/apiContract/database/GameState';
 import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
 import { UIActions } from '../uiHelpers/UIActions';
@@ -18,24 +17,9 @@ export type GameContainerStatesGeneric<T> = {
   joinNotInProgress: T; // user may or may not be already joined
   joinInProgress: {
     states: {
-      apiCall: {
-        states: {
-          wait: T;
-          complete: T;
-        };
-      };
-      watchPlayerInfo: {
-        states: {
-          wait: T;
-          complete: T;
-        };
-      };
-      watchGameConfig: {
-        states: {
-          wait: T;
-          complete: T;
-        };
-      };
+      makeApiCall: T;
+      waitForDataToSync: T;
+      complete: T;
     };
   };
 };
@@ -47,7 +31,7 @@ export type GameContainerStateSchema = {
 };
 
 export type StartJoinEvent = {
-  type: 'startJoin';
+  type: 'START_JOIN';
   gameId: string;
   playerName: string;
   position: Position;
@@ -55,8 +39,11 @@ export type StartJoinEvent = {
 
 export type GameContainerEvent =
   | StartJoinEvent
-  | { type: 'updateGameConfig'; gameConfig: ObservedState<GameConfig> }
-  | { type: 'updatePlayerInfo'; playerInfo: ObservedState<PlayerInfoStorage> };
+  | { type: 'UPDATE_GAME_CONFIG'; gameConfig: ObservedState<GameConfig> }
+  | {
+      type: 'UPDATE_PLAYER_INFO';
+      playerInfo: ObservedState<PlayerInfoStorage>;
+    };
 
 export const GameContainerInitialContext: GameContainerContext = {
   displayedGameConfig: 'loading',
@@ -76,105 +63,72 @@ export const GameContainerMachine = Machine<
     states: {
       joinNotInProgress: {
         on: {
-          updateGameConfig: {
+          UPDATE_GAME_CONFIG: {
             actions: assign({
               displayedGameConfig: (context, event) => event.gameConfig,
             }),
           },
-          updatePlayerInfo: {
+          UPDATE_PLAYER_INFO: {
             actions: assign({
               displayedPlayerInfo: (context, event) => event.playerInfo,
             }),
           },
-          startJoin: { target: 'joinInProgress' },
+          START_JOIN: { target: 'joinInProgress' },
         },
       },
       joinInProgress: {
-        type: 'parallel',
         onDone: {
           target: 'joinNotInProgress',
-          actions: 'resetDisplayedData',
+          actions: 'displayLatestData',
         },
         on: {
-          updateGameConfig: {
+          UPDATE_GAME_CONFIG: {
             actions: assign({
               latestGameConfig: (context, event) => event.gameConfig,
             }),
           },
-          updatePlayerInfo: {
+          UPDATE_PLAYER_INFO: {
             actions: assign({
               latestPlayerInfo: (context, event) => event.playerInfo,
             }),
           },
         },
+        initial: 'makeApiCall',
         states: {
-          apiCall: {
-            initial: 'wait',
-            states: {
-              wait: {
-                invoke: {
-                  id: 'sendJoinGameEvent',
-                  src: (context, ev) => {
-                    const event = ev as StartJoinEvent;
-                    return FunctionsClient.joinGame({
-                      friendlyName: event.playerName,
-                      gameId: event.gameId,
-                      position: event.position,
-                    });
-                  },
-                  onDone: {
-                    target: 'complete',
-                    actions: 'storeResult',
-                  },
-                  onError: {
-                    target: '#GameContainerMachine.joinNotInProgress',
-                    actions: [
-                      'resetDisplayedData',
-                      actions.pure((context, event) => ({
-                        type: 'uiAlert',
-                        error: event.data,
-                        message: 'Could not join game. See log for details.',
-                      })),
-                    ],
-                  },
-                },
+          makeApiCall: {
+            invoke: {
+              id: 'sendJoinGameEvent',
+              src: 'callJoinGameApiAndStoreResult',
+              onDone: {
+                target: 'waitForDataToSync',
               },
-              complete: {
-                type: 'final',
+              onError: {
+                target: '#GameContainerMachine.joinNotInProgress',
+                actions: [
+                  'displayLatestData',
+                  actions.pure((context, event) => ({
+                    type: 'uiAlert',
+                    error: event.data,
+                    message: 'Could not join game. See log for details.',
+                  })),
+                ],
               },
             },
           },
-          watchPlayerInfo: {
-            initial: 'wait',
-            states: {
-              wait: {
-                always: {
-                  target: 'complete',
-                  cond: 'isPlayerInfoPresent',
-                },
-              },
-              complete: { type: 'final' },
+          waitForDataToSync: {
+            always: {
+              target: 'complete',
+              cond: 'isPlayerDataInGameConfig',
             },
           },
-          watchGameConfig: {
-            initial: 'wait',
-            states: {
-              wait: {
-                always: {
-                  target: 'complete',
-                  cond: 'isPlayerNameInGameConfig',
-                },
-              },
-              complete: { type: 'final' },
-            },
-          },
+          complete: { type: 'final' },
         },
       },
     },
   },
   {
     actions: {
-      resetDisplayedData: assign({
+      displayLatestData: assign({
         displayedGameConfig: (context) =>
           context.latestGameConfig ?? context.displayedGameConfig,
         displayedPlayerInfo: (context) =>
@@ -191,8 +145,7 @@ export const GameContainerMachine = Machine<
         ),
     },
     guards: {
-      isPlayerInfoPresent: (context) => !!getPlayerInfo(context),
-      isPlayerNameInGameConfig: (context) => {
+      isPlayerDataInGameConfig: (context) => {
         const playerInfo = getPlayerInfo(context);
         const gameConfig = getGameConfig(context);
         if (playerInfo && gameConfig) {

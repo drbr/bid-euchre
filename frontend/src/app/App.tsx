@@ -23,7 +23,9 @@ export function App(props: { children?: React.ReactChild }) {
   return (
     <MuiThemeProvider theme={MaterialUITheme}>
       <div className={classes(AppStyle, ColorSchemeClasses[colorSchemeId])}>
-        <FlexView grow>{props.children}</FlexView>
+        <FlexView grow width="100%" hAlignContent="center">
+          {props.children}
+        </FlexView>
         <AppFooter
           colorScheme={colorSchemeId}
           setColorScheme={setColorSchemeId}

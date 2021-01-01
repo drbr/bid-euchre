@@ -65,7 +65,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
   const gameState = currentGameState.hydratedState;
 
   return (
-    <div>
+    <div style={{ width: '100%' }}>
       <p>
         {props.playerId ? null : 'You are a spectator of the current game!'}
       </p>

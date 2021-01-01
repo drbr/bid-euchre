@@ -50,7 +50,7 @@ export function GameLayout(props: GameLayoutProps) {
   }
 
   return (
-    <Container maxWidth="sm" fixed>
+    <Container maxWidth="sm">
       <Box mt={3} textAlign="left">
         <Grid container spacing={2} alignItems="center">
           {/* top row */}

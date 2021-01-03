@@ -9,6 +9,9 @@ import { STALE_STATE_ERROR } from './executeSendGameEvent';
  * being equal should be sufficient to know that the two states are equal.
  *
  * @returns a boolean indicating whether some encountered counts were null.
+ * @throws
+ *   - STALE_STATE_ERROR if the event counts do not match
+ *   - Error if `throwIfNull` is true and either of the counts is null
  */
 export function assertEventsAreInSync(
   eventCountA: number | null,

@@ -475,4 +475,42 @@ describe('BufferMachine', () => {
       });
     });
   });
+
+  describe('Sending game events', () => {
+    test('does not accept events while in detached mode', () => {});
+
+    test('accepts an event while displaying the head', () => {});
+
+    test('outputs a "busy" state while an event update is in progress', () => {});
+
+    test(
+      'if state n+1 arrives while an event update is in progress, ' +
+        'should not advance the head until the update promise resolves',
+      () => {}
+    );
+
+    test(
+      'if an event update promise resolves before state n+1 arrives,' +
+        'should not leave the busy state until the head can advance',
+      () => {}
+    );
+
+    test(
+      'if the event update fails because of stale state, should advance the head and try ' +
+        'sending the event again, while staying in the busy state',
+      () => {}
+    );
+
+    test(
+      'if the event update fails because of stale state and the next head is not yet available, ' +
+        'should wait until the next head is available, then advance and try sending again',
+      () => {}
+    );
+
+    test(
+      'if the event update fails because the transition was not accepted, leave the busy state ' +
+        'and go back to head mode',
+      () => {}
+    );
+  });
 });

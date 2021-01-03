@@ -1,127 +1,24 @@
 import {
-  AnyEventObject,
   assign,
   Machine,
   MachineConfig,
   send,
-  State,
   StateMachine,
   Typestate,
 } from 'xstate';
-import { TypedStateSchema } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
+import {
+  StateBuffer,
+  BufferStateSchema,
+  BufferEvent,
+  LINGER_DELAY_MS,
+  RecvSnapshotEvent,
+} from './BufferMachineTypes';
 
 /**
- * This buffer stores all the known game state snapshots and controls how the client moves through
- * them over time.
- */
-export type StateBuffer<S> = {
-  /**
-   * The index of the snapshot currently being displayed
-   */
-  readonly currentIndexShowing: number | null;
-
-  /**
-   * The index of the latest snapshot that has ever been displayed. The machine will not allow
-   * advancing past the head in detached mode.
-   */
-  readonly head: number | null;
-
-  /**
-   * All the snapshots that are known to the client, including those past the head that have never
-   * been displayed
-   */
-  readonly gameStateSnapshots: ReadonlyArray<S | undefined>;
-};
-
-export const LINGER_DELAY_MS = 1500;
-
-type BufferStatesGeneric<X> = {
-  /**
-   * The machine starts in this state until the buffer has populated all the snapshots up to and
-   * including the head.
-   */
-  loading: X;
-
-  loaded: {
-    states: {
-      /**
-       * The entry point for showing a new head state. This transient node decides which of the
-       * "showHead*" states should be used, based on the new head's configuration.
-       */
-      enterHead: X;
-
-      /**
-       * Showing the head while it's in the mandatory "linger" period. This is implemented by invoking
-       * a delayed UNBLOCK_HEAD event and immediately transitioning to showHeadBlocked.
-       */
-      showHeadLingering: X;
-
-      /**
-       * Showing the head while it's blocked – the machine will not advance the head until it receives
-       * the UNBLOCK_HEAD event.
-       */
-      showHeadBlocked: X;
-
-      /**
-       * Showing the head while unblocked – the head can be advanced at any time.
-       */
-      showHeadUnblocked: X;
-
-      /**
-       * Showing a state older than the head (one that the player has already played). In detached mode,
-       * the machine can move freely from state to state, ignoring blocks or lingers.
-       */
-      showSnapshotDetached: X;
-
-      /**
-       * Still showing the head, but also in the process of sending a user-submitted game event
-       * to the server.
-       */
-      busySendingGameEvent: X;
-    };
-  };
-};
-
-type BufferStateSchema<S> = {
-  states: BufferStatesGeneric<TypedStateSchema<unknown, StateBuffer<S>>>;
-};
-
-type RecvSnapshotEvent<S> = {
-  type: 'RECV_SNAPSHOT';
-  snapshot: S;
-  index: number;
-};
-
-type SwitchToDetachedIndexEvent = {
-  type: 'DETACHED_GO_TO_INDEX';
-  index: number;
-};
-
-type SendGameEventToServerEvent = {
-  type: 'SEND_GAME_EVENT_TO_SERVER';
-  event: AnyEventObject;
-};
-
-export type BufferEvent<S> =
-  | RecvSnapshotEvent<S>
-  | { type: 'DETACHED_GO_FORWARD' }
-  | { type: 'DETACHED_GO_BACK' }
-  | SwitchToDetachedIndexEvent
-  | SendGameEventToServerEvent
-  | { type: 'UNBLOCK_HEAD' }
-  | { type: 'RESET' };
-
-export type BufferMachineState<S> = State<
-  StateBuffer<S>,
-  BufferEvent<S>,
-  BufferStateSchema<S>
->;
-
-/**
- * This machine controls how the UI transitions through the game states. The state snapshots can be sent to
- * the client in quick succession, but the UI does not necessarily display them right away; it might
- * block or linger on certain states, storing the newer states in the buffer and transitioning only
- * when the appropriate user interactions have occurred.
+ * This machine controls how the UI transitions through the game states. The state snapshots can be
+ * sent to the client in quick succession, but the UI does not necessarily display them right away;
+ * it might block or linger on certain states, storing the newer states in the buffer and
+ * transitioning only when the appropriate user interactions have occurred.
  */
 export function createBufferStateMachine<S>(): StateMachine<
   StateBuffer<S>,

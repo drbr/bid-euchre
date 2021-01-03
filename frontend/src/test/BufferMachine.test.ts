@@ -1,20 +1,16 @@
 import * as _ from 'lodash';
-import { StateValue } from 'xstate';
+import { AnyEventObject, StateValue } from 'xstate';
+import {
+  createBufferStateMachine,
+} from '../playGame/BufferMachine';
 import {
   BufferEvent,
   BufferMachineState,
-  createBufferStateMachine,
-  StateBuffer,
-} from '../playGame/BufferMachine';
+
+  StateBuffer
+} from "../playGame/BufferMachineTypes";
 
 const BufferMachine = createBufferStateMachine<string>();
-
-type EventWithExpectedContext = {
-  event: BufferEvent<string>;
-  expectedContext?: StateBuffer<string>;
-  expectValueToEqual?: StateValue;
-  expectValueNotToEqual?: StateValue;
-};
 
 function getStartStateWithHead(head: number, stateValue?: StateValue) {
   return getStartState({
@@ -42,6 +38,13 @@ function recvSnapshot(index: number): BufferEvent<string> {
   };
 }
 
+type EventWithExpectedContext = {
+  event: BufferEvent<string>;
+  expectedContext?: StateBuffer<string>;
+  expectValueToEqual?: StateValue;
+  expectValueNotToEqual?: StateValue;
+};
+
 function applyTransitions(
   startingState: BufferMachineState<string>,
   ...transitions: EventWithExpectedContext[]
@@ -65,6 +68,7 @@ function applyTransitions(
 const BLOCKED = { loaded: 'showHeadBlocked' };
 const UNBLOCKED = { loaded: 'showHeadUnblocked' };
 const DETACHED = { loaded: 'showSnapshotDetached' };
+const SENDING = { loaded: 'busySendingGameEvent ' };
 
 function makeSnapshots(loadedIndexes: number[]) {
   const snapshots = [];
@@ -230,13 +234,7 @@ describe('BufferMachine', () => {
   });
 
   describe('Detached mode', () => {
-    const loadedSnapshotsThrough4 = [
-      undefined,
-      'Snapshot 1',
-      'Snapshot 2',
-      'Snapshot 3',
-      'Snapshot 4',
-    ];
+    const loadedSnapshotsThrough4 = makeSnapshots([1, 2, 3, 4]);
 
     const state_showHeadAt4Blocked = getStartState(
       {
@@ -460,7 +458,7 @@ describe('BufferMachine', () => {
       applyTransitions(state_detachedAt3_headIs4, {
         event: recvSnapshot(5),
         expectedContext: {
-        ...state_detachedAt3_headIs4.context,
+          ...state_detachedAt3_headIs4.context,
           gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 5]),
         },
         expectValueToEqual: DETACHED,
@@ -477,22 +475,104 @@ describe('BufferMachine', () => {
   });
 
   describe('Sending game events', () => {
-    test('accepts an event while displaying the head', () => {});
+    const state_showHeadAt2 = applyTransitions(
+      getStartStateWithHead(1),
+      { event: recvSnapshot(1) },
+      { event: recvSnapshot(2) }
+    );
 
-    test('does not accept events while in detached mode', () => {});
+    const sendGameEventEvent: BufferEvent<unknown> = {
+      type: 'SEND_GAME_EVENT_TO_SERVER',
+      gameEvent: { type: 'FakeGameEvent', value: 1 },
+    };
 
-    test('outputs a "busy" state while an event update is in progress', () => {});
+    const SendGameEventSucceeded = ({
+      type: 'done.invoke.sendGameEvent',
+    } as AnyEventObject) as BufferEvent<string>;
+
+    const SendGameEventFailed = ({
+      type: 'error.platform.sendGameEvent',
+    } as AnyEventObject) as BufferEvent<string>;
+
+    test('accepts an event while displaying the head and transitions to the "busy" state', () => {
+      applyTransitions(state_showHeadAt2, {
+        event: sendGameEventEvent,
+        expectedContext: state_showHeadAt2.context,
+        expectValueToEqual: SENDING,
+      });
+    });
+
+    test('does not accept events while in detached mode', () => {
+      const detachedContext: StateBuffer<string> = {
+        head: 2,
+        currentIndexShowing: 1,
+        gameStateSnapshots: makeSnapshots([1, 2]),
+      };
+      applyTransitions(
+        state_showHeadAt2,
+        {
+          event: { type: 'DETACHED_GO_BACK' },
+          expectedContext: detachedContext,
+          expectValueToEqual: DETACHED,
+        },
+        {
+          event: sendGameEventEvent,
+          expectedContext: detachedContext,
+          expectValueToEqual: DETACHED,
+        }
+      );
+    });
 
     test(
       'if state n+1 arrives while an event update is in progress, ' +
         'should not advance the head until the update promise resolves',
-      () => {}
+      () => {
+        applyTransitions(
+          state_showHeadAt2,
+          {
+            event: sendGameEventEvent,
+            expectedContext: state_showHeadAt2.context,
+            expectValueToEqual: SENDING,
+          },
+          {
+            event: recvSnapshot(3),
+            expectValueToEqual: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3],
+            }),
+          },
+          {
+            event: SendGameEventSucceeded,
+            expectValueToEqual: BLOCKED,
+            expectedContext: contextShowingHeadAt(3),
+          }
+        );
+      }
     );
 
     test(
       'if an event update promise resolves before state n+1 arrives,' +
         'should not leave the busy state until the head can advance',
-      () => {}
+      () => {
+        applyTransitions(
+          state_showHeadAt2,
+          {
+            event: sendGameEventEvent,
+            expectedContext: state_showHeadAt2.context,
+            expectValueToEqual: SENDING,
+          },
+          {
+            event: SendGameEventSucceeded,
+            expectValueToEqual: SENDING,
+            expectedContext: contextShowingHeadAt(2),
+          },
+          {
+            event: recvSnapshot(3),
+            expectValueToEqual: BLOCKED,
+            expectedContext: contextShowingHeadAt(3),
+          }
+        );
+      }
     );
 
     test(
@@ -512,5 +592,7 @@ describe('BufferMachine', () => {
         'and go back to head mode',
       () => {}
     );
+
+    test('if the event update fails for an unknown reason, leave the busy state and go back to head mode', () => {});
   });
 });

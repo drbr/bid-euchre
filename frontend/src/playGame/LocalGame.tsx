@@ -13,7 +13,7 @@ import {
 } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import { GameDisplayPure } from '../gameScreens/GameDisplay';
-import { BufferEvent } from './BufferMachine';
+import { BufferEvent } from "./BufferMachineTypes";
 import { useStateBuffer } from './useStateBuffer';
 
 export function LocalGameContainer() {

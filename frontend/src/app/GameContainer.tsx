@@ -12,12 +12,15 @@ import { GameNotFound } from './GameNotFound';
 import { DisplayPlayersJoining } from './DisplayPlayersJoining';
 import { PlayGamePure } from '../playGame/PlayGame';
 import {
+  GameContainerMachine,
+} from './GameContainerMachine';
+import {
   GameContainerContext,
   GameContainerEvent,
-  GameContainerMachine,
+
   GameContainerStateSchema,
-  StartJoinEvent,
-} from './GameContainerMachine';
+  StartJoinEvent
+} from "./GameContainerMachineTypes";
 import { useSubscription } from '../uiHelpers/useSubscription';
 import { useMachine } from '@xstate/react';
 import { useCallback, useEffect } from 'react';

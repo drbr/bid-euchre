@@ -10,7 +10,7 @@ import executeSendGameEvent, {
   STALE_STATE_ERROR,
   USER_NOT_AUTHORIZED_ERROR,
 } from './activities/executeSendGameEvent';
-import { SendGameEventErrorDetail } from '../apiContract/cloudFunctions/SendGameEvent';
+import { SendGameEventErrorDetail } from '../../frontend/src/gameLogic/apiContract/cloudFunctions/SendGameEvent';
 
 /** Thrown when the game with the given ID does not exist */
 export class GAME_NOT_FOUND_ERROR {}

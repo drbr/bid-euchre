@@ -1,9 +1,8 @@
-import { NewGameResult } from '../../apiContract/cloudFunctions/NewGame';
-import { generateFriendlyId } from '../databaseHelpers/generateId';
+import { NewGameResult } from '../../../frontend/src/gameLogic/apiContract/cloudFunctions/NewGame';
+import { AllGameInfo } from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
+import { Position } from '../../../frontend/src/gameLogic/apiContract/database/GameState';
 import * as DAO from '../databaseHelpers/BackendDAO';
-
-import { AllGameInfo } from '../../apiContract/database/DataModel';
-import { Position } from '../../apiContract/database/GameState';
+import { generateFriendlyId } from '../databaseHelpers/generateId';
 
 export default async function executeNewGame(): Promise<NewGameResult> {
   const publicGameConfig = await DAO.transactionallyCreateGameInfo({

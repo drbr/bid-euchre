@@ -1,8 +1,4 @@
 import * as FunctionsClient from '../firebase/CloudFunctionsClient';
-import {
-  GameConfig,
-  InProgressGameConfig,
-} from '../../../functions/apiContract/database/DataModel';
 import * as DAO from '../firebase/FrontendDAO';
 import {
   PlayerInfoStorage,
@@ -11,21 +7,22 @@ import {
 import { GameNotFound } from './GameNotFound';
 import { DisplayPlayersJoining } from './DisplayPlayersJoining';
 import { PlayGamePure } from '../playGame/PlayGame';
-import {
-  GameContainerMachine,
-} from './GameContainerMachine';
+import { GameContainerMachine } from './GameContainerMachine';
 import {
   GameContainerContext,
   GameContainerEvent,
-
   GameContainerStateSchema,
-  StartJoinEvent
-} from "./GameContainerMachineTypes";
+  StartJoinEvent,
+} from './GameContainerMachineTypes';
 import { useSubscription } from '../uiHelpers/useSubscription';
 import { useMachine } from '@xstate/react';
 import { useCallback, useEffect } from 'react';
 import { Interpreter } from 'xstate';
 import { ObservedState } from '../uiHelpers/useObservedState';
+import {
+  InProgressGameConfig,
+  GameConfig,
+} from '../gameLogic/apiContract/database/DataModel';
 
 export type GameContainerProps = {
   gameId: string;

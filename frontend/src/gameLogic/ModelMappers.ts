@@ -1,6 +1,6 @@
 import { PartialDeep } from 'type-fest';
-import { GameConfig } from '../../../functions/apiContract/database/DataModel';
-import { Position } from '../../../functions/apiContract/database/GameState';
+import { GameConfig } from './apiContract/database/DataModel';
+import { Position } from './apiContract/database/GameState';
 import {
   GameContext,
   GameStateConfig,

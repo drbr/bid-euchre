@@ -1,8 +1,8 @@
 import * as _ from 'lodash';
-import { PlayerIdentities } from '../../apiContract/database/DataModel';
+import { PlayerIdentities } from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
 import { GameState } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
-import { extractPublicAndPrivateGameStateContexts } from './extractPrivateContext';
 import { serializeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { extractPublicAndPrivateGameStateContexts } from './extractPrivateContext';
 
 /**
  * Sanitizes the state and breaks it apart into "public state" and "private contexts".

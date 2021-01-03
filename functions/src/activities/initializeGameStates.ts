@@ -2,11 +2,11 @@ import * as _ from 'lodash';
 import { GameStateMachine } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateMachine';
 import { serializeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { StartGameEvent } from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
-import { PlayerIdentities } from '../../apiContract/database/DataModel';
 import { getInitialMachineState } from '../backendStateMachineUtils/getInitialMachineState';
 import { transitionStateMachine } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { storePublicAndPrivateSnapshotsFromTransition } from './incrementAndStoreState';
+import { PlayerIdentities } from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
 
 export async function initializeGameStates(params: {
   gameId: string;

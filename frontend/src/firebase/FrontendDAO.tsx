@@ -1,12 +1,11 @@
 import firebase from 'firebase/app';
-
-import { GameConfig } from '../../../functions/apiContract/database/DataModel';
+import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { GameStateConfig } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
   mapGameConfigFromDatabase,
   mapGameStateFromDatabase,
 } from '../gameLogic/ModelMappers';
-import { Subscription, UnsubscribeFn } from "../uiHelpers/useSubscription";
+import { Subscription, UnsubscribeFn } from '../uiHelpers/useSubscription';
 import { firebaseDatabase } from './FirebaseWebClientInFrontend';
 
 export type GameIdParams = { gameId: string };

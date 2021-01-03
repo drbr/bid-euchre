@@ -1,4 +1,4 @@
-import { Position } from '../../../../functions/apiContract/database/GameState';
+import { Position } from '../apiContract/database/GameState';
 
 /**
  * Some events are meant to have been executed by a specific player. Those should implement this

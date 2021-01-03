@@ -1,18 +1,18 @@
 import * as _ from 'lodash';
+import { SendGameEventRequest } from '../../../frontend/src/gameLogic/apiContract/cloudFunctions/SendGameEvent';
+import { PlayerIdentities } from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
 import { GameStateMachine } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
-  GameState,
+  GameState
 } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import {
   getStateConfigFromJson,
   hydrateStateFromConfig,
-  serializeState,
+  serializeState
 } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { SendGameEventRequest } from '../../apiContract/cloudFunctions/SendGameEvent';
-import { PlayerIdentities } from '../../apiContract/database/DataModel';
-import { preparePublicAndPrivateStateForStorage } from '../backendStateMachineUtils/preparePublicAndPrivateStateForStorage';
 import { transitionStateMachine } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
+import { preparePublicAndPrivateStateForStorage } from '../backendStateMachineUtils/preparePublicAndPrivateStateForStorage';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { assertEventsAreInSync } from './assertEventsAreInSync';
 

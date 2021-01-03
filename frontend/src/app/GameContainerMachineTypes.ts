@@ -1,8 +1,8 @@
-import { Position } from '../../../functions/apiContract/database/GameState';
-import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
-import { GameConfig } from '../../../functions/apiContract/database/DataModel';
-import { ObservedState } from '../uiHelpers/useObservedState';
+import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
+import { Position } from '../gameLogic/apiContract/database/GameState';
 import { TypedStateSchema } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
+import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
+import { ObservedState } from '../uiHelpers/useObservedState';
 
 export type GameContainerContext = {
   displayedGameConfig: ObservedState<GameConfig>;

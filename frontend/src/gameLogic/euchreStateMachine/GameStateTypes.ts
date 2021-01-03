@@ -1,5 +1,5 @@
 import { State, StateConfig, Typestate } from 'xstate';
-import { Partnership } from '../../../../functions/apiContract/database/GameState';
+import { Partnership } from '../apiContract/database/GameState';
 import {
   AutoTransitionEvent,
   SecretActionCompleteEvent,

@@ -1,9 +1,6 @@
 import { State, Typestate } from 'xstate';
-import { Hand, Suit } from '../../../../functions/apiContract/database/Cards';
-import {
-  Bid,
-  Position,
-} from '../../../../functions/apiContract/database/GameState';
+import { Hand, Suit } from '../apiContract/database/Cards';
+import { Position, Bid } from '../apiContract/database/GameState';
 import { SecretActionCompleteEvent } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 

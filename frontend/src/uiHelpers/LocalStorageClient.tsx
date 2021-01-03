@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import createPersistedState from 'use-persisted-state';
-import { Position } from '../../../functions/apiContract/database/GameState';
+import { Position } from '../gameLogic/apiContract/database/GameState';
 
 export const StorageKey_StateHead = (gameId: string) =>
   `game_${gameId}_stateHead`;

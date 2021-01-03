@@ -1,7 +1,7 @@
 import { memo, useEffect } from 'react';
 import { EventObject, StateValue } from 'xstate';
-import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
-import { Position } from '../../../functions/apiContract/database/GameState';
+import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
+import { Position } from '../gameLogic/apiContract/database/GameState';
 import {
   GameContext,
   GameEvent,

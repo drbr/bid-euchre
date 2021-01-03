@@ -6,8 +6,8 @@ import Typography from '@material-ui/core/Typography';
 import _ from 'lodash';
 import { Dispatch, useState } from 'react';
 import FlexView from 'react-flexview/lib';
-import { GameConfig } from '../../../functions/apiContract/database/DataModel';
-import { Position } from '../../../functions/apiContract/database/GameState';
+import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
+import { Position } from '../gameLogic/apiContract/database/GameState';
 import { GameLayout } from '../gameScreens/GameLayout';
 
 const MAX_NAME_LENGTH = 12;

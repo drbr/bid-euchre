@@ -1,11 +1,11 @@
 import * as _ from 'lodash';
 import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
-import { PlayerSpecificEvent } from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
 import {
   SendGameEventRequest,
   SendGameEventResult,
-} from '../../apiContract/cloudFunctions/SendGameEvent';
-import { Position } from '../../apiContract/database/GameState';
+} from '../../../frontend/src/gameLogic/apiContract/cloudFunctions/SendGameEvent';
+import { Position } from '../../../frontend/src/gameLogic/apiContract/database/GameState';
+import { PlayerSpecificEvent } from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { incrementStateMachineAndTransactionallyStoreResult } from './incrementAndStoreState';
 

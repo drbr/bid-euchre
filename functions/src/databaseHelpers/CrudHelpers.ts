@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
-import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot';
+import { TypedDataSnapshot } from './TypedDataSnapshot';
 
 /**
  * Thrown when a transaction update failed, either for an internal reason

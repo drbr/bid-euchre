@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
-import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
-import { transitionStateMachine } from '../gameLogic/stateMachineUtils/transitionStateMachine';
+import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
@@ -11,9 +10,10 @@ import {
   HydratedGameState,
   hydrateStateFromConfig,
 } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { transitionStateMachine } from '../gameLogic/stateMachineUtils/transitionStateMachine';
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import { GameDisplayPure } from '../gameScreens/GameDisplay';
-import { BufferEvent } from "./BufferMachineTypes";
+import { BufferEvent } from './BufferMachineTypes';
 import { useStateBuffer } from './useStateBuffer';
 
 export function LocalGameContainer() {

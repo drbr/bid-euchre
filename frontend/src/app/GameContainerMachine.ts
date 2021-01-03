@@ -1,6 +1,5 @@
 import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
 import { UIActions } from '../uiHelpers/UIActions';
-import { GameConfig } from '../../../functions/apiContract/database/DataModel';
 import { actions, assign, DoneInvokeEvent, Machine } from 'xstate';
 import {
   GameContainerContext,
@@ -8,6 +7,7 @@ import {
   GameContainerEvent,
   GameContainerInitialContext,
 } from './GameContainerMachineTypes';
+import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
 
 export const GameContainerMachine = Machine<
   GameContainerContext,

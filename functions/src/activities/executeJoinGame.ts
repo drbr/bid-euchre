@@ -1,13 +1,12 @@
 import * as _ from 'lodash';
-import { generateHardToGuessId } from '../databaseHelpers/generateId';
-import * as DAO from '../databaseHelpers/BackendDAO';
-
+import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
 import {
   JoinGameRequest,
   JoinGameResult,
-} from '../../apiContract/cloudFunctions/JoinGame';
+} from '../../../frontend/src/gameLogic/apiContract/cloudFunctions/JoinGame';
+import * as DAO from '../databaseHelpers/BackendDAO';
+import { generateHardToGuessId } from '../databaseHelpers/generateId';
 import { initializeGameStates } from './initializeGameStates';
-import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
 
 export default async function executeJoinGame(
   request: JoinGameRequest

@@ -1,24 +1,24 @@
 import * as _ from 'lodash';
 import { AnyEventObject } from 'xstate';
+import {
+  AllGameInfo,
+  GameConfig,
+  GameStatus,
+  PlayerIdentities,
+} from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
+import { Position } from '../../../frontend/src/gameLogic/apiContract/database/GameState';
 import { GameStateConfig } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import {
   mapGameConfigFromDatabase,
   mapGameStateFromDatabase,
   mapPositionRecordFromDatabase,
 } from '../../../frontend/src/gameLogic/ModelMappers';
-import {
-  AllGameInfo,
-  GameConfig,
-  GameStatus,
-  PlayerIdentities,
-} from '../../apiContract/database/DataModel';
-import { Position } from '../../apiContract/database/GameState';
-import { TypedDataSnapshot } from '../../apiContract/database/TypedDataSnapshot';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
 import {
   transactionallyCreateChildNode,
   transactionallySetNode,
 } from './CrudHelpers';
+import { TypedDataSnapshot } from './TypedDataSnapshot';
 
 export async function transactionallyCreateGameInfo(props: {
   value: AllGameInfo;

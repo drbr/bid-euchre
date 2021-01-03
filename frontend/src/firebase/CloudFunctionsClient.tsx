@@ -1,13 +1,13 @@
-import { firebaseFunctions } from './FirebaseWebClientInFrontend';
-import { NewGameResult } from '../../../functions/apiContract/cloudFunctions/NewGame';
 import {
   JoinGameRequest,
   JoinGameResult,
-} from '../../../functions/apiContract/cloudFunctions/JoinGame';
+} from '../gameLogic/apiContract/cloudFunctions/JoinGame';
+import { NewGameResult } from '../gameLogic/apiContract/cloudFunctions/NewGame';
 import {
   SendGameEventRequest,
   SendGameEventResult,
-} from '../../../functions/apiContract/cloudFunctions/SendGameEvent';
+} from '../gameLogic/apiContract/cloudFunctions/SendGameEvent';
+import { firebaseFunctions } from './FirebaseWebClientInFrontend';
 
 const callNewGame = firebaseFunctions.httpsCallable('newGame');
 const callJoinGame = firebaseFunctions.httpsCallable('joinGame');

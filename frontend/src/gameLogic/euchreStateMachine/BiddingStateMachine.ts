@@ -1,9 +1,6 @@
 import * as _ from 'lodash';
 import { assign, StateNodeConfig } from 'xstate';
-import {
-  Bid,
-  Position,
-} from '../../../../functions/apiContract/database/GameState';
+import { Bid, Position } from '../apiContract/database/GameState';
 import { forEachPosition, NextPlayer } from '../utils/ModelHelpers';
 import {
   BiddingContext,

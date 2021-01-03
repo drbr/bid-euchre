@@ -1,8 +1,8 @@
 import { memo, useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
-import { InProgressGameConfig } from '../../../functions/apiContract/database/DataModel';
-import { Position } from '../../../functions/apiContract/database/GameState';
 import * as DAO from '../firebase/FrontendDAO';
+import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
+import { Position } from '../gameLogic/apiContract/database/GameState';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,

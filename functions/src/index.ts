@@ -10,6 +10,7 @@ import executeSendGameEvent, {
   STALE_STATE_ERROR,
   USER_NOT_AUTHORIZED_ERROR,
 } from './activities/executeSendGameEvent';
+import { SendGameEventErrorDetail } from '../apiContract/cloudFunctions/SendGameEvent';
 
 /** Thrown when the game with the given ID does not exist */
 export class GAME_NOT_FOUND_ERROR {}
@@ -74,12 +75,14 @@ export const sendGameEvent = functions.https.onCall(async (data) => {
     } else if (e instanceof STALE_STATE_ERROR) {
       throw new functions.https.HttpsError(
         'failed-precondition',
-        'Cannot apply update; the client and server state are not in sync.'
+        'Cannot apply update; the client and server state are not in sync.',
+        SendGameEventErrorDetail.StaleState
       );
     } else if (e instanceof INVALID_STATE_TRANSITION_ERROR) {
       throw new functions.https.HttpsError(
         'failed-precondition',
-        'Cannot apply update; the state machine did not accept the event.'
+        'Cannot apply update; the state machine did not accept the event.',
+        SendGameEventErrorDetail.InvalidStateTransition
       );
     } else if (e instanceof TRANSACTION_FAILED_ERROR) {
       throw new functions.https.HttpsError(

@@ -21,3 +21,15 @@ export type SendGameEventRequest = {
 };
 
 export type SendGameEventResult = void;
+
+/**
+ * These "error codes" get sent back in specific cases where the frontend needs to respond in a
+ * specific way.
+ */
+// As per https://github.com/typescript-eslint/typescript-eslint/issues/2483:
+// I would use @typescript-eslint/no-shadow but I can't change the configuration from CRA :-(
+// eslint-disable-next-line no-shadow
+export const enum SendGameEventErrorDetail {
+  StaleState = 'STALE_STATE',
+  InvalidStateTransition = 'INVALID_STATE_TRANSITION',
+}

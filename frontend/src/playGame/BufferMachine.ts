@@ -1,4 +1,5 @@
 import {
+  AnyEventObject,
   assign,
   Machine,
   MachineConfig,
@@ -71,6 +72,12 @@ type BufferStatesGeneric<X> = {
        * the machine can move freely from state to state, ignoring blocks or lingers.
        */
       showSnapshotDetached: X;
+
+      /**
+       * Still showing the head, but also in the process of sending a user-submitted game event
+       * to the server.
+       */
+      busySendingGameEvent: X;
     };
   };
 };
@@ -90,11 +97,17 @@ type SwitchToDetachedIndexEvent = {
   index: number;
 };
 
+type SendGameEventToServerEvent = {
+  type: 'SEND_GAME_EVENT_TO_SERVER';
+  event: AnyEventObject;
+};
+
 export type BufferEvent<S> =
   | RecvSnapshotEvent<S>
   | { type: 'DETACHED_GO_FORWARD' }
   | { type: 'DETACHED_GO_BACK' }
   | SwitchToDetachedIndexEvent
+  | SendGameEventToServerEvent
   | { type: 'UNBLOCK_HEAD' }
   | { type: 'RESET' };
 
@@ -187,6 +200,7 @@ export function createBufferStateMachine<S>(): StateMachine<
                 (context.currentIndexShowing || 0) - 1,
             }),
           },
+          SEND_GAME_EVENT_TO_SERVER: {},
         },
         states: {
           enterHead: {
@@ -227,6 +241,7 @@ export function createBufferStateMachine<S>(): StateMachine<
               cond: isAtHead,
             },
           },
+          busySendingGameEvent: {},
         },
       },
     },

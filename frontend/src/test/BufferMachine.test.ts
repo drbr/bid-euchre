@@ -460,7 +460,7 @@ describe('BufferMachine', () => {
       applyTransitions(state_detachedAt3_headIs4, {
         event: recvSnapshot(5),
         expectedContext: {
-          ...state_detachedAt3_headIs4.context,
+        ...state_detachedAt3_headIs4.context,
           gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 5]),
         },
         expectValueToEqual: DETACHED,
@@ -477,9 +477,9 @@ describe('BufferMachine', () => {
   });
 
   describe('Sending game events', () => {
-    test('does not accept events while in detached mode', () => {});
-
     test('accepts an event while displaying the head', () => {});
+
+    test('does not accept events while in detached mode', () => {});
 
     test('outputs a "busy" state while an event update is in progress', () => {});
 

@@ -35,7 +35,8 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
       void sendGameEventToServer({
         gameId,
         playerId,
-        currentGameState,
+        existingEventCount:
+          currentGameState?.hydratedState.context.eventCount ?? 0,
         event,
       });
     },

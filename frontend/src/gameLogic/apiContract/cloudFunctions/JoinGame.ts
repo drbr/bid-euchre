@@ -1,4 +1,4 @@
-import { Position } from '../database/GameState';
+import { Position } from "../database/Position";
 
 export type JoinGameRequest = {
   gameId: string;

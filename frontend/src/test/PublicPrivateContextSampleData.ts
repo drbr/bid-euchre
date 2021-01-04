@@ -1,4 +1,4 @@
-import { Position } from '../gameLogic/apiContract/database/GameState';
+import { Position } from "../gameLogic/apiContract/database/Position";
 
 /**
  * The full context, containing both public and private data. The server uses

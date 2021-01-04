@@ -1,4 +1,4 @@
-import { Position } from './GameState';
+import { Position } from "./Position";
 
 export type DatabaseSchema = {
   games: {

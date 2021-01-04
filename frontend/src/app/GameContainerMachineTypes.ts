@@ -1,5 +1,5 @@
 import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
-import { Position } from '../gameLogic/apiContract/database/GameState';
+import { Position } from "../gameLogic/apiContract/database/Position";
 import { TypedStateSchema } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
 import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
 import { ObservedState } from '../uiHelpers/useObservedState';

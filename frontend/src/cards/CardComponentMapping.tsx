@@ -1,4 +1,4 @@
-import { Suit, Rank } from '../gameLogic/apiContract/database/Cards';
+import { Suit, Rank } from '../gameLogic/Cards';
 
 import { ReactComponent as _9C } from './svg/jumbo/9C.svg';
 import { ReactComponent as TC } from './svg/jumbo/TC.svg';

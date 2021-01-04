@@ -4,19 +4,19 @@ import {
   AllGameInfo,
   GameConfig,
   GameStatus,
-  PlayerIdentities,
+  PlayerIdentities
 } from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
-import { Position } from '../../../frontend/src/gameLogic/apiContract/database/GameState';
-import { GameStateConfig } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import {
   mapGameConfigFromDatabase,
   mapGameStateFromDatabase,
-  mapPositionRecordFromDatabase,
-} from '../../../frontend/src/gameLogic/ModelMappers';
+  mapPositionRecordFromDatabase
+} from '../../../frontend/src/gameLogic/apiContract/database/ModelMappers';
+import { Position } from '../../../frontend/src/gameLogic/apiContract/database/Position';
+import { GameStateConfig } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import { firebaseDatabaseAdminClient } from '../firebase/FirebaseAdminClientInBackend';
 import {
   transactionallyCreateChildNode,
-  transactionallySetNode,
+  transactionallySetNode
 } from './CrudHelpers';
 import { TypedDataSnapshot } from './TypedDataSnapshot';
 

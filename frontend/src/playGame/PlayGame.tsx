@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
 import * as DAO from '../firebase/FrontendDAO';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
-import { Position } from '../gameLogic/apiContract/database/GameState';
+import { Position } from "../gameLogic/apiContract/database/Position";
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
@@ -10,7 +10,7 @@ import {
 } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { hydrateStateFromConfig } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
-import { GameDisplayPure } from '../gameScreens/GameDisplay';
+import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
 import { sendGameEventToServer } from '../routines/sendGameEventToServer';
 import { useStateHeadStorage } from '../uiHelpers/LocalStorageClient';
 import { Subscription, useSubscription } from '../uiHelpers/useSubscription';

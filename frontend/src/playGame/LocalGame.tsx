@@ -12,7 +12,7 @@ import {
 } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { transitionStateMachine } from '../gameLogic/stateMachineUtils/transitionStateMachine';
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
-import { GameDisplayPure } from '../gameScreens/GameDisplay';
+import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
 import { BufferEvent } from './BufferMachineTypes';
 import { useStateBuffer } from './useStateBuffer';
 

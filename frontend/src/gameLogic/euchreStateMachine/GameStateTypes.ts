@@ -1,5 +1,5 @@
 import { State, StateConfig, Typestate } from 'xstate';
-import { Partnership } from '../apiContract/database/GameState';
+import { Partnership } from '../EuchreTypes';
 import {
   AutoTransitionEvent,
   SecretActionCompleteEvent,

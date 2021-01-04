@@ -1,5 +1,3 @@
-export type Position = 'north' | 'south' | 'east' | 'west';
-
 export type Partnership = 'northsouth' | 'eastwest';
 
 export type Bid =

@@ -4,8 +4,8 @@ import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import { Hand } from '../gameLogic/apiContract/database/Cards';
-import { Position } from '../gameLogic/apiContract/database/GameState';
+import { Hand } from '../gameLogic/Cards';
+import { Position } from "../gameLogic/apiContract/database/Position";
 import { HandDisplay } from './HandDisplay';
 
 export type GameLayoutProps = {

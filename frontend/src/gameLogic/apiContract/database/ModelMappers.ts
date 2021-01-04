@@ -1,12 +1,12 @@
 import { PartialDeep } from 'type-fest';
-import { GameConfig } from './apiContract/database/DataModel';
-import { Position } from './apiContract/database/GameState';
+import { GameConfig } from './DataModel';
+import { Position } from "./Position";
 import {
   GameContext,
   GameStateConfig,
-} from './euchreStateMachine/GameStateTypes';
-import { getStateConfigFromJson } from './stateMachineUtils/serializeAndHydrateState';
-import { EventCountContext } from './stateMachineUtils/TypedStateInterfaces';
+} from '../../euchreStateMachine/GameStateTypes';
+import { getStateConfigFromJson } from '../../stateMachineUtils/serializeAndHydrateState';
+import { EventCountContext } from '../../stateMachineUtils/TypedStateInterfaces';
 
 /**
  * The database returns null values as nonexistent keys. Deep-map client-side to keys with undefined

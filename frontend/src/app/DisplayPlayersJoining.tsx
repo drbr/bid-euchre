@@ -7,8 +7,8 @@ import _ from 'lodash';
 import { Dispatch, useState } from 'react';
 import FlexView from 'react-flexview/lib';
 import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
-import { Position } from '../gameLogic/apiContract/database/GameState';
-import { GameLayout } from '../gameScreens/GameLayout';
+import { Position } from "../gameLogic/apiContract/database/Position";
+import { GameLayout } from '../euchreGameDisplay/GameLayout';
 
 const MAX_NAME_LENGTH = 12;
 

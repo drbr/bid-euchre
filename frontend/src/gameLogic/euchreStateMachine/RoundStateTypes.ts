@@ -1,6 +1,7 @@
 import { State, Typestate } from 'xstate';
-import { Hand, Suit } from '../apiContract/database/Cards';
-import { Position, Bid } from '../apiContract/database/GameState';
+import { Hand, Suit } from '../Cards';
+import { Bid } from '../EuchreTypes';
+import { Position } from "../apiContract/database/Position";
 import { SecretActionCompleteEvent } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 

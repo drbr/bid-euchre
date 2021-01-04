@@ -4,7 +4,7 @@ import { GameStateConfig } from '../gameLogic/euchreStateMachine/GameStateTypes'
 import {
   mapGameConfigFromDatabase,
   mapGameStateFromDatabase,
-} from '../gameLogic/ModelMappers';
+} from '../gameLogic/apiContract/database/ModelMappers';
 import { Subscription, UnsubscribeFn } from '../uiHelpers/useSubscription';
 import { firebaseDatabase } from './FirebaseWebClientInFrontend';
 

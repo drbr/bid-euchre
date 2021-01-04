@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
-import { Card, Hand, Rank, Suit } from './apiContract/database/Cards';
-import { Position } from './apiContract/database/GameState';
+import { Card, Hand, Rank, Suit } from './Cards';
+import { Position } from "./apiContract/database/Position";
 
 const NUMBER_OF_CARDS_PER_HAND = 6;
 

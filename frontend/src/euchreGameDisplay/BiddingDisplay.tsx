@@ -3,7 +3,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 import FlexView from 'react-flexview/lib';
-import { Bid } from '../gameLogic/apiContract/database/GameState';
+import { Bid } from '../gameLogic/EuchreTypes';
 import {
   getHighestBid,
   UltimateBidChart,

@@ -1,6 +1,6 @@
 import { NewGameResult } from '../../../frontend/src/gameLogic/apiContract/cloudFunctions/NewGame';
 import { AllGameInfo } from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
-import { Position } from '../../../frontend/src/gameLogic/apiContract/database/GameState';
+import { Position } from '../../../frontend/src/gameLogic/apiContract/database/Position';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { generateFriendlyId } from '../databaseHelpers/generateId';
 

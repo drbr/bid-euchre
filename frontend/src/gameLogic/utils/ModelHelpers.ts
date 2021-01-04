@@ -1,4 +1,4 @@
-import { Position } from '../apiContract/database/GameState';
+import { Position } from "../apiContract/database/Position";
 
 /** Maps each position to the next player, going around the table to the left. */
 export const NextPlayer: Record<Position, Position> = {

@@ -1,5 +1,6 @@
 import { State, Typestate } from 'xstate';
-import { Position, Bid } from '../apiContract/database/GameState';
+import { Bid } from '../EuchreTypes';
+import { Position } from "../apiContract/database/Position";
 import { AutoTransitionEvent } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 

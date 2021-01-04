@@ -1,6 +1,6 @@
 import Grid from '@material-ui/core/Grid';
 import { Card, Hand } from '../gameLogic/apiContract/database/Cards';
-import { CardComponentMapping } from './CardComponentMapping';
+import { CardComponentMapping } from '../cards/CardComponentMapping';
 
 export type HandDisplayProps = {
   hand: Hand;

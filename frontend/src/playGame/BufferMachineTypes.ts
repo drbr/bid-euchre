@@ -35,40 +35,50 @@ type BufferStatesGeneric<X> = {
 
   loaded: {
     states: {
-      /**
-       * The entry point for showing a new head state. This transient node decides which of the
-       * "showHead*" states should be used, based on the new head's configuration.
-       */
-      enterHead: X;
+      showHead: {
+        states: {
+          /**
+           * The entry point for showing a new head state. This transient node decides which of the
+           * "showHead*" states should be used, based on the new head's configuration.
+           */
+          enterHead: X;
 
-      /**
-       * Showing the head while it's in the mandatory "linger" period. This is implemented by invoking
-       * a delayed UNBLOCK_HEAD event and immediately transitioning to showHeadBlocked.
-       */
-      showHeadLingering: X;
+          /**
+           * Showing the head while it's in the mandatory "linger" period. This is implemented by invoking
+           * a delayed UNBLOCK_HEAD event and immediately transitioning to showHeadBlocked.
+           */
+          lingering: X;
 
-      /**
-       * Showing the head while it's blocked – the machine will not advance the head until it receives
-       * the UNBLOCK_HEAD event.
-       */
-      showHeadBlocked: X;
+          /**
+           * Showing the head while it's blocked – the machine will not advance the head until it receives
+           * the UNBLOCK_HEAD event.
+           */
+          blocked: X;
 
-      /**
-       * Showing the head while unblocked – the head can be advanced at any time.
-       */
-      showHeadUnblocked: X;
+          /**
+           * Showing the head while unblocked – the head can be advanced at any time.
+           */
+          unblocked: X;
+        };
+      };
 
       /**
        * Showing a state older than the head (one that the player has already played). In detached mode,
        * the machine can move freely from state to state, ignoring blocks or lingers.
        */
       showSnapshotDetached: X;
+    };
+  };
 
-      /**
-       * Still showing the head, but also in the process of sending a user-submitted game event
-       * to the server.
-       */
-      busySendingGameEvent: X;
+  /**
+   * Sending a new game event to the server. Will display the head during this action,
+   * and not allow moving to detached mode.
+   */
+  sendingGameEvent: {
+    states: {
+      makeApiCall: X;
+      prepareToTrySendingAgain: X;
+      waitForDataToSync: X;
     };
   };
 };

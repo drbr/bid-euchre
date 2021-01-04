@@ -1,14 +1,14 @@
 import * as _ from 'lodash';
-import { AnyEventObject, StateValue } from 'xstate';
-import {
-  createBufferStateMachine,
-} from '../playGame/BufferMachine';
+import './CustomMatchers';
+import { ActionObject, AnyEventObject, StateValue } from 'xstate';
+import { SendGameEventErrorDetail } from '../gameLogic/apiContract/cloudFunctions/SendGameEvent';
+import { createBufferStateMachine } from '../playGame/BufferMachine';
 import {
   BufferEvent,
   BufferMachineState,
-
-  StateBuffer
-} from "../playGame/BufferMachineTypes";
+  LINGER_DELAY_MS,
+  StateBuffer,
+} from '../playGame/BufferMachineTypes';
 
 const BufferMachine = createBufferStateMachine<string>();
 
@@ -41,8 +41,10 @@ function recvSnapshot(index: number): BufferEvent<string> {
 type EventWithExpectedContext = {
   event: BufferEvent<string>;
   expectedContext?: StateBuffer<string>;
-  expectValueToEqual?: StateValue;
-  expectValueNotToEqual?: StateValue;
+  expectValueToMatch?: StateValue;
+  expectValueNotToMatch?: StateValue;
+  expectAnyActions?: boolean;
+  expectActions?: ActionObject<StateBuffer<string>, BufferEvent<string>>[];
 };
 
 function applyTransitions(
@@ -52,23 +54,35 @@ function applyTransitions(
   let current = startingState;
   for (const t of transitions) {
     current = BufferMachine.transition(current, t.event);
+
+    if (t.expectValueToMatch) {
+      expect(current).toMatchState(t.expectValueToMatch);
+    }
+    if (t.expectValueNotToMatch) {
+      expect(current).not.toMatchState(t.expectValueNotToMatch);
+    }
+
     if (t.expectedContext) {
       expect(current.context).toEqual(t.expectedContext);
     }
-    if (t.expectValueToEqual) {
-      expect(current.value).toEqual(t.expectValueToEqual);
+
+    if (t.expectAnyActions === true) {
+      expect(current.actions).not.toHaveLength(0);
+    } else if (t.expectAnyActions === false) {
+      expect(current.actions).toHaveLength(0);
     }
-    if (t.expectValueNotToEqual) {
-      expect(current.value).not.toEqual(t.expectValueNotToEqual);
+    if (t.expectActions) {
+      expect(current.actions).toHaveLength(t.expectActions.length);
+      expect(current.actions).toMatchObject(t.expectActions);
     }
   }
   return current;
 }
 
-const BLOCKED = { loaded: 'showHeadBlocked' };
-const UNBLOCKED = { loaded: 'showHeadUnblocked' };
+const BLOCKED = { loaded: { showHead: 'blocked' } };
+const UNBLOCKED = { loaded: { showHead: 'unblocked' } };
 const DETACHED = { loaded: 'showSnapshotDetached' };
-const SENDING = { loaded: 'busySendingGameEvent ' };
+const SENDING = 'sendingGameEvent';
 
 function makeSnapshots(loadedIndexes: number[]) {
   const snapshots = [];
@@ -118,12 +132,12 @@ describe('BufferMachine', () => {
             head: 2,
             gameStateSnapshots: [undefined, undefined, 'Snapshot 2'],
           },
-          expectValueToEqual: 'loading',
+          expectValueToMatch: 'loading',
         },
         {
           event: recvSnapshot(1),
           expectedContext: contextShowingHeadAt(2),
-          expectValueNotToEqual: 'loading',
+          expectValueNotToMatch: 'loading',
         }
       );
     });
@@ -137,7 +151,7 @@ describe('BufferMachine', () => {
         { event: recvSnapshot(2) },
         {
           event: recvSnapshot(3),
-          expectValueToEqual: 'loading',
+          expectValueToMatch: 'loading',
         }
       );
     });
@@ -156,7 +170,7 @@ describe('BufferMachine', () => {
       applyTransitions(state_showHeadAt1, {
         event: { type: 'UNBLOCK_HEAD' },
         expectedContext: contextShowingHeadAt(1),
-        expectValueToEqual: UNBLOCKED,
+        expectValueToMatch: UNBLOCKED,
       });
     });
 
@@ -168,12 +182,12 @@ describe('BufferMachine', () => {
           expectedContext: contextShowingHeadAt(1, {
             loadedSnapshotIndexes: [1, 2],
           }),
-          expectValueToEqual: BLOCKED,
+          expectValueToMatch: BLOCKED,
         },
         {
           event: { type: 'UNBLOCK_HEAD' },
           expectedContext: contextShowingHeadAt(2),
-          expectValueToEqual: BLOCKED,
+          expectValueToMatch: BLOCKED,
         }
       );
     });
@@ -185,7 +199,7 @@ describe('BufferMachine', () => {
         {
           event: recvSnapshot(2),
           expectedContext: contextShowingHeadAt(2),
-          expectValueToEqual: BLOCKED,
+          expectValueToMatch: BLOCKED,
         }
       );
     });
@@ -199,7 +213,7 @@ describe('BufferMachine', () => {
           expectedContext: contextShowingHeadAt(1, {
             loadedSnapshotIndexes: [1, 3],
           }),
-          expectValueToEqual: UNBLOCKED,
+          expectValueToMatch: UNBLOCKED,
         }
       );
     });
@@ -214,12 +228,12 @@ describe('BufferMachine', () => {
           expectedContext: contextShowingHeadAt(2, {
             loadedSnapshotIndexes: [1, 2, 3],
           }),
-          expectValueToEqual: BLOCKED,
+          expectValueToMatch: BLOCKED,
         },
         {
           event: { type: 'UNBLOCK_HEAD' },
           expectedContext: contextShowingHeadAt(3),
-          expectValueToEqual: BLOCKED,
+          expectValueToMatch: BLOCKED,
         }
       );
     });
@@ -228,7 +242,7 @@ describe('BufferMachine', () => {
       applyTransitions(state_showHeadAt1, {
         event: { type: 'RESET' },
         expectedContext: BufferMachine.initialState.context,
-        expectValueToEqual: 'loading',
+        expectValueToMatch: 'loading',
       });
     });
   });
@@ -276,17 +290,17 @@ describe('BufferMachine', () => {
           {
             event: { type: 'DETACHED_GO_BACK' },
             expectedContext: contextShowingDetachedIndex(3),
-            expectValueToEqual: DETACHED,
+            expectValueToMatch: DETACHED,
           },
           {
             event: { type: 'DETACHED_GO_BACK' },
             expectedContext: contextShowingDetachedIndex(2),
-            expectValueToEqual: DETACHED,
+            expectValueToMatch: DETACHED,
           },
           {
             event: { type: 'DETACHED_GO_FORWARD' },
             expectedContext: contextShowingDetachedIndex(3),
-            expectValueToEqual: DETACHED,
+            expectValueToMatch: DETACHED,
           }
         );
       });
@@ -295,7 +309,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_detachedAt3_headIs4, {
           event: { type: 'DETACHED_GO_FORWARD' },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToEqual: UNBLOCKED,
+          expectValueToMatch: UNBLOCKED,
         });
       });
 
@@ -306,7 +320,7 @@ describe('BufferMachine', () => {
           applyTransitions(state_showHeadAt4Unblocked, {
             event: { type: 'DETACHED_GO_FORWARD' },
             expectedContext: contextShowingHeadAt(4),
-            expectValueToEqual: UNBLOCKED,
+            expectValueToMatch: UNBLOCKED,
           });
         }
       );
@@ -317,12 +331,12 @@ describe('BufferMachine', () => {
           {
             event: { type: 'DETACHED_GO_TO_INDEX', index: 1 },
             expectedContext: contextShowingDetachedIndex(1),
-            expectValueToEqual: DETACHED,
+            expectValueToMatch: DETACHED,
           },
           {
             event: { type: 'DETACHED_GO_BACK' },
             expectedContext: contextShowingDetachedIndex(1),
-            expectValueToEqual: DETACHED,
+            expectValueToMatch: DETACHED,
           }
         );
       });
@@ -333,7 +347,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_showHeadAt4Blocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 2 },
           expectedContext: contextShowingDetachedIndex(2),
-          expectValueToEqual: DETACHED,
+          expectValueToMatch: DETACHED,
         });
       });
 
@@ -341,7 +355,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_showHeadAt4Unblocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 2 },
           expectedContext: contextShowingDetachedIndex(2),
-          expectValueToEqual: DETACHED,
+          expectValueToMatch: DETACHED,
         });
       });
 
@@ -351,7 +365,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_showHeadAt4Blocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToEqual: UNBLOCKED,
+          expectValueToMatch: UNBLOCKED,
         });
       });
 
@@ -359,7 +373,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_showHeadAt4Unblocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToEqual: UNBLOCKED,
+          expectValueToMatch: UNBLOCKED,
         });
       });
 
@@ -367,7 +381,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_showHeadAt4Unblocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 5 },
           expectedContext: state_showHeadAt4Unblocked.context,
-          expectValueToEqual: state_showHeadAt4Unblocked.value,
+          expectValueToMatch: state_showHeadAt4Unblocked.value,
         });
       });
 
@@ -381,7 +395,7 @@ describe('BufferMachine', () => {
               ...state_showHeadAt4Unblocked.context,
               gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 6]),
             },
-            expectValueToEqual: state_showHeadAt4Unblocked.value,
+            expectValueToMatch: state_showHeadAt4Unblocked.value,
           }
         );
       });
@@ -390,12 +404,12 @@ describe('BufferMachine', () => {
         applyTransitions(state_showHeadAt4Unblocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 0 },
           expectedContext: state_showHeadAt4Blocked.context,
-          expectValueToEqual: state_showHeadAt4Unblocked.value,
+          expectValueToMatch: state_showHeadAt4Unblocked.value,
         });
         applyTransitions(state_showHeadAt4Unblocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: -1 },
           expectedContext: state_showHeadAt4Blocked.context,
-          expectValueToEqual: state_showHeadAt4Unblocked.value,
+          expectValueToMatch: state_showHeadAt4Unblocked.value,
         });
       });
     });
@@ -405,7 +419,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_detachedAt3_headIs4, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 1 },
           expectedContext: contextShowingDetachedIndex(1),
-          expectValueToEqual: DETACHED,
+          expectValueToMatch: DETACHED,
         });
       });
 
@@ -413,7 +427,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_detachedAt3_headIs4, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToEqual: UNBLOCKED,
+          expectValueToMatch: UNBLOCKED,
         });
       });
 
@@ -421,7 +435,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_detachedAt3_headIs4, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 5 },
           expectedContext: state_detachedAt3_headIs4.context,
-          expectValueToEqual: state_detachedAt3_headIs4.value,
+          expectValueToMatch: state_detachedAt3_headIs4.value,
         });
       });
 
@@ -435,7 +449,7 @@ describe('BufferMachine', () => {
               ...state_detachedAt3_headIs4.context,
               gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 6]),
             },
-            expectValueToEqual: state_detachedAt3_headIs4.value,
+            expectValueToMatch: state_detachedAt3_headIs4.value,
           }
         );
       });
@@ -444,12 +458,12 @@ describe('BufferMachine', () => {
         applyTransitions(state_detachedAt3_headIs4, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 0 },
           expectedContext: state_detachedAt3_headIs4.context,
-          expectValueToEqual: state_detachedAt3_headIs4.value,
+          expectValueToMatch: state_detachedAt3_headIs4.value,
         });
         applyTransitions(state_detachedAt3_headIs4, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: -1 },
           expectedContext: state_detachedAt3_headIs4.context,
-          expectValueToEqual: state_detachedAt3_headIs4.value,
+          expectValueToMatch: state_detachedAt3_headIs4.value,
         });
       });
     });
@@ -461,7 +475,7 @@ describe('BufferMachine', () => {
           ...state_detachedAt3_headIs4.context,
           gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 5]),
         },
-        expectValueToEqual: DETACHED,
+        expectValueToMatch: DETACHED,
       });
     });
 
@@ -469,37 +483,72 @@ describe('BufferMachine', () => {
       applyTransitions(state_detachedAt3_headIs4, {
         event: { type: 'RESET' },
         expectedContext: BufferMachine.initialState.context,
-        expectValueToEqual: 'loading',
+        expectValueToMatch: 'loading',
       });
     });
   });
 
   describe('Sending game events', () => {
-    const state_showHeadAt2 = applyTransitions(
-      getStartStateWithHead(1),
-      { event: recvSnapshot(1) },
-      { event: recvSnapshot(2) }
-    );
-
-    const sendGameEventEvent: BufferEvent<unknown> = {
+    const event_sendGameEvent: BufferEvent<unknown> = {
       type: 'SEND_GAME_EVENT_TO_SERVER',
       gameEvent: { type: 'FakeGameEvent', value: 1 },
     };
 
-    const SendGameEventSucceeded = ({
+    const event_sendGameEventSucceeded = ({
       type: 'done.invoke.sendGameEvent',
     } as AnyEventObject) as BufferEvent<string>;
 
-    const SendGameEventFailed = ({
-      type: 'error.platform.sendGameEvent',
-    } as AnyEventObject) as BufferEvent<string>;
+    function event_sendGameEventFailed(reason?: SendGameEventErrorDetail) {
+      return ({
+        type: 'error.platform.sendGameEvent',
+        data: reason ? { details: reason } : undefined,
+      } as AnyEventObject) as BufferEvent<string>;
+    }
+
+    const action_callApi_start = {
+      type: 'xstate.start',
+      activity: {
+        type: 'xstate.invoke',
+        src: 'sendGameEvent',
+      },
+    };
+
+    const action_callApi_stop = {
+      type: 'xstate.stop',
+      activity: {
+        type: 'xstate.invoke',
+        src: 'sendGameEvent',
+      },
+    };
+
+    const action_uiAlert = {
+      type: 'uiAlert',
+    };
+
+    const action_delayedUnblock = {
+      type: 'xstate.send',
+      id: 'UNBLOCK_HEAD',
+      delay: LINGER_DELAY_MS,
+    };
+
+    const state_showHeadAt2 = applyTransitions(
+      getStartStateWithHead(1),
+      { event: recvSnapshot(1) },
+      { event: { type: 'UNBLOCK_HEAD' } },
+      { event: recvSnapshot(2) }
+    );
 
     test('accepts an event while displaying the head and transitions to the "busy" state', () => {
       applyTransitions(state_showHeadAt2, {
-        event: sendGameEventEvent,
-        expectedContext: state_showHeadAt2.context,
-        expectValueToEqual: SENDING,
+        event: event_sendGameEvent,
+        expectedContext: contextShowingHeadAt(2),
+        expectValueToMatch: SENDING,
+        expectActions: [action_callApi_start],
       });
+    });
+
+    const state_sendingEventFrom2 = applyTransitions(state_showHeadAt2, {
+      event: event_sendGameEvent,
     });
 
     test('does not accept events while in detached mode', () => {
@@ -508,91 +557,270 @@ describe('BufferMachine', () => {
         currentIndexShowing: 1,
         gameStateSnapshots: makeSnapshots([1, 2]),
       };
+
       applyTransitions(
         state_showHeadAt2,
         {
           event: { type: 'DETACHED_GO_BACK' },
           expectedContext: detachedContext,
-          expectValueToEqual: DETACHED,
+          expectValueToMatch: DETACHED,
         },
         {
-          event: sendGameEventEvent,
+          event: event_sendGameEvent,
           expectedContext: detachedContext,
-          expectValueToEqual: DETACHED,
+          expectValueToMatch: DETACHED,
         }
       );
     });
-
-    test(
-      'if state n+1 arrives while an event update is in progress, ' +
-        'should not advance the head until the update promise resolves',
-      () => {
-        applyTransitions(
-          state_showHeadAt2,
-          {
-            event: sendGameEventEvent,
-            expectedContext: state_showHeadAt2.context,
-            expectValueToEqual: SENDING,
-          },
-          {
-            event: recvSnapshot(3),
-            expectValueToEqual: SENDING,
-            expectedContext: contextShowingHeadAt(2, {
-              loadedSnapshotIndexes: [1, 2, 3],
-            }),
-          },
-          {
-            event: SendGameEventSucceeded,
-            expectValueToEqual: BLOCKED,
-            expectedContext: contextShowingHeadAt(3),
-          }
-        );
-      }
-    );
 
     test(
       'if an event update promise resolves before state n+1 arrives,' +
         'should not leave the busy state until the head can advance',
       () => {
         applyTransitions(
-          state_showHeadAt2,
+          state_sendingEventFrom2,
           {
-            event: sendGameEventEvent,
-            expectedContext: state_showHeadAt2.context,
-            expectValueToEqual: SENDING,
-          },
-          {
-            event: SendGameEventSucceeded,
-            expectValueToEqual: SENDING,
+            event: event_sendGameEventSucceeded,
+            expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2),
+            expectActions: [action_callApi_stop],
           },
           {
             event: recvSnapshot(3),
-            expectValueToEqual: BLOCKED,
+            expectValueToMatch: BLOCKED, // Don't jump to unblocked as we do in the error cases
             expectedContext: contextShowingHeadAt(3),
+            expectActions: [action_delayedUnblock],
           }
         );
       }
     );
 
     test(
-      'if the event update fails because of stale state, should advance the head and try ' +
-        'sending the event again, while staying in the busy state',
-      () => {}
+      'if state n+1 arrives while an event update is in progress, ' +
+        'should not advance the head until the update promise resolves',
+      () => {
+        applyTransitions(
+          state_sendingEventFrom2,
+          {
+            event: recvSnapshot(3),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3],
+            }),
+            expectAnyActions: false,
+          },
+          {
+            event: event_sendGameEventSucceeded,
+            expectValueToMatch: BLOCKED, // Don't jump to unblocked as we do in the error cases
+            expectedContext: contextShowingHeadAt(3),
+            expectActions: [action_callApi_stop, action_delayedUnblock],
+          }
+        );
+      }
     );
 
     test(
-      'if the event update fails because of stale state and the next head is not yet available, ' +
+      'if state n+2 arrives while an event update is in progress, ' +
+        'should advance the head one at a time after the promise resolves',
+      () => {
+        applyTransitions(
+          state_sendingEventFrom2,
+          {
+            event: recvSnapshot(3),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3],
+            }),
+            expectAnyActions: false,
+          },
+          {
+            event: recvSnapshot(4),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3, 4],
+            }),
+            expectAnyActions: false,
+          },
+          {
+            event: event_sendGameEventSucceeded,
+            expectValueToMatch: BLOCKED, // Don't jump to unblocked as we do in the error cases
+            expectedContext: contextShowingHeadAt(3, {
+              loadedSnapshotIndexes: [1, 2, 3, 4],
+            }),
+            expectActions: [action_callApi_stop, action_delayedUnblock],
+          }
+        );
+      }
+    );
+
+    test(
+      'if the event update fails because of stale state and the next state is already received, ' +
+        'should advance the head and try sending the event again, while staying in the busy state',
+      () => {
+        applyTransitions(
+          state_sendingEventFrom2,
+          {
+            event: recvSnapshot(3),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3],
+            }),
+            expectAnyActions: false,
+          },
+          {
+            event: event_sendGameEventFailed(
+              SendGameEventErrorDetail.StaleState
+            ),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(3),
+            expectActions: [action_callApi_stop, action_callApi_start],
+          }
+        );
+      }
+    );
+
+    test(
+      'if the event update fails because of stale state and multiple next states are already received, ' +
+        'should advance the head all the way and try sending the event again, while staying in the busy state',
+      () => {
+        applyTransitions(
+          state_sendingEventFrom2,
+          {
+            event: recvSnapshot(3),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3],
+            }),
+            expectAnyActions: false,
+          },
+          {
+            event: recvSnapshot(4),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3, 4],
+            }),
+            expectAnyActions: false,
+          },
+          {
+            event: event_sendGameEventFailed(
+              SendGameEventErrorDetail.StaleState
+            ),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(4),
+            expectActions: [action_callApi_stop, action_callApi_start],
+          }
+        );
+      }
+    );
+
+    test(
+      'if the event update fails because of stale state and the next head is not yet received, ' +
         'should wait until the next head is available, then advance and try sending again',
-      () => {}
+      () => {
+        applyTransitions(
+          state_sendingEventFrom2,
+          {
+            event: event_sendGameEventFailed(
+              SendGameEventErrorDetail.StaleState
+            ),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2),
+            expectActions: [action_callApi_stop],
+          },
+          {
+            event: recvSnapshot(3),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(3),
+            expectActions: [action_callApi_start],
+          }
+        );
+      }
     );
 
     test(
       'if the event update fails because the transition was not accepted, leave the busy state ' +
-        'and go back to head mode',
-      () => {}
+        'and go back to *unblocked* head mode',
+      () => {
+        applyTransitions(state_sendingEventFrom2, {
+          event: event_sendGameEventFailed(
+            SendGameEventErrorDetail.InvalidStateTransition
+          ),
+          expectValueToMatch: UNBLOCKED,
+          expectedContext: contextShowingHeadAt(2),
+          expectActions: [action_callApi_stop, action_uiAlert],
+        });
+      }
     );
 
-    test('if the event update fails for an unknown reason, leave the busy state and go back to head mode', () => {});
+    test(
+      'if the event update fails because the transition was not accepted but the next state arrived ' +
+        'in the meantime, go to *unblocked* head mode for the most recent snapshot',
+      () => {
+        applyTransitions(
+          state_sendingEventFrom2,
+          {
+            event: recvSnapshot(3),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3],
+            }),
+            expectAnyActions: false,
+          },
+          {
+            event: event_sendGameEventFailed(
+              SendGameEventErrorDetail.InvalidStateTransition
+            ),
+            expectValueToMatch: UNBLOCKED,
+            expectedContext: contextShowingHeadAt(3),
+            expectActions: [action_callApi_stop, action_uiAlert],
+          }
+        );
+      }
+    );
+
+    test(
+      'if the event update fails for an unknown reason, leave the busy state ' +
+        'and go back to *unblocked* head mode',
+      () => {
+        applyTransitions(state_sendingEventFrom2, {
+          event: event_sendGameEventFailed(),
+          expectValueToMatch: UNBLOCKED,
+          expectedContext: contextShowingHeadAt(2),
+          expectActions: [action_callApi_stop, action_uiAlert],
+        });
+      }
+    );
+
+    test(
+      'if the event update fails for an unknown reason but multiple next states arrived in the meantime, ' +
+        'go to *unblocked* head mode for the most recent snapshot',
+      () => {
+        applyTransitions(
+          state_sendingEventFrom2,
+          {
+            event: recvSnapshot(3),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3],
+            }),
+            expectAnyActions: false,
+          },
+          {
+            event: recvSnapshot(4),
+            expectValueToMatch: SENDING,
+            expectedContext: contextShowingHeadAt(2, {
+              loadedSnapshotIndexes: [1, 2, 3, 4],
+            }),
+            expectAnyActions: false,
+          },
+          {
+            event: event_sendGameEventFailed(),
+            expectValueToMatch: UNBLOCKED,
+            expectedContext: contextShowingHeadAt(4),
+            expectActions: [action_callApi_stop, action_uiAlert],
+          }
+        );
+      }
+    );
   });
 });

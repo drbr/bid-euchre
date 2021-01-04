@@ -1,13 +1,13 @@
+import { actions, assign, DoneInvokeEvent, Machine } from 'xstate';
+import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
 import { UIActions } from '../uiHelpers/UIActions';
-import { actions, assign, DoneInvokeEvent, Machine } from 'xstate';
 import {
   GameContainerContext,
-  GameContainerStateSchema,
+
   GameContainerEvent,
-  GameContainerInitialContext,
+  GameContainerInitialContext, GameContainerStateSchema
 } from './GameContainerMachineTypes';
-import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
 
 export const GameContainerMachine = Machine<
   GameContainerContext,

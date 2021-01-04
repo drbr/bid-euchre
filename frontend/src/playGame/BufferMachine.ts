@@ -1,11 +1,14 @@
 import {
+  actions,
   assign,
+  DoneInvokeEvent,
   Machine,
   MachineConfig,
   send,
   StateMachine,
   Typestate,
 } from 'xstate';
+import { SendGameEventErrorDetail } from '../gameLogic/apiContract/cloudFunctions/SendGameEvent';
 import {
   StateBuffer,
   BufferStateSchema,
@@ -63,7 +66,7 @@ export function createBufferStateMachine<S>(): StateMachine<
         },
       },
       loaded: {
-        initial: 'enterHead',
+        initial: 'showHead',
         on: {
           DETACHED_GO_TO_INDEX: {
             target: 'loaded.showSnapshotDetached',
@@ -97,48 +100,102 @@ export function createBufferStateMachine<S>(): StateMachine<
                 (context.currentIndexShowing || 0) - 1,
             }),
           },
-          SEND_GAME_EVENT_TO_SERVER: {},
         },
         states: {
-          enterHead: {
-            always: [
-              {
-                cond: nextHeadLingers,
-                target: 'showHeadLingering',
-              },
-              {
-                cond: nextHeadBlocks,
-                target: 'showHeadBlocked',
-              },
-              {
-                target: 'showHeadUnblocked',
-              },
-            ],
-          },
-          showHeadLingering: {
-            entry: send('UNBLOCK_HEAD', { delay: LINGER_DELAY_MS }),
-            always: { target: 'showHeadBlocked' },
-          },
-          showHeadBlocked: {
+          showHead: {
+            id: 'showHead',
+            initial: 'enterHead',
             on: {
-              UNBLOCK_HEAD: { target: 'showHeadUnblocked' },
+              SEND_GAME_EVENT_TO_SERVER: '#sendingGameEvent.makeApiCall',
             },
-          },
-          showHeadUnblocked: {
-            always: {
-              cond: nextSnapshotIsAvailable,
-              target: 'enterHead',
-              actions: assign((context) => safelyAdvanceHead(context)),
+            states: {
+              enterHead: {
+                always: [
+                  {
+                    cond: nextHeadLingers,
+                    target: 'lingering',
+                  },
+                  {
+                    cond: nextHeadBlocks,
+                    target: 'blocked',
+                  },
+                  {
+                    target: 'unblocked',
+                  },
+                ],
+              },
+              lingering: {
+                entry: send('UNBLOCK_HEAD', { delay: LINGER_DELAY_MS }),
+                always: { target: 'blocked' },
+              },
+              blocked: {
+                on: {
+                  UNBLOCK_HEAD: { target: 'unblocked' },
+                },
+              },
+              unblocked: {
+                always: {
+                  cond: nextSnapshotIsAvailable,
+                  target: 'enterHead',
+                  actions: assign((context) => safelyAdvanceHead(context)),
+                },
+              },
             },
           },
           showSnapshotDetached: {
             // If we're on the head, leave detached mode
             always: {
-              target: 'showHeadUnblocked',
+              target: '#showHead.unblocked',
               cond: isAtHead,
             },
           },
-          busySendingGameEvent: {},
+        },
+      },
+      sendingGameEvent: {
+        id: 'sendingGameEvent',
+        initial: 'makeApiCall',
+        states: {
+          makeApiCall: {
+            invoke: {
+              id: 'sendGameEvent',
+              src: 'sendGameEvent',
+              onDone: {
+                target: 'waitForDataToSync',
+              },
+              onError: [
+                {
+                  cond: sendEventErrorWasStaleState,
+                  target: 'prepareToTrySendingAgain',
+                },
+                {
+                  target: '#showHead.unblocked',
+                  actions: [
+                    assign((context) => advanceHeadToNewest(context)),
+                    actions.pure((context, event) => ({
+                      type: 'uiAlert',
+                      error: event.data,
+                      message:
+                        'Could not send game event. See log for details.',
+                    })),
+                  ],
+                },
+              ],
+            },
+          },
+          waitForDataToSync: {
+            always: {
+              cond: nextSnapshotIsAvailable,
+              target: '#showHead',
+              actions: assign((context) => safelyAdvanceHead(context)),
+            },
+          },
+          prepareToTrySendingAgain: {
+            always: {
+              cond: nextSnapshotIsAvailable,
+              target: 'makeApiCall',
+              actions: assign((context) => advanceHeadToNewest(context)),
+            },
+          },
         },
       },
     },
@@ -182,8 +239,8 @@ function isLoadingComplete(context: StateBuffer<unknown>) {
   return true;
 }
 
-function nextSnapshotIsAvailable(prevBuffer: StateBuffer<unknown>): boolean {
-  const { currentIndexShowing, head } = prevBuffer;
+function nextSnapshotIsAvailable(context: StateBuffer<unknown>): boolean {
+  const { currentIndexShowing, head } = context;
   if (
     currentIndexShowing == null ||
     head == null ||
@@ -195,7 +252,7 @@ function nextSnapshotIsAvailable(prevBuffer: StateBuffer<unknown>): boolean {
   }
 
   const nextIndex = currentIndexShowing + 1;
-  return !!prevBuffer.gameStateSnapshots[nextIndex];
+  return !!context.gameStateSnapshots[nextIndex];
 }
 
 function nextHeadLingers<S>(
@@ -216,20 +273,28 @@ function nextHeadBlocks<S>(
   return false;
 }
 
-function safelyAdvanceHead<S>(prevBuffer: StateBuffer<S>): StateBuffer<S> {
-  if (!nextSnapshotIsAvailable(prevBuffer)) {
+function safelyAdvanceHead<S>(context: StateBuffer<S>): StateBuffer<S> {
+  if (!nextSnapshotIsAvailable(context)) {
     throw new Error('Tried to advance the head, but it is not yet in buffer');
   }
-  if (!prevBuffer.currentIndexShowing) {
+  if (!context.currentIndexShowing) {
     throw new Error('currentIndexShowing was unexpectedly null');
   }
-  const nextIndex = prevBuffer.currentIndexShowing + 1;
+  const nextIndex = context.currentIndexShowing + 1;
 
   return {
-    ...prevBuffer,
+    ...context,
     currentIndexShowing: nextIndex,
     head: nextIndex,
   };
+}
+
+function advanceHeadToNewest<S>(context: StateBuffer<S>): StateBuffer<S> {
+  let pointer = context;
+  while (nextSnapshotIsAvailable(pointer)) {
+    pointer = safelyAdvanceHead(pointer);
+  }
+  return pointer;
 }
 
 function isAtHead(context: StateBuffer<unknown>): boolean {
@@ -246,4 +311,11 @@ function indexIsWithinDetachableRange(
 
   // There is no index 0
   return index <= context.head && index >= 1;
+}
+
+function sendEventErrorWasStaleState(
+  context: unknown,
+  event: DoneInvokeEvent<{ details: unknown } | undefined>
+): boolean {
+  return event?.data?.details === SendGameEventErrorDetail.StaleState;
 }

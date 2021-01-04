@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { assign, StateNodeConfig } from 'xstate';
 import { Bid } from '../EuchreTypes';
-import { Position } from "../apiContract/database/Position";
+import { Position } from '../apiContract/database/Position';
 import { forEachPosition, NextPlayer } from '../utils/ModelHelpers';
 import {
   BiddingContext,
@@ -21,22 +21,13 @@ export const BiddingStates: StateNodeConfig<
   states: {
     waitForPlayerToBid: {
       on: {
-        // PLAYER_BID: {
-        //   target: 'checkIfBiddingIsComplete',
-        //   cond: isBidEventValid,
-        //   actions: assign({
-        //     bids: (context, event) => ({
-        //       ...context.bids,
-        //       [event.position]: event.bid,
-        //     }),
-        //   }),
-        // },
-        AUTO_TRANSITION: {
+        PLAYER_BID: {
           target: 'checkIfBiddingIsComplete',
+          cond: isBidEventValid,
           actions: assign({
-            bids: (context) => ({
+            bids: (context, event) => ({
               ...context.bids,
-              [context.awaitedPlayer]: 4,
+              [event.position]: event.bid,
             }),
           }),
         },

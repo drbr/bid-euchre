@@ -1,4 +1,6 @@
-import { style, types } from 'typestyle';
+import { types, style } from 'typestyle';
+
+export type Style = types.NestedCSSProperties;
 
 export function cssClass(
   name: string,

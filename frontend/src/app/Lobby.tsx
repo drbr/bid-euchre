@@ -1,7 +1,8 @@
-import Button from '@material-ui/core/Button';
-import FlexView from 'react-flexview/lib';
 import { useNavigate } from '@reach/router';
+import { useState } from 'react';
+import FlexView from 'react-flexview/lib';
 import { makeNewGameAndNavigateThere } from '../routines/makeNewGameAndNavigateThere';
+import { ActionButton } from '../uiHelpers/ActionButton';
 
 export function Lobby() {
   return (
@@ -17,14 +18,25 @@ export function Lobby() {
 
 export function NewGameSection() {
   const navigate = useNavigate();
+
+  const [creatingGameInProgress, setCreatingGameInProgress] = useState(false);
+
+  function onButtonClick() {
+    setCreatingGameInProgress(true);
+    makeNewGameAndNavigateThere(navigate).catch(() =>
+      setCreatingGameInProgress(false)
+    );
+  }
+
   return (
     <div>
-      <Button
+      <ActionButton
         variant="contained"
-        onClick={() => makeNewGameAndNavigateThere(navigate)}
+        onClick={onButtonClick}
+        loading={creatingGameInProgress}
       >
         New Game
-      </Button>
+      </ActionButton>
     </div>
   );
 }

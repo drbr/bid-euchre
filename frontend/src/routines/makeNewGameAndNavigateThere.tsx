@@ -11,5 +11,6 @@ export async function makeNewGameAndNavigateThere(navigate: NavigateFn) {
     UIActions.showErrorAlert(e, {
       message: 'Could not create new game. See log for details.',
     });
+    throw e;
   }
 }

@@ -1,8 +1,8 @@
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import { Suit } from '../gameLogic/Cards';
 import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/RoundStateTypes';
+import { ActionButton } from '../uiHelpers/ActionButton';
 import { PlayerBidCard } from './BiddingDisplay';
 import { DebugButton } from './DebugButton';
 import { GameLayout } from './GameLayout';
@@ -67,14 +67,14 @@ function SuitButton(props: RoundDisplayProps & { suit: Suit }) {
   const suitInfo = SuitDisplay[props.suit];
   return (
     <Grid item xs={3} sm={2}>
-      <Button
+      <ActionButton
         style={{ color: suitInfo.color, fontSize: 40 }}
         disabled={!enabled}
         onClick={sendEvent}
         variant="contained"
       >
         <div style={{ marginTop: -15, marginBottom: -10 }}>{suitInfo.text}</div>
-      </Button>
+      </ActionButton>
     </Grid>
   );
 }

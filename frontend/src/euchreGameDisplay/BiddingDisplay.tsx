@@ -1,24 +1,24 @@
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 import FlexView from 'react-flexview/lib';
-import { Bid } from '../gameLogic/EuchreTypes';
 import {
   getHighestBid,
-  UltimateBidChart,
+  UltimateBidChart
 } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import {
   BiddingContext,
   BiddingEvent,
-  PlayerBidEvent,
+  PlayerBidEvent
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
+import { Bid } from '../gameLogic/EuchreTypes';
+import { ActionButton } from '../uiHelpers/ActionButton';
 import { DebugButton } from './DebugButton';
 import {
   ScopedGameDisplayProps,
-  UnscopedGameDisplayProps,
+  UnscopedGameDisplayProps
 } from './GameDisplay';
 import { GameLayout, PLACEHOLDER } from './GameLayout';
 
@@ -98,9 +98,9 @@ function BidButton(
   const buttonText = props.text || props.bidValue;
   return (
     <Box p={1}>
-      <Button disabled={!enabled} onClick={sendEvent} variant="contained">
+      <ActionButton disabled={!enabled} onClick={sendEvent} variant="contained">
         {buttonText}
-      </Button>
+      </ActionButton>
     </Box>
   );
 }

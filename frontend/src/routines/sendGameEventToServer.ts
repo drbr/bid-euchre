@@ -23,5 +23,6 @@ export async function sendGameEventToServer(
     UIActions.showErrorAlert(e, {
       message: 'Could not send game event. See log for details.',
     });
+    throw e;
   }
 }

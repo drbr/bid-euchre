@@ -1,14 +1,14 @@
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import _ from 'lodash';
 import { Dispatch, useState } from 'react';
 import FlexView from 'react-flexview/lib';
-import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
-import { Position } from "../gameLogic/apiContract/database/Position";
 import { GameLayout } from '../euchreGameDisplay/GameLayout';
+import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
+import { Position } from '../gameLogic/apiContract/database/Position';
+import { ActionButton } from '../uiHelpers/ActionButton';
 
 const MAX_NAME_LENGTH = 12;
 
@@ -81,13 +81,13 @@ function JoinButton(props: {
           {props.playerNameAtPosition}
         </Typography>
       ) : (
-        <Button
+        <ActionButton
           fullWidth
           disabled={!props.canJoin}
           onClick={() => props.joinGame()}
         >
           Join
-        </Button>
+        </ActionButton>
       )}
     </FlexView>
   );

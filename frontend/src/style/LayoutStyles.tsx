@@ -8,7 +8,18 @@ export const absolutePositionFillStyle: Style = {
   bottom: 0,
 };
 
+export const flexCenterChildStyle: Style = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+}
+
 export const absolutePositionFill = cssClass(
   'absolute-position-fill',
   absolutePositionFillStyle
+);
+
+export const flexCenterChild = cssClass(
+  'flex-center-child',
+  flexCenterChildStyle
 );

@@ -75,7 +75,7 @@ export function GameContainer(props: GameContainerProps) {
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   (window as any).gameConfig = displayedGameConfig;
-  (window as any).playerInfoFromStorage = displayedPlayerInfo;
+  (window as any).playerInfo = displayedPlayerInfo;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   const seatedAt = isSpectator(displayedPlayerInfo)
@@ -91,6 +91,7 @@ export function GameContainer(props: GameContainerProps) {
         gameId={gameId}
         gameConfig={displayedGameConfig}
         seatedAt={seatedAt}
+        joinInProgress={machineState.matches('joinInProgress')}
         joinGameAtPosition={({ playerName, position }) => {
           send({
             type: 'START_JOIN',

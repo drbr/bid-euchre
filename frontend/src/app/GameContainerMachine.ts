@@ -4,9 +4,9 @@ import { PlayerInfoStorage } from '../uiHelpers/LocalStorageClient';
 import { UIActions } from '../uiHelpers/UIActions';
 import {
   GameContainerContext,
-
   GameContainerEvent,
-  GameContainerInitialContext, GameContainerStateSchema
+  GameContainerInitialContext,
+  GameContainerStateSchema,
 } from './GameContainerMachineTypes';
 
 export const GameContainerMachine = Machine<

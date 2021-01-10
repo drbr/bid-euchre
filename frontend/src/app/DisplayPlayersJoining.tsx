@@ -16,6 +16,7 @@ export type DisplayPlayersJoiningProps = {
   gameId: string;
   gameConfig: GameConfig;
   joinGameAtPosition: Dispatch<{ playerName: string; position: Position }>;
+  joinInProgress: boolean;
   seatedAt: Position | null;
 };
 
@@ -44,6 +45,7 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
           playerNameAtPosition={playerNames[position]}
           canJoin={canTakeAnySeat()}
           seatedHere={props.seatedAt === position}
+          joinInProgress={props.joinInProgress}
           joinGame={() => props.joinGameAtPosition({ position, playerName })}
         />
       )}
@@ -72,6 +74,7 @@ function JoinButton(props: {
   playerNameAtPosition: string | null;
   canJoin: boolean;
   seatedHere: boolean;
+  joinInProgress: boolean;
   joinGame: () => void;
 }) {
   return (
@@ -84,7 +87,8 @@ function JoinButton(props: {
         <ActionButton
           fullWidth
           disabled={!props.canJoin}
-          onClick={() => props.joinGame()}
+          actionInProgress={props.joinInProgress}
+          onClick={props.joinGame}
         >
           Join
         </ActionButton>

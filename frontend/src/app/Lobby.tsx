@@ -33,7 +33,7 @@ export function NewGameSection() {
       <ActionButton
         variant="contained"
         onClick={onButtonClick}
-        loading={creatingGameInProgress}
+        actionInProgress={creatingGameInProgress}
       >
         New Game
       </ActionButton>

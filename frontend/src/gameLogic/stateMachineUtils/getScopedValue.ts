@@ -1,27 +1,6 @@
 import * as _ from 'lodash';
 import { StateValue } from 'xstate';
 
-// export type MatcherFn<V extends string> = (stateValue: V) => boolean;
-//
-// /**
-//  * Creates a function that simplifies the usage of `stateMatches` with hierarchial states.
-//  *
-//  * For example: Instead of calling `state.matches('game.round.nameTrump')`, first create a matcher,
-//  * then use it to match the state at the level we're on:
-//  *
-//  *     const stateMatches = createMatcher(state, 'game', 'round');
-//  *     stateMatches('nameTrump');
-//  *
-//  * @param supervalues The values higher up in the state hierarchy to match.
-//  */
-// export function createScopedMatcher<C, E extends EventObject, V extends string>(
-//   state: State<C, E>,
-//   ...parentValues: string[]
-// ): MatcherFn<V> {
-//   const prefix = parentValues.join('.');
-//   return (stateValue: V) => state.matches(`${prefix}.${stateValue}`);
-// }
-
 /**
  * Gets the state's value, scoped down by the parent keys.
  *

@@ -12,6 +12,7 @@ import {
   GameContainerContext,
   GameContainerEvent,
   GameContainerStateSchema,
+  GameContainerStateValue,
   StartJoinEvent,
 } from './GameContainerMachineTypes';
 import { useSubscription } from '../uiHelpers/useSubscription';
@@ -85,13 +86,17 @@ export function GameContainer(props: GameContainerProps) {
     ? null
     : displayedPlayerInfo.playerId;
 
+  const joinInProgress = machineState.matches<GameContainerStateValue>(
+    'joinInProgress'
+  );
+
   if (displayedGameConfig.gameStatus === 'waitingToStart') {
     return (
       <DisplayPlayersJoining
         gameId={gameId}
         gameConfig={displayedGameConfig}
         seatedAt={seatedAt}
-        joinInProgress={machineState.matches('joinInProgress')}
+        joinInProgress={joinInProgress}
         joinGameAtPosition={({ playerName, position }) => {
           send({
             type: 'START_JOIN',

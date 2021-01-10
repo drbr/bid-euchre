@@ -1,5 +1,8 @@
 import { AnyEventObject, State } from 'xstate';
-import { TypedStateSchema } from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
+import {
+  TypedStateSchema,
+  TypedStateValue,
+} from '../gameLogic/stateMachineUtils/TypedStateInterfaces';
 
 /**
  * This buffer stores all the known game state snapshots and controls how the client moves through
@@ -24,7 +27,7 @@ export type StateBuffer<S> = {
   readonly gameStateSnapshots: ReadonlyArray<S | undefined>;
 };
 
-export const LINGER_DELAY_MS = 1500;
+export const LINGER_DELAY_MS = 500;
 
 type BufferStatesGeneric<X> = {
   /**
@@ -86,6 +89,8 @@ type BufferStatesGeneric<X> = {
 export type BufferStateSchema<S> = {
   states: BufferStatesGeneric<TypedStateSchema<unknown, StateBuffer<S>>>;
 };
+
+export type BufferStateValue = TypedStateValue<BufferStateSchema<unknown>>;
 
 export type RecvSnapshotEvent<S> = {
   type: 'RECV_SNAPSHOT';

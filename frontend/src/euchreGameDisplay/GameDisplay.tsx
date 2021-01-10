@@ -1,7 +1,7 @@
 import { memo, useEffect } from 'react';
 import { EventObject, StateValue } from 'xstate';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
-import { Position } from "../gameLogic/apiContract/database/Position";
+import { Position } from '../gameLogic/apiContract/database/Position';
 import {
   GameContext,
   GameEvent,
@@ -20,8 +20,9 @@ import { TransientState } from './TransientState';
 export type ScopedGameDisplayProps<C, E extends EventObject> = {
   stateValue: StateValue;
   stateContext: C;
-  sendGameEvent: (event: E) => void;
   isEventValid: (event: E) => boolean;
+  sendGameEvent: (event: E) => void;
+  sendGameEventInProgress: boolean;
 };
 
 /** The "unscoped" props are the same no matter which state we're currently in. */

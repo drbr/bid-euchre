@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
 import * as DAO from '../firebase/FrontendDAO';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
-import { Position } from "../gameLogic/apiContract/database/Position";
+import { Position } from '../gameLogic/apiContract/database/Position';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
@@ -26,9 +26,11 @@ export type PlayGameProps = {
 export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
-  const [currentGameState, dispatchToStateBuffer] = useBufferWithGameState(
-    props
-  );
+  const {
+    currentGameState,
+    dispatchToBuffer,
+    bufferMachineMode,
+  } = useBufferWithGameState(props);
 
   const sendGameEventToStateMachine = useCallback(
     (event: AnyEventObject) => {
@@ -45,13 +47,13 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
 
   const isEventValid = useCallback(
     (event: AnyEventObject) =>
+      bufferMachineMode === 'head' &&
       willEventApply(GameStateMachine, currentGameState, event as GameEvent),
-    [currentGameState]
+    [currentGameState, bufferMachineMode]
   );
 
-  const goForward = () =>
-    dispatchToStateBuffer({ type: 'DETACHED_GO_FORWARD' });
-  const goBack = () => dispatchToStateBuffer({ type: 'DETACHED_GO_BACK' });
+  const goForward = () => dispatchToBuffer({ type: 'DETACHED_GO_FORWARD' });
+  const goBack = () => dispatchToBuffer({ type: 'DETACHED_GO_BACK' });
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -75,8 +77,9 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
         stateContext={gameState.context}
         gameConfig={props.gameConfig}
         seatedAt={props.seatedAt}
-        sendGameEvent={sendGameEventToStateMachine}
         isEventValid={isEventValid}
+        sendGameEvent={sendGameEventToStateMachine}
+        sendGameEventInProgress={bufferMachineMode === 'sendingGameEvent'}
       />
     </div>
   );
@@ -90,13 +93,14 @@ function useBufferWithGameState(props: {
 
   const [head, storeHead] = useStateHeadStorage({ gameId });
 
-  const [
+  const {
     currentGameState,
     addSnapshotToBuffer,
     dispatchToBuffer,
-  ] = useStateBuffer({ initialHead: head, onHeadChanged: storeHead });
+    bufferMachineMode,
+  } = useStateBuffer({ initialHead: head, onHeadChanged: storeHead });
 
-  const processReceivedGameState = useCallback(
+  const putGameStateInBuffer = useCallback(
     (data: GameStateConfig | null) => {
       if (!data) {
         throw new Error(`Game with ID ${gameId} was not found!`);
@@ -111,13 +115,14 @@ function useBufferWithGameState(props: {
   useSubscription(
     { gameId, playerId },
     subscribeToPublicOrPrivateGameState,
-    processReceivedGameState
+    putGameStateInBuffer
   );
 
-  return [currentGameState, dispatchToBuffer] as [
-    typeof currentGameState,
-    typeof dispatchToBuffer
-  ];
+  return {
+    currentGameState,
+    dispatchToBuffer,
+    bufferMachineMode,
+  };
 }
 
 const subscribeToPublicOrPrivateGameState: Subscription<

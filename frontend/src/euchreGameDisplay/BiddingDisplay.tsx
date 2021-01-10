@@ -4,12 +4,12 @@ import * as React from 'react';
 import FlexView from 'react-flexview/lib';
 import {
   getHighestBid,
-  UltimateBidChart
+  UltimateBidChart,
 } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import {
   BiddingContext,
   BiddingEvent,
-  PlayerBidEvent
+  PlayerBidEvent,
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
@@ -18,7 +18,7 @@ import { ActionButton } from '../uiHelpers/ActionButton';
 import { DebugButton } from './DebugButton';
 import {
   ScopedGameDisplayProps,
-  UnscopedGameDisplayProps
+  UnscopedGameDisplayProps,
 } from './GameDisplay';
 import { GameLayout, PLACEHOLDER } from './GameLayout';
 
@@ -98,7 +98,12 @@ function BidButton(
   const buttonText = props.text || props.bidValue;
   return (
     <Box p={1}>
-      <ActionButton disabled={!enabled} onClick={sendEvent} variant="contained">
+      <ActionButton
+        variant="contained"
+        onClick={sendEvent}
+        disabled={!enabled}
+        actionInProgress={props.sendGameEventInProgress}
+      >
         {buttonText}
       </ActionButton>
     </Box>

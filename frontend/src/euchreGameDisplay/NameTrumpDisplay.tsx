@@ -71,6 +71,7 @@ function SuitButton(props: RoundDisplayProps & { suit: Suit }) {
         style={{ color: suitInfo.color, fontSize: 40 }}
         disabled={!enabled}
         onClick={sendEvent}
+        actionInProgress={props.sendGameEventInProgress}
         variant="contained"
       >
         <div style={{ marginTop: -15, marginBottom: -10 }}>{suitInfo.text}</div>

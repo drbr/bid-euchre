@@ -14,14 +14,15 @@ import { transitionStateMachine } from '../gameLogic/stateMachineUtils/transitio
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
 import { BufferEvent } from './BufferMachineTypes';
-import { useStateBuffer } from './useStateBuffer';
+import { BufferMachineMode, useStateBuffer } from './useStateBuffer';
 
 export function LocalGameContainer() {
-  const [
+  const {
     currentGameState,
     addSnapshotToBuffer,
     dispatchToBuffer,
-  ] = useStateBuffer({ initialHead: 1 });
+    bufferMachineMode,
+  } = useStateBuffer({ initialHead: 1 });
 
   if (!currentGameState) {
     return <div>ERROR: Game state is not defined</div>;
@@ -32,6 +33,7 @@ export function LocalGameContainer() {
       gameState={currentGameState}
       addSnapshotToBuffer={addSnapshotToBuffer}
       dispatchToBuffer={dispatchToBuffer}
+      bufferMachineMode={bufferMachineMode}
     />
   );
 }
@@ -40,6 +42,7 @@ export type LocalGameProps = {
   gameState: HydratedGameState;
   addSnapshotToBuffer: (snapshot: HydratedGameState) => void;
   dispatchToBuffer: (event: BufferEvent<HydratedGameState>) => void;
+  bufferMachineMode: BufferMachineMode;
 };
 
 export function LocalGame(props: LocalGameProps) {
@@ -64,13 +67,12 @@ export function LocalGame(props: LocalGameProps) {
   (window as any).gameState = props.gameState.hydratedState;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  function isEventValid(event: AnyEventObject): boolean {
-    return willEventApply(
-      GameStateMachine,
-      props.gameState,
-      event as GameEvent
-    );
-  }
+  const isEventValid = useCallback(
+    (event: AnyEventObject): boolean =>
+      props.bufferMachineMode === 'head' &&
+      willEventApply(GameStateMachine, props.gameState, event as GameEvent),
+    [props.bufferMachineMode, props.gameState]
+  );
 
   return (
     <div>
@@ -99,8 +101,9 @@ export function LocalGame(props: LocalGameProps) {
       <GameDisplayPure
         stateValue={gameState.hydratedState.value}
         stateContext={gameState.hydratedState.context}
-        sendGameEvent={sendGameEventToStateMachine}
         isEventValid={isEventValid}
+        sendGameEvent={sendGameEventToStateMachine}
+        sendGameEventInProgress={props.bufferMachineMode === 'sendingGameEvent'}
         gameConfig={DummyGameConfig}
         seatedAt="south"
       />

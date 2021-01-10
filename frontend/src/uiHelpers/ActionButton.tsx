@@ -1,11 +1,6 @@
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import {
-  ComponentPropsWithoutRef,
-  MouseEvent,
-  useEffect,
-  useState,
-} from 'react';
+import { ComponentPropsWithoutRef, useEffect, useState } from 'react';
 import { classes } from 'typestyle';
 import { absolutePositionFill, flexCenterChild } from '../style/LayoutStyles';
 

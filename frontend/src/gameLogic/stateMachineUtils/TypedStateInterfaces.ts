@@ -12,4 +12,20 @@ export type TypedStateSchema<TMeta, C = any> = StateSchema<C> & {
 export type EventCountContext = {
   eventCount: number;
   previousEventCount: number | null;
+};
+
+/**
+ * A type-safe way of expressing an XState machine's "state value",
+ * for use as the argument to `state.matches`.
+ */
+export type TypedStateValue<StateSchema> = StateSchema extends {
+  states: unknown;
 }
+  ?
+      | keyof StateSchema['states']
+      | {
+          [K in keyof StateSchema['states']]?: TypedStateValue<
+            StateSchema['states'][K]
+          >;
+        }
+  : never;

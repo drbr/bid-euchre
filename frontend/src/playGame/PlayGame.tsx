@@ -1,5 +1,7 @@
 import { memo, useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
+import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
+import * as FunctionsClient from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { Position } from '../gameLogic/apiContract/database/Position';
@@ -8,10 +10,11 @@ import {
   GameEvent,
   GameStateConfig,
 } from '../gameLogic/euchreStateMachine/GameStateTypes';
-import { hydrateStateFromConfig } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import {
+  HydratedGameState,
+  hydrateStateFromConfig,
+} from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
-import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
-import { sendGameEventToServer } from '../routines/sendGameEventToServer';
 import { useStateHeadStorage } from '../uiHelpers/LocalStorageClient';
 import { Subscription, useSubscription } from '../uiHelpers/useSubscription';
 import { useStateBuffer } from './useStateBuffer';
@@ -26,46 +29,53 @@ export type PlayGameProps = {
 export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
+  const sendGameEventToServer = useCallback(
+    (event: AnyEventObject, currentGameState: HydratedGameState) =>
+      FunctionsClient.sendGameEvent({
+        event,
+        existingEventCount: currentGameState.hydratedState.context.eventCount,
+        gameId,
+        playerId,
+      }),
+    [gameId, playerId]
+  );
+
   const {
     currentGameState,
     dispatchToBuffer,
     bufferMachineMode,
-  } = useBufferWithGameState(props);
+  } = useBufferWithGameState({ gameId, playerId, sendGameEventToServer });
 
-  const sendGameEventToStateMachine = useCallback(
+  const sendGameEventToBufferMachine = useCallback(
     (event: AnyEventObject) => {
-      void sendGameEventToServer({
-        gameId,
-        playerId,
-        existingEventCount:
-          currentGameState?.hydratedState.context.eventCount ?? 0,
-        event,
+      dispatchToBuffer({
+        type: 'SEND_GAME_EVENT_TO_SERVER',
+        gameEvent: event,
       });
     },
-    [currentGameState, gameId, playerId]
+    [dispatchToBuffer]
   );
 
   const isEventValid = useCallback(
-    (event: AnyEventObject) =>
+    (event: GameEvent) =>
       bufferMachineMode === 'head' &&
-      willEventApply(GameStateMachine, currentGameState, event as GameEvent),
+      willEventApply(GameStateMachine, currentGameState, event),
     [currentGameState, bufferMachineMode]
   );
-
-  const goForward = () => dispatchToBuffer({ type: 'DETACHED_GO_FORWARD' });
-  const goBack = () => dispatchToBuffer({ type: 'DETACHED_GO_BACK' });
-
-  /* Add stuff to the window for debugging */
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  (window as any).gameState = currentGameState?.hydratedState;
-  (window as any).goForward = goForward;
-  (window as any).goBack = goBack;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   if (!currentGameState) {
     return <div>Loading…</div>;
   }
+
   const gameState = currentGameState.hydratedState;
+
+  /* Add stuff to the window for debugging */
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  (window as any).gameState = gameState;
+  (window as any).goForward = () =>
+    dispatchToBuffer({ type: 'DETACHED_GO_FORWARD' });
+  (window as any).goBack = () => dispatchToBuffer({ type: 'DETACHED_GO_BACK' });
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return (
     <div style={{ width: '100%' }}>
@@ -78,7 +88,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
         gameConfig={props.gameConfig}
         seatedAt={props.seatedAt}
         isEventValid={isEventValid}
-        sendGameEvent={sendGameEventToStateMachine}
+        sendGameEvent={sendGameEventToBufferMachine}
         sendGameEventInProgress={bufferMachineMode === 'sendingGameEvent'}
       />
     </div>
@@ -88,6 +98,10 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
 function useBufferWithGameState(props: {
   gameId: string;
   playerId: string | null;
+  sendGameEventToServer: (
+    event: AnyEventObject,
+    currentGameState: HydratedGameState
+  ) => Promise<void>;
 }) {
   const { gameId, playerId } = props;
 
@@ -98,9 +112,13 @@ function useBufferWithGameState(props: {
     addSnapshotToBuffer,
     dispatchToBuffer,
     bufferMachineMode,
-  } = useStateBuffer({ initialHead: head, onHeadChanged: storeHead });
+  } = useStateBuffer({
+    initialHead: head,
+    onHeadChanged: storeHead,
+    sendGameEventToServer: props.sendGameEventToServer,
+  });
 
-  const putGameStateInBuffer = useCallback(
+  const putDownloadedGameStateInBuffer = useCallback(
     (data: GameStateConfig | null) => {
       if (!data) {
         throw new Error(`Game with ID ${gameId} was not found!`);
@@ -115,7 +133,7 @@ function useBufferWithGameState(props: {
   useSubscription(
     { gameId, playerId },
     subscribeToPublicOrPrivateGameState,
-    putGameStateInBuffer
+    putDownloadedGameStateInBuffer
   );
 
   return {
@@ -129,12 +147,10 @@ const subscribeToPublicOrPrivateGameState: Subscription<
   { gameId: string; playerId: string | null },
   GameStateConfig
 > = (params, callback) => {
-  if (params.playerId) {
-    return DAO.subscribeToPrivateGameState(
-      { gameId: params.gameId, playerId: params.playerId },
-      callback
-    );
+  const { gameId, playerId } = params;
+  if (playerId) {
+    return DAO.subscribeToPrivateGameState({ gameId, playerId }, callback);
   } else {
-    return DAO.subscribeToPublicGameState({ gameId: params.gameId }, callback);
+    return DAO.subscribeToPublicGameState({ gameId }, callback);
   }
 };

@@ -1,8 +1,15 @@
 import { useMachine } from '@xstate/react';
 import { useCallback, useEffect } from 'react';
+import { AnyEventObject } from 'xstate';
 import { HydratedGameState } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { createBufferStateMachine } from './BufferMachine';
-import { BufferMachineState, BufferStateValue } from './BufferMachineTypes';
+import {
+  BufferEvent,
+  BufferMachineState,
+  BufferStateValue,
+  SendGameEventToServerEvent,
+  StateBuffer,
+} from './BufferMachineTypes';
 
 /** The type-parameterized instance of the buffer machine for the Euchre game */
 const BufferMachine = createBufferStateMachine<HydratedGameState>();
@@ -36,11 +43,31 @@ function getBufferMachineMode<S>(
 export function useStateBuffer(params: {
   initialHead: number;
   onHeadChanged?: (head: number) => void;
+  sendGameEventToServer: (
+    gameEvent: AnyEventObject,
+    currentGameState: HydratedGameState
+  ) => Promise<void>;
 }) {
-  const { initialHead, onHeadChanged } = params;
+  const { initialHead, onHeadChanged, sendGameEventToServer } = params;
+
+  const sendGameEvent = useCallback(
+    (
+      context: StateBuffer<HydratedGameState>,
+      ev: BufferEvent<HydratedGameState>
+    ) => {
+      const bufferEvent = ev as SendGameEventToServerEvent;
+      const gameEvent = bufferEvent.gameEvent;
+      const currentGameState =
+        context.gameStateSnapshots[context.currentIndexShowing ?? 0];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return sendGameEventToServer(gameEvent, currentGameState!);
+    },
+    [sendGameEventToServer]
+  );
 
   const [bufferMachineState, dispatchToBuffer] = useMachine(BufferMachine, {
     context: { head: initialHead },
+    services: { sendGameEvent },
   });
   const buffer = bufferMachineState.context;
   const bufferMachineMode = getBufferMachineMode(bufferMachineState);

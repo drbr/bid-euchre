@@ -103,7 +103,7 @@ type SwitchToDetachedIndexEvent = {
   index: number;
 };
 
-type SendGameEventToServerEvent = {
+export type SendGameEventToServerEvent = {
   type: 'SEND_GAME_EVENT_TO_SERVER';
 
   /**

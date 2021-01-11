@@ -13,8 +13,8 @@ import {
 import { transitionStateMachine } from '../gameLogic/stateMachineUtils/transitionStateMachine';
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
-import { BufferEvent } from './BufferMachineTypes';
 import { BufferMachineMode, useStateBuffer } from './useStateBuffer';
+import FlexView from 'react-flexview/lib';
 
 export function LocalGameContainer() {
   const {
@@ -22,7 +22,33 @@ export function LocalGameContainer() {
     addSnapshotToBuffer,
     dispatchToBuffer,
     bufferMachineMode,
-  } = useStateBuffer({ initialHead: 1 });
+  } = useStateBuffer({
+    initialHead: 1,
+    sendGameEventToServer: async (
+      gameEvent: AnyEventObject,
+      currentGameState: HydratedGameState
+    ) => {
+      const nextStates = await transitionStateMachine(
+        GameStateMachine,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        currentGameState,
+        gameEvent as GameEvent
+      );
+      for (const next of nextStates) {
+        addSnapshotToBuffer(hydrateStateFromConfig(next));
+      }
+    },
+  });
+
+  const sendGameEventToBufferMachine = useCallback(
+    (event: AnyEventObject) => {
+      dispatchToBuffer({
+        type: 'SEND_GAME_EVENT_TO_SERVER',
+        gameEvent: event,
+      });
+    },
+    [dispatchToBuffer]
+  );
 
   if (!currentGameState) {
     return <div>ERROR: Game state is not defined</div>;
@@ -31,8 +57,7 @@ export function LocalGameContainer() {
   return (
     <LocalGame
       gameState={currentGameState}
-      addSnapshotToBuffer={addSnapshotToBuffer}
-      dispatchToBuffer={dispatchToBuffer}
+      sendGameEvent={sendGameEventToBufferMachine}
       bufferMachineMode={bufferMachineMode}
     />
   );
@@ -40,27 +65,12 @@ export function LocalGameContainer() {
 
 export type LocalGameProps = {
   gameState: HydratedGameState;
-  addSnapshotToBuffer: (snapshot: HydratedGameState) => void;
-  dispatchToBuffer: (event: BufferEvent<HydratedGameState>) => void;
+  sendGameEvent: (event: GameEvent) => void;
   bufferMachineMode: BufferMachineMode;
 };
 
 export function LocalGame(props: LocalGameProps) {
-  const { addSnapshotToBuffer, gameState } = props;
-
-  const sendGameEventToStateMachine = useCallback(
-    async (event: GameEvent) => {
-      const nextStates = await transitionStateMachine(
-        GameStateMachine,
-        gameState,
-        event
-      );
-      for (const next of nextStates) {
-        addSnapshotToBuffer(hydrateStateFromConfig(next));
-      }
-    },
-    [gameState, addSnapshotToBuffer]
-  );
+  const { sendGameEvent, gameState } = props;
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -81,28 +91,31 @@ export function LocalGame(props: LocalGameProps) {
         Use this to develop and test the game UI locally, without involving the
         server.
       </p>
-      <div>
+      <FlexView hAlignContent="center">
+        {/* TODO buttons to go forward and back */}
+      </FlexView>
+      <FlexView hAlignContent="center">
         <ButtonToIncrementGameState
           eventName="START_GAME"
           state={gameState.hydratedState}
-          send={sendGameEventToStateMachine}
+          send={sendGameEvent}
         />
         <ButtonToIncrementGameState
           eventName="AUTO_TRANSITION"
           state={gameState.hydratedState}
-          send={sendGameEventToStateMachine}
+          send={sendGameEvent}
         />
         <ButtonToIncrementGameState
           eventName="SECRET_ACTION_COMPLETE"
           state={gameState.hydratedState}
-          send={sendGameEventToStateMachine}
+          send={sendGameEvent}
         />
-      </div>
+      </FlexView>
       <GameDisplayPure
         stateValue={gameState.hydratedState.value}
         stateContext={gameState.hydratedState.context}
         isEventValid={isEventValid}
-        sendGameEvent={sendGameEventToStateMachine}
+        sendGameEvent={sendGameEvent}
         sendGameEventInProgress={props.bufferMachineMode === 'sendingGameEvent'}
         gameConfig={DummyGameConfig}
         seatedAt="south"

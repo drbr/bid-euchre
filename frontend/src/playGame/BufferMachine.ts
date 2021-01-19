@@ -9,6 +9,7 @@ import {
   Typestate,
 } from 'xstate';
 import { SendGameEventErrorDetail } from '../gameLogic/apiContract/cloudFunctions/SendGameEvent';
+import { UIActions } from '../uiHelpers/UIActions';
 import {
   StateBuffer,
   BufferStateSchema,
@@ -202,7 +203,18 @@ export function createBufferStateMachine<S>(): StateMachine<
   };
 
   return Machine<StateBuffer<S>, BufferStateSchema<S>, BufferEvent<S>>(
-    machineConfig
+    machineConfig,
+    {
+      actions: {
+        uiAlert: (context, event, meta) =>
+          UIActions.showErrorAlert(
+            ((event as unknown) as DoneInvokeEvent<unknown>).data,
+            {
+              message: meta.action.message,
+            }
+          ),
+      },
+    }
   );
 }
 

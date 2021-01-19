@@ -30,7 +30,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
   const { gameId, playerId } = props;
 
   const sendGameEventToServer = useCallback(
-    (event: AnyEventObject, currentGameState: HydratedGameState) =>
+    (currentGameState: HydratedGameState, event: AnyEventObject) =>
       FunctionsClient.sendGameEvent({
         event,
         existingEventCount: currentGameState.hydratedState.context.eventCount,
@@ -99,8 +99,8 @@ function useBufferWithGameState(props: {
   gameId: string;
   playerId: string | null;
   sendGameEventToServer: (
-    event: AnyEventObject,
-    currentGameState: HydratedGameState
+    currentGameState: HydratedGameState,
+    event: AnyEventObject
   ) => Promise<void>;
 }) {
   const { gameId, playerId } = props;

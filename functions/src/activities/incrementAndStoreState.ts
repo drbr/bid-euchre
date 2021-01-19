@@ -4,12 +4,12 @@ import { PlayerIdentities } from '../../../frontend/src/gameLogic/apiContract/da
 import { GameStateMachine } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
-  GameState
+  GameState,
 } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateTypes';
 import {
   getStateConfigFromJson,
   hydrateStateFromConfig,
-  serializeState
+  serializeState,
 } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { transitionStateMachine } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
 import { preparePublicAndPrivateStateForStorage } from '../backendStateMachineUtils/preparePublicAndPrivateStateForStorage';

@@ -1,10 +1,13 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import FlexView from 'react-flexview/lib';
 import { AnyEventObject } from 'xstate';
+import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
   GameState,
+  GameStateConfig,
 } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
   HydratedGameState,
@@ -12,9 +15,14 @@ import {
 } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { transitionStateMachine } from '../gameLogic/stateMachineUtils/transitionStateMachine';
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
-import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
+import * as LocalGameStates from './LocalGameStates';
 import { BufferMachineMode, useStateBuffer } from './useStateBuffer';
-import FlexView from 'react-flexview/lib';
+
+const InitialLocalGameState: GameStateConfig = LocalGameStates.StartBidding;
+
+function hydrateInitialState() {
+  return hydrateStateFromConfig(InitialLocalGameState);
+}
 
 export function LocalGameContainer() {
   const {
@@ -25,8 +33,8 @@ export function LocalGameContainer() {
   } = useStateBuffer({
     initialHead: 1,
     sendGameEventToServer: async (
-      gameEvent: AnyEventObject,
-      currentGameState: HydratedGameState
+      currentGameState: HydratedGameState,
+      gameEvent: AnyEventObject
     ) => {
       const nextStates = await transitionStateMachine(
         GameStateMachine,
@@ -49,6 +57,11 @@ export function LocalGameContainer() {
     },
     [dispatchToBuffer]
   );
+
+  // Populate the initial game state into the buffer
+  useEffect(() => addSnapshotToBuffer(hydrateInitialState()), [
+    addSnapshotToBuffer,
+  ]);
 
   if (!currentGameState) {
     return <div>ERROR: Game state is not defined</div>;

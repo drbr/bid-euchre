@@ -45,7 +45,8 @@ export async function transitionStateMachine<
   prev: HydratedState<C, E, SS>,
   event: E
 ): Promise<ReadonlyArray<State<C, E>>> {
-  const machineService = interpret(stateMachine);
+  const initialContext = prev.hydratedState.context;
+  const machineService = interpret(stateMachine.withContext(initialContext));
 
   try {
     const deferred = new SimpleDeferred<void>();

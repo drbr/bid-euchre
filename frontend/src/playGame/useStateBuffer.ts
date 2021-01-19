@@ -39,13 +39,12 @@ function getBufferMachineMode<S>(
     throw new Error('Buffer machine state did not match any expected value');
   }
 }
-
 export function useStateBuffer(params: {
   initialHead: number;
   onHeadChanged?: (head: number) => void;
   sendGameEventToServer: (
-    gameEvent: AnyEventObject,
-    currentGameState: HydratedGameState
+    currentGameState: HydratedGameState,
+    gameEvent: AnyEventObject
   ) => Promise<void>;
 }) {
   const { initialHead, onHeadChanged, sendGameEventToServer } = params;
@@ -60,7 +59,7 @@ export function useStateBuffer(params: {
       const currentGameState =
         context.gameStateSnapshots[context.currentIndexShowing ?? 0];
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return sendGameEventToServer(gameEvent, currentGameState!);
+      return sendGameEventToServer(currentGameState!, gameEvent);
     },
     [sendGameEventToServer]
   );
@@ -92,6 +91,11 @@ export function useStateBuffer(params: {
       onHeadChanged(buffer.head);
     }
   }, [buffer.head, onHeadChanged]);
+
+  /* Add stuff to the window for debugging */
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  (window as any).stateBuffer = buffer;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return {
     currentGameState,

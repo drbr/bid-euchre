@@ -12,6 +12,7 @@ import {
   ScopedGameDisplayProps,
   UnscopedGameDisplayProps,
 } from './GameDisplay';
+import { DealDisplay } from './DealDisplay';
 import { NameTrumpDisplay } from './NameTrumpDisplay';
 import { TransientState } from './TransientState';
 
@@ -32,6 +33,8 @@ export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
   }, [substate]);
 
   switch (substate) {
+    case 'waitForDeal':
+      return <DealDisplay {...props} />;
     case 'bidding':
       return (
         <BiddingDisplay {...((props as unknown) as BiddingDisplayProps)} />
@@ -39,7 +42,6 @@ export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
     case 'waitForPlayerToNameTrump':
       return <NameTrumpDisplay {...props} />;
     case 'checkWinningBidder':
-    case 'waitForDeal':
     case 'dealDone':
     case 'roundComplete':
     case 'scoring':
@@ -50,11 +52,3 @@ export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
       return <></>;
   }
 }
-
-// function OneButton(props: RoundDisplayProps) {
-//   return (
-//     <button onClick={() => props.sendGameEvent({ type: 'NEXT' })}>
-//       Send NEXT event
-//     </button>
-//   );
-// }

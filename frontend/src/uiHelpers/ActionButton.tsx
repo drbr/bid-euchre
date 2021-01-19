@@ -2,19 +2,26 @@ import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ComponentPropsWithoutRef, useEffect, useState } from 'react';
 import { classes } from 'typestyle';
+import { EventObject } from 'xstate';
+import { ScopedGameDisplayProps } from '../euchreGameDisplay/GameDisplay';
 import { absolutePositionFill, flexCenterChild } from '../style/LayoutStyles';
 
-export type ActionButtonProps = ComponentPropsWithoutRef<typeof Button> & {
-  actionInProgress?: boolean;
+export type BaseButtonProps = ComponentPropsWithoutRef<typeof Button>;
+export type ActionButtonSpecificProps = {
+  actionInProgress: boolean;
+  disabled: Required<BaseButtonProps>['disabled'];
+  onClick: Required<BaseButtonProps>['onClick'];
 };
 
-type OnClickEvent = Parameters<Required<ActionButtonProps>['onClick']>[0];
+type OnClickEvent = Parameters<ActionButtonSpecificProps['onClick']>[0];
 
 /**
  * A Material UI button that supports displaying a CircularProgress spinner when in the loading
  * state
  */
-export function ActionButton(props: ActionButtonProps) {
+export function ActionButton(
+  props: BaseButtonProps & ActionButtonSpecificProps
+) {
   const {
     children,
     actionInProgress,
@@ -64,4 +71,23 @@ export function ActionButton(props: ActionButtonProps) {
       {contents}
     </Button>
   );
+}
+
+/**
+ * The most common use case of an action button is for sending a game event.
+ * This function returns the action button props that are related to the game event.
+ *
+ * Other display props (e.g. variant, children) should be provided separately per use case.
+ * @param event
+ * @param gameDisplayProps
+ */
+export function actionButtonPropsForGameEvent<E extends EventObject>(
+  event: E,
+  gameDisplayProps: ScopedGameDisplayProps<unknown, E>
+): ActionButtonSpecificProps {
+  return {
+    actionInProgress: gameDisplayProps.sendGameEventInProgress,
+    disabled: !gameDisplayProps.isEventValid(event),
+    onClick: () => gameDisplayProps.sendGameEvent(event),
+  };
 }

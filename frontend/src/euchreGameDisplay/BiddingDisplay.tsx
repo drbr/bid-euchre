@@ -1,5 +1,4 @@
 import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 import FlexView from 'react-flexview/lib';
 import {
@@ -14,7 +13,10 @@ import {
 import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { Bid } from '../gameLogic/EuchreTypes';
-import { ActionButton } from '../uiHelpers/ActionButton';
+import {
+  ActionButton,
+  actionButtonPropsForGameEvent,
+} from '../uiHelpers/ActionButton';
 import { DebugButton } from './DebugButton';
 import {
   ScopedGameDisplayProps,
@@ -39,22 +41,20 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
     props.gameConfig.playerFriendlyNames[awaitedPosition];
   const promptMessage =
     props.stateContext.awaitedPlayer === props.seatedAt
-      ? "It's your turn to bid. Choose a bid from the options below."
+      ? "It's your turn to bid. Select a bid from the options below."
       : `Waiting for ${awaitedPlayerName} to bid…`;
 
   return (
     <GameLayout
+      playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       seatedAt={props.seatedAt}
       awaitedPosition={awaitedPosition}
-      renderPlayerElement={(position) => (
-        <PlayerBidCard
-          playerName={props.gameConfig.playerFriendlyNames[position]}
-          bid={bids[position]}
-        />
+      renderPlayerCardContent={(position) => (
+        <BidCardContent bid={bids[position]} />
       )}
       promptMessage={promptMessage}
       hands={props.stateContext.private_hands}
-      userActionElement={<BidButtons {...props} />}
+      userActionControls={<BidButtons {...props} />}
       debugControls={<BiddingDebugControls {...props} />}
     />
   );
@@ -92,17 +92,12 @@ function BidButton(
     bid: props.bidValue,
   };
 
-  const enabled = props.isEventValid(event);
-  const sendEvent = () => props.sendGameEvent(event);
-
   const buttonText = props.text || props.bidValue;
   return (
     <Box p={1}>
       <ActionButton
+        {...actionButtonPropsForGameEvent(event, props)}
         variant="contained"
-        onClick={sendEvent}
-        disabled={!enabled}
-        actionInProgress={props.sendGameEventInProgress}
       >
         {buttonText}
       </ActionButton>
@@ -110,24 +105,14 @@ function BidButton(
   );
 }
 
-export function PlayerBidCard(props: { playerName: string; bid: Bid | null }) {
+export function BidCardContent(props: { bid: Bid | null }) {
   const translatedBid =
     props.bid === 'pass'
       ? 'Pass'
       : props.bid === null
       ? PLACEHOLDER
       : props.bid;
-
-  return (
-    <>
-      <Typography variant="h6" align="center">
-        {props.playerName}
-      </Typography>
-      <Typography variant="h4" align="center">
-        {translatedBid}
-      </Typography>
-    </>
-  );
+  return <>{translatedBid}</>;
 }
 
 function BiddingDebugControls(props: BiddingDisplayProps) {

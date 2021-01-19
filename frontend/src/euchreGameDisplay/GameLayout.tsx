@@ -5,16 +5,17 @@ import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { Hand } from '../gameLogic/Cards';
-import { Position } from "../gameLogic/apiContract/database/Position";
+import { Position } from '../gameLogic/apiContract/database/Position';
 import { HandDisplay } from './HandDisplay';
 
 export type GameLayoutProps = {
+  playerFriendlyNames: Record<Position, string | null>;
   seatedAt: Position | null;
   awaitedPosition?: Position;
-  renderPlayerElement: (position: Position) => React.ReactNode;
+  renderPlayerCardContent: (position: Position) => React.ReactNode;
   promptMessage?: string;
   hands?: Record<Position, Hand>;
-  userActionElement?: React.ReactNode;
+  userActionControls?: React.ReactNode;
   debugControls?: React.ReactNode;
 };
 
@@ -34,8 +35,9 @@ export function GameLayout(props: GameLayoutProps) {
   // Spectators view the game from South
   const positionsInOrder = positionsByViewpoint[props.seatedAt || 'south'];
 
-  function renderPlayerAtIndex(i: number) {
+  function playerCardAtIndex(i: number) {
     const position = positionsInOrder[i];
+    const playerName = props.playerFriendlyNames[position];
     const awaited = props.awaitedPosition
       ? props.awaitedPosition === position
       : false;
@@ -43,7 +45,15 @@ export function GameLayout(props: GameLayoutProps) {
     return (
       <Paper>
         <Box bgcolor={awaited ? '#ea78157a' : undefined}>
-          <Box p={1}>{props.renderPlayerElement(position)}</Box>
+          <Box p={1}>
+            <Typography variant="h6" align="center">
+              {playerName || PLACEHOLDER}
+            </Typography>
+            <Typography variant="h4" align="center">
+              {PLACEHOLDER}
+              {props.renderPlayerCardContent(position)}
+            </Typography>
+          </Box>
         </Box>
       </Paper>
     );
@@ -55,22 +65,22 @@ export function GameLayout(props: GameLayoutProps) {
         <Grid container spacing={2} alignItems="center">
           {/* top row */}
           <Spacer />
-          <Player>{renderPlayerAtIndex(0)}</Player>
+          <Player>{playerCardAtIndex(0)}</Player>
           <Spacer />
 
           {/* middle row */}
-          <Player>{renderPlayerAtIndex(1)}</Player>
+          <Player>{playerCardAtIndex(1)}</Player>
           <Hidden xsDown>
             <Spacer />
             {/* <Center>
               <PromptInGrid message={props.promptMessage} />
             </Center> */}
           </Hidden>
-          <Player>{renderPlayerAtIndex(2)}</Player>
+          <Player>{playerCardAtIndex(2)}</Player>
 
           {/* bottom row */}
           <Spacer />
-          <Player>{renderPlayerAtIndex(3)}</Player>
+          <Player>{playerCardAtIndex(3)}</Player>
           <Spacer />
         </Grid>
       </Box>
@@ -87,8 +97,8 @@ export function GameLayout(props: GameLayoutProps) {
         </Box>
       ) : null}
 
-      {props.seatedAt && props.userActionElement ? (
-        <Box mt={2}>{props.userActionElement}</Box>
+      {props.seatedAt && props.userActionControls ? (
+        <Box mt={2}>{props.userActionControls}</Box>
       ) : null}
 
       {process.env.NODE_ENV === 'development' && props.debugControls

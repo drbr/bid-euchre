@@ -13,6 +13,7 @@ import {
   RoundEvent,
   RoundMeta,
   RoundStateSchema,
+  StartDealEvent,
 } from './RoundStateTypes';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 import {
@@ -29,20 +30,16 @@ export const RoundStates: StateNodeConfig<
   key: 'round',
   initial: 'waitForDeal',
   entry: assign({
+    roundIndex: (context) => (context.roundIndex ? context.roundIndex + 1 : 0),
     currentDealer: (context) => NextPlayer[context.currentDealer] || 'north',
   }),
   states: {
     waitForDeal: {
-      invoke: {
-        id: 'dealHands',
-        src: (context, event) => (callback, onReceive) => {
-          callback({ type: 'ASSIGN_HANDS', hands: deal() });
-        },
-      },
       on: {
-        ASSIGN_HANDS: {
+        DEALER_STARTS_DEAL: {
+          cond: isDealerDealing,
           actions: assign({
-            private_hands: (context, event) => event.hands,
+            private_hands: (context, event) => deal(),
           }),
           target: 'dealDone',
         },
@@ -118,10 +115,12 @@ export const RoundStates: StateNodeConfig<
   },
 };
 
-// const RoundGuards: Record<
-//   string,
-//   ConditionPredicate<RoundContext, RoundEvent>
-// > = {};
+function isDealerDealing(
+  context: RoundContext,
+  event: StartDealEvent
+): boolean {
+  return event.position === context.currentDealer;
+}
 
 function wasTrumpNamedByHighestBidder(
   context: RoundContext,

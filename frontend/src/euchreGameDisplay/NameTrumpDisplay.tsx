@@ -2,8 +2,11 @@ import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import { Suit } from '../gameLogic/Cards';
 import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/RoundStateTypes';
-import { ActionButton } from '../uiHelpers/ActionButton';
-import { PlayerBidCard } from './BiddingDisplay';
+import {
+  ActionButton,
+  actionButtonPropsForGameEvent,
+} from '../uiHelpers/ActionButton';
+import { BidCardContent } from './BiddingDisplay';
 import { DebugButton } from './DebugButton';
 import { GameLayout } from './GameLayout';
 import { RoundDisplayProps } from './RoundDisplay';
@@ -23,17 +26,15 @@ export function NameTrumpDisplay(props: RoundDisplayProps): JSX.Element {
 
   return (
     <GameLayout
+      playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       seatedAt={props.seatedAt}
       awaitedPosition={highestBidder}
-      renderPlayerElement={(position) => (
-        <PlayerBidCard
-          playerName={props.gameConfig.playerFriendlyNames[position]}
-          bid={position === highestBidder ? highestBid : null}
-        />
+      renderPlayerCardContent={(position) => (
+        <BidCardContent bid={position === highestBidder ? highestBid : null} />
       )}
       promptMessage={promptMessage}
       hands={props.stateContext.private_hands}
-      userActionElement={<SuitButtons {...props} />}
+      userActionControls={<SuitButtons {...props} />}
       debugControls={<NameTrumpDebugControls {...props} />}
     />
   );
@@ -61,17 +62,12 @@ function SuitButton(props: RoundDisplayProps & { suit: Suit }) {
     trumpSuit: props.suit,
   };
 
-  const enabled = props.isEventValid(event);
-  const sendEvent = () => props.sendGameEvent(event);
-
   const suitInfo = SuitDisplay[props.suit];
   return (
     <Grid item xs={3} sm={2}>
       <ActionButton
+        {...actionButtonPropsForGameEvent(event, props)}
         style={{ color: suitInfo.color, fontSize: 40 }}
-        disabled={!enabled}
-        onClick={sendEvent}
-        actionInProgress={props.sendGameEventInProgress}
         variant="contained"
       >
         <div style={{ marginTop: -15, marginBottom: -10 }}>{suitInfo.text}</div>

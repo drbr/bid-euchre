@@ -1,10 +1,8 @@
 import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 import _ from 'lodash';
 import { Dispatch, useState } from 'react';
-import FlexView from 'react-flexview/lib';
 import { GameLayout } from '../euchreGameDisplay/GameLayout';
 import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { Position } from '../gameLogic/apiContract/database/Position';
@@ -38,19 +36,19 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
 
   return (
     <GameLayout
+      playerFriendlyNames={playerNames}
       seatedAt="south"
       awaitedPosition={props.seatedAt ?? undefined}
-      renderPlayerElement={(position) => (
+      renderPlayerCardContent={(position) => (
         <JoinButton
           playerNameAtPosition={playerNames[position]}
           canJoin={canTakeAnySeat()}
-          seatedHere={props.seatedAt === position}
           joinInProgress={props.joinInProgress}
           joinGame={() => props.joinGameAtPosition({ position, playerName })}
         />
       )}
       promptMessage={promptMessage}
-      userActionElement={
+      userActionControls={
         props.seatedAt ? null : (
           <Paper>
             <Box p={1} textAlign="center">
@@ -73,27 +71,18 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
 function JoinButton(props: {
   playerNameAtPosition: string | null;
   canJoin: boolean;
-  seatedHere: boolean;
   joinInProgress: boolean;
   joinGame: () => void;
 }) {
-  return (
-    <FlexView vAlignContent="center" hAlignContent="center" height={36}>
-      {props.playerNameAtPosition ? (
-        <Typography variant={props.seatedHere ? 'h6' : 'body1'}>
-          {props.playerNameAtPosition}
-        </Typography>
-      ) : (
-        <ActionButton
-          fullWidth
-          disabled={!props.canJoin}
-          actionInProgress={props.joinInProgress}
-          onClick={props.joinGame}
-        >
-          Join
-        </ActionButton>
-      )}
-    </FlexView>
+  return props.playerNameAtPosition ? null : (
+    <ActionButton
+      fullWidth
+      disabled={!props.canJoin}
+      actionInProgress={props.joinInProgress}
+      onClick={props.joinGame}
+    >
+      Join
+    </ActionButton>
   );
 }
 

@@ -1,11 +1,12 @@
 import { State, Typestate } from 'xstate';
 import { Hand, Suit } from '../Cards';
 import { Bid } from '../EuchreTypes';
-import { Position } from "../apiContract/database/Position";
+import { Position } from '../apiContract/database/Position';
 import { SecretActionCompleteEvent } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type RoundContext = {
+  roundIndex: number;
   currentDealer: Position;
   private_hands: Record<Position, Hand>;
   highestBidder?: Position;
@@ -32,6 +33,11 @@ export type RoundStateSchema = {
   states: RoundStatesGeneric<TypedStateSchema<RoundMeta, RoundContext>>;
 };
 
+export type StartDealEvent = {
+  type: 'DEALER_STARTS_DEAL';
+  position: Position;
+};
+
 export type NameTrumpEvent = {
   type: 'NAME_TRUMP';
   position: Position;
@@ -39,7 +45,7 @@ export type NameTrumpEvent = {
 };
 
 export type RoundEvent =
-  | { type: 'ASSIGN_HANDS'; hands: Record<Position, Hand> }
+  | StartDealEvent
   | NameTrumpEvent
   | SecretActionCompleteEvent;
 

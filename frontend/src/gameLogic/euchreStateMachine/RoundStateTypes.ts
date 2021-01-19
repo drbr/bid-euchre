@@ -20,8 +20,6 @@ export type RoundStatesGeneric<T> = {
   waitForDeal: T;
   dealDone: T;
   bidding: T;
-  checkWinningBidder: T;
-  waitForPlayerToNameTrump: T;
   thePlay: T;
   scoring: T;
   roundComplete: T;

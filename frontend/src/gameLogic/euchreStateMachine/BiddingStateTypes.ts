@@ -1,20 +1,24 @@
 import { State, Typestate } from 'xstate';
 import { Bid } from '../EuchreTypes';
-import { Position } from "../apiContract/database/Position";
+import { Position } from '../apiContract/database/Position';
 import { AutoTransitionEvent } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type BiddingContext = {
   bids: Record<Position, Bid | null>;
   awaitedPlayer: Position;
+  highestBidder?: Position;
+  highestBid?: Bid;
 };
 
 export type BiddingMeta = unknown;
 
 export type BiddingStatesGeneric<T> = {
   waitForPlayerToBid: T;
-  checkIfBiddingIsComplete: T;
-  biddingComplete: T;
+  checkIfAllPlayersHaveBid: T;
+  checkWinningBidder: T;
+  waitForPlayerToNameTrump: T;
+  complete: T;
 };
 
 export type BiddingStateNames = keyof BiddingStatesGeneric<unknown>;

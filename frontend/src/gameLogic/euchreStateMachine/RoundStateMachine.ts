@@ -68,30 +68,6 @@ export const RoundStates: StateNodeConfig<
       onDone: { target: 'checkWinningBidder' },
     },
 
-    checkWinningBidder: {
-      always: [
-        {
-          target: 'waitForDeal',
-          cond: allPlayersPassed,
-        },
-        {
-          target: 'waitForPlayerToNameTrump',
-        },
-      ],
-    },
-
-    waitForPlayerToNameTrump: {
-      on: {
-        NAME_TRUMP: {
-          target: 'thePlay',
-          cond: wasTrumpNamedByHighestBidder,
-          actions: assign({
-            trump: (context, event) => event.trumpSuit,
-          }),
-        },
-      },
-    },
-
     thePlay: {
       ...(ThePlayStates as StateNodeConfig<
         RoundContext,
@@ -127,8 +103,4 @@ function wasTrumpNamedByHighestBidder(
   event: NameTrumpEvent
 ): boolean {
   return context.highestBidder === event.position;
-}
-
-function allPlayersPassed(context: RoundContext): boolean {
-  return context.highestBid === 'pass';
 }

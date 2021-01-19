@@ -34,7 +34,7 @@ export const BiddingStates: StateNodeConfig<
       },
     },
 
-    checkIfBiddingIsComplete: {
+    checkIfAllPlayersHaveBid: {
       always: [
         {
           cond: haveAllBidsBeenMade,
@@ -47,6 +47,30 @@ export const BiddingStates: StateNodeConfig<
           }),
         },
       ],
+    },
+
+    checkWinningBidder: {
+      always: [
+        {
+          target: 'waitForDeal',
+          cond: allPlayersPassed,
+        },
+        {
+          target: 'waitForPlayerToNameTrump',
+        },
+      ],
+    },
+
+    waitForPlayerToNameTrump: {
+      on: {
+        NAME_TRUMP: {
+          target: 'thePlay',
+          cond: wasTrumpNamedByHighestBidder,
+          actions: assign({
+            trump: (context, event) => event.trumpSuit,
+          }),
+        },
+      },
     },
 
     biddingComplete: {
@@ -117,6 +141,10 @@ export const UltimateBidChart: Record<Bid, Bid> = {
 
 function haveAllBidsBeenMade(context: BiddingContext): boolean {
   return _.every(context.bids, (bid) => bid !== null);
+}
+
+function allPlayersPassed(context: BiddingContext): boolean {
+  return context.highestBid === 'pass';
 }
 
 export function getHighestBid(

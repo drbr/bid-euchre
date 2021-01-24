@@ -1,6 +1,7 @@
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import { Suit } from '../gameLogic/Cards';
+import { getHighestBidSoFar } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import {
   ActionButton,
@@ -14,7 +15,7 @@ import { GameLayout } from './components/GameLayout';
 export function BiddingDisplayNameTrump(
   props: BiddingDisplayProps
 ): JSX.Element {
-  const { highestBid, highestBidder } = props.stateContext;
+  const { highestBid, highestBidder } = getHighestBidSoFar(props.stateContext);
 
   if (highestBid === undefined || highestBidder === undefined) {
     return <div>ERROR: Highest bidder has not been recorded</div>;

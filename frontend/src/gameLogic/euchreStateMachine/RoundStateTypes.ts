@@ -1,6 +1,7 @@
 import { State, Typestate } from 'xstate';
-import { Hand } from '../Cards';
 import { Position } from '../apiContract/database/Position';
+import { Hand } from '../Cards';
+import { Bid } from '../EuchreTypes';
 import {
   PlayerSpecificEvent,
   SecretActionCompleteEvent,
@@ -8,14 +9,19 @@ import {
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 import { BiddingContext } from './BiddingStateTypes';
 
-export type RoundContext = {
+export type RoundContextAlways = {
   roundIndex: number;
   currentDealer: Position;
   private_hands: Record<Position, Hand>;
-  highestBidder: Required<BiddingContext>['highestBidder'];
-  highestBid: Required<BiddingContext>['highestBid'];
-  trump: Required<BiddingContext>['trump'];
 };
+
+export type RoundContextAfterBidding = RoundContextAlways & {
+  highestBidder?: Position;
+  highestBid?: Bid;
+  trump?: Required<BiddingContext>['trump'];
+};
+
+export type RoundContext = RoundContextAlways & RoundContextAfterBidding;
 
 export type RoundMeta = unknown;
 

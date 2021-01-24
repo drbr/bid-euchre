@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
-  RoundContext,
+  RoundContextAlways,
   RoundEvent,
   RoundStateNames,
 } from '../gameLogic/euchreStateMachine/RoundStateTypes';
@@ -19,7 +19,7 @@ import {
 } from './BiddingDisplayDelegator';
 
 export type RoundDisplayProps = ScopedGameDisplayProps<
-  RoundContext & GameContext,
+  RoundContextAlways & GameContext,
   RoundEvent
 > &
   UnscopedGameDisplayProps;

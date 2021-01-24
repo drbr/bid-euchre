@@ -1,7 +1,7 @@
 import { assign, StateNodeConfig } from 'xstate';
 import { deal } from '../deal';
 import { NextPlayer } from '../utils/ModelHelpers';
-import { BiddingStates } from './BiddingStateMachine';
+import { BiddingStates, getHighestBidSoFar } from './BiddingStateMachine';
 import { BiddingContext } from './BiddingStateTypes';
 import {
   RoundContext,
@@ -22,6 +22,7 @@ export const RoundStates: StateNodeConfig<
   RoundStateSchema,
   RoundEvent
 > = {
+  id: 'round',
   key: 'round',
   initial: 'waitForDeal',
   entry: assign({
@@ -53,7 +54,12 @@ export const RoundStates: StateNodeConfig<
         TypedStateSchema<RoundMeta, BiddingContext>,
         RoundEvent
       >),
-      onDone: { target: 'checkWinningBidder' },
+      onDone: {
+        target: 'thePlay',
+        actions: assign((context) =>
+          getHighestBidSoFar((context as unknown) as BiddingContext)
+        ),
+      },
     },
 
     thePlay: {

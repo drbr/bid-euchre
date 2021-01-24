@@ -9,10 +9,8 @@ import {
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type BiddingContext = {
-  bids: Record<Position, Bid | null>;
   awaitedPlayer: Position;
-  highestBidder?: Position;
-  highestBid?: Bid;
+  bids: Record<Position, Bid | null>;
   trump?: Suit;
 };
 

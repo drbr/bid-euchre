@@ -2,7 +2,7 @@ import Box from '@material-ui/core/Box';
 import * as React from 'react';
 import FlexView from 'react-flexview/lib';
 import {
-  getHighestBid,
+  getHighestBidSoFar,
   UltimateBidChart,
 } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import {
@@ -52,7 +52,7 @@ export function BiddingDisplayPlayerBid(
 }
 
 function BidButtons(props: BiddingDisplayProps) {
-  const { highestBid } = getHighestBid(props.stateContext);
+  const { highestBid } = getHighestBidSoFar(props.stateContext);
   const ultimateBidValue = UltimateBidChart[highestBid];
 
   return (

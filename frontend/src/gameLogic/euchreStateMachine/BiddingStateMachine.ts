@@ -26,7 +26,7 @@ export const BiddingStates: StateNodeConfig<
     waitForPlayerToBid: {
       on: {
         PLAYER_BID: {
-          target: 'checkIfBiddingIsComplete',
+          target: 'checkIfAllPlayersHaveBid',
           cond: isBidEventValid,
           actions: assign({
             bids: (context, event) => ({
@@ -42,7 +42,7 @@ export const BiddingStates: StateNodeConfig<
       always: [
         {
           cond: haveAllBidsBeenMade,
-          target: 'biddingComplete',
+          target: 'checkWinningBidder',
         },
         {
           target: 'waitForPlayerToBid',
@@ -56,7 +56,7 @@ export const BiddingStates: StateNodeConfig<
     checkWinningBidder: {
       always: [
         {
-          target: 'waitForDeal',
+          target: '#round.waitForDeal',
           cond: allPlayersPassed,
         },
         {
@@ -68,7 +68,7 @@ export const BiddingStates: StateNodeConfig<
     waitForPlayerToNameTrump: {
       on: {
         NAME_TRUMP: {
-          target: 'thePlay',
+          target: 'complete',
           cond: wasTrumpNamedByHighestBidder,
           actions: assign({
             trump: (context, event) => event.trumpSuit,
@@ -98,7 +98,7 @@ export function assignInitialBiddingContext(
 }
 
 function wasBidMadeByAwaitedPlayer(
-  context: BiddingContext,
+context: BiddingContext,
   event: PlayerBidEvent
 ): boolean {
   return event.position === context.awaitedPlayer;
@@ -110,7 +110,7 @@ function isBidValid(context: BiddingContext, event: PlayerBidEvent): boolean {
     return true;
   }
 
-  const { highestBid } = getHighestBid(context);
+  const { highestBid } = getHighestBidSoFar(context);
   const highestAllowed = UltimateBidChart[highestBid];
   const highestExisting = _.isNumber(highestBid) ? highestBid : 0;
   return event.bid > (highestExisting || 0) && event.bid <= highestAllowed;
@@ -129,7 +129,8 @@ function wasTrumpNamedByHighestBidder(
   context: BiddingContext,
   event: NameTrumpEvent
 ): boolean {
-  return context.highestBidder === event.position;
+  const { highestBidder } = getHighestBidSoFar(context);
+  return highestBidder === event.position;
 }
 
 /**
@@ -155,10 +156,10 @@ function haveAllBidsBeenMade(context: BiddingContext): boolean {
 }
 
 function allPlayersPassed(context: BiddingContext): boolean {
-  return context.highestBid === 'pass';
+  return _.every(context.bids, (bid) => bid === 'pass');
 }
 
-export function getHighestBid(
+export function getHighestBidSoFar(
   context: BiddingContext
 ): {
   highestBidder: Position | undefined;

@@ -5,7 +5,7 @@ import {
   BiddingStateNames,
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
-import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
+import { RoundContextAlways } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { getScopedValueString } from '../gameLogic/stateMachineUtils/getScopedValue';
 import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
 import { BiddingDisplayNameTrump } from './BiddingDisplayNameTrump';
@@ -17,7 +17,7 @@ import {
 } from './GameDisplayProps';
 
 export type BiddingDisplayProps = ScopedGameDisplayProps<
-  BiddingContext & RoundContext & GameContext,
+  BiddingContext & RoundContextAlways & GameContext,
   BiddingEvent
 > &
   UnscopedGameDisplayProps;

@@ -24,7 +24,25 @@ export type StateBuffer<S> = {
    * All the snapshots that are known to the client, including those past the head that have never
    * been displayed
    */
-  readonly gameStateSnapshots: ReadonlyArray<S | undefined>;
+  readonly gameStateSnapshots: ReadonlyArray<
+    SnapshotWithBlockingInfo<S> | undefined
+  >;
+};
+
+/**
+ * Describes how the buffer machine will block the UI from advancing head while displaying this
+ * snapshot.
+ *
+ * - `block` This snapshot will be shown until an `UNBLOCK_HEAD` event is explicitly sent to the
+ *   buffer machine.
+ * - `linger` This snapshot will be shown for `LINGER_DISPLAY_MS` milliseconds before advancing to
+ *   the next snapshot.
+ */
+export type BlockType = 'block' | 'linger';
+
+export type SnapshotWithBlockingInfo<S> = {
+  snapshot: S;
+  block: BlockType;
 };
 
 export const LINGER_DELAY_MS = 1000;

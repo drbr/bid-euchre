@@ -4,10 +4,12 @@ import { ActionObject, AnyEventObject, StateValue } from 'xstate';
 import { SendGameEventErrorDetail } from '../gameLogic/apiContract/cloudFunctions/SendGameEvent';
 import { createBufferStateMachine } from '../playGame/BufferMachine';
 import {
+  BlockType,
   BufferEvent,
   BufferMachineState,
   LINGER_DELAY_MS,
   RecvSnapshotEvent,
+  SnapshotWithBlockingInfo,
   StateBuffer,
 } from '../playGame/BufferMachineTypes';
 
@@ -33,7 +35,7 @@ function getStartState(
 
 function recvSnapshot(
   index: number,
-  blockType: RecvSnapshotEvent<unknown>['blockType']
+  blockType: BlockType
 ): BufferEvent<string> {
   return {
     type: 'RECV_SNAPSHOT',
@@ -43,9 +45,18 @@ function recvSnapshot(
   };
 }
 
+type StateBufferWithOptionalBlockingInfo<S> = Omit<
+  StateBuffer<S>,
+  'gameStateSnapshots'
+> & {
+  gameStateSnapshots: ReadonlyArray<
+    Partial<SnapshotWithBlockingInfo<S>> | undefined
+  >;
+};
+
 type EventWithExpectedContext = {
   event: BufferEvent<string>;
-  expectedContext?: StateBuffer<string>;
+  expectedContext?: StateBufferWithOptionalBlockingInfo<string>;
   expectValueToMatch?: StateValue;
   expectValueNotToMatch?: StateValue;
   expectAnyActions?: boolean;
@@ -116,10 +127,25 @@ const action_delayedUnblock = {
   delay: LINGER_DELAY_MS,
 };
 
-function makeSnapshots(loadedIndexes: number[]) {
+function makeSnapshotsWithoutBlockingInfo(
+  loadedIndexes: number[]
+): ReadonlyArray<Partial<SnapshotWithBlockingInfo<string>>> {
   const snapshots = [];
   for (const i of loadedIndexes) {
-    snapshots[i] = `Snapshot ${i}`;
+    snapshots[i] = { snapshot: `Snapshot ${i}` };
+  }
+  return snapshots;
+}
+
+function makeSnapshotsWithBlockingInfo(
+  loadedSnapshots: {
+    index: number;
+    block: BlockType;
+  }[]
+): ReadonlyArray<SnapshotWithBlockingInfo<string>> {
+  const snapshots = [];
+  for (const s of loadedSnapshots) {
+    snapshots[s.index] = { snapshot: `Snapshot ${s.index}`, block: s.block };
   }
   return snapshots;
 }
@@ -127,8 +153,8 @@ function makeSnapshots(loadedIndexes: number[]) {
 function contextShowingHeadAt(
   index: number,
   opts?: { loadedSnapshotIndexes?: number[] }
-): StateBuffer<string> {
-  const gameStateSnapshots = makeSnapshots(
+): StateBufferWithOptionalBlockingInfo<string> {
+  const gameStateSnapshots = makeSnapshotsWithoutBlockingInfo(
     opts?.loadedSnapshotIndexes ?? _.range(1, index + 1)
   );
 
@@ -162,7 +188,11 @@ describe('BufferMachine', () => {
           expectedContext: {
             currentIndexShowing: null,
             head: 2,
-            gameStateSnapshots: [undefined, undefined, 'Snapshot 2'],
+            gameStateSnapshots: [
+              undefined,
+              undefined,
+              { snapshot: 'Snapshot 2' },
+            ],
           },
           expectValueToMatch: 'loading',
         },
@@ -326,7 +356,12 @@ describe('BufferMachine', () => {
   });
 
   describe('Detached mode', () => {
-    const loadedSnapshotsThrough4 = makeSnapshots([1, 2, 3, 4]);
+    const loadedSnapshotsThrough4 = makeSnapshotsWithBlockingInfo([
+      { index: 1, block: 'block' },
+      { index: 2, block: 'block' },
+      { index: 3, block: 'block' },
+      { index: 4, block: 'block' },
+    ]);
 
     const state_showHeadAt4Blocked = getStartState(
       {
@@ -471,7 +506,13 @@ describe('BufferMachine', () => {
             event: { type: 'DETACHED_GO_TO_INDEX', index: 6 },
             expectedContext: {
               ...state_showHeadAt4Unblocked.context,
-              gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 6]),
+              gameStateSnapshots: makeSnapshotsWithoutBlockingInfo([
+                1,
+                2,
+                3,
+                4,
+                6,
+              ]),
             },
             expectValueToMatch: state_showHeadAt4Unblocked.value,
           }
@@ -525,7 +566,13 @@ describe('BufferMachine', () => {
             event: { type: 'DETACHED_GO_TO_INDEX', index: 6 },
             expectedContext: {
               ...state_detachedAt3_headIs4.context,
-              gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 6]),
+              gameStateSnapshots: makeSnapshotsWithoutBlockingInfo([
+                1,
+                2,
+                3,
+                4,
+                6,
+              ]),
             },
             expectValueToMatch: state_detachedAt3_headIs4.value,
           }
@@ -551,7 +598,7 @@ describe('BufferMachine', () => {
         event: recvSnapshot(5, 'linger'),
         expectedContext: {
           ...state_detachedAt3_headIs4.context,
-          gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 5]),
+          gameStateSnapshots: makeSnapshotsWithoutBlockingInfo([1, 2, 3, 4, 5]),
         },
         expectValueToMatch: DETACHED,
       });
@@ -607,7 +654,10 @@ describe('BufferMachine', () => {
       const detachedContext: StateBuffer<string> = {
         head: 2,
         currentIndexShowing: 1,
-        gameStateSnapshots: makeSnapshots([1, 2]),
+        gameStateSnapshots: makeSnapshotsWithBlockingInfo([
+          { index: 1, block: 'block' },
+          { index: 2, block: 'block' },
+        ]),
       };
 
       applyTransitions(

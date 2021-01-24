@@ -227,7 +227,10 @@ function addSnapshotToBuffer<S>(
   }
 
   const clonedSnapshots = prevBuffer.gameStateSnapshots.slice(0);
-  clonedSnapshots[event.index] = event.snapshot;
+  clonedSnapshots[event.index] = {
+    snapshot: event.snapshot,
+    blockType: event.blockType,
+  };
 
   return {
     ...prevBuffer,

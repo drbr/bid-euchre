@@ -42,7 +42,7 @@ export type BlockType = 'block' | 'linger';
 
 export type SnapshotWithBlockingInfo<S> = {
   snapshot: S;
-  block: BlockType;
+  blockType: BlockType;
 };
 
 export const LINGER_DELAY_MS = 1000;

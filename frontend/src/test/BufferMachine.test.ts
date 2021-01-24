@@ -79,7 +79,7 @@ function applyTransitions(
     }
 
     if (t.expectedContext) {
-      expect(current.context).toEqual(t.expectedContext);
+      expect(current.context).toMatchObject(t.expectedContext);
     }
 
     if (t.expectAnyActions === true) {
@@ -145,7 +145,10 @@ function makeSnapshotsWithBlockingInfo(
 ): ReadonlyArray<SnapshotWithBlockingInfo<string>> {
   const snapshots = [];
   for (const s of loadedSnapshots) {
-    snapshots[s.index] = { snapshot: `Snapshot ${s.index}`, block: s.block };
+    snapshots[s.index] = {
+      snapshot: `Snapshot ${s.index}`,
+      blockType: s.block,
+    };
   }
   return snapshots;
 }

@@ -14,7 +14,9 @@ export type GameContext = EventCountContext & {
   score: Record<Partnership, number>;
 };
 
-export type GameMeta = unknown;
+export type GameMeta = {
+  blocking?: boolean;
+};
 
 export type GameStatesGeneric<T> = {
   entry: T;

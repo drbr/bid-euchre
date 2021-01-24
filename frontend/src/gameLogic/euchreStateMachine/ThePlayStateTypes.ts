@@ -1,11 +1,12 @@
 import { State, Typestate } from 'xstate';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
+import { GameMeta } from './GameStateTypes';
 
 export type ThePlayContext = {
   tricks: null;
 };
 
-export type ThePlayMeta = unknown;
+export type ThePlayMeta = GameMeta;
 
 export type ThePlayStatesGeneric<T> = {
   entry: T;

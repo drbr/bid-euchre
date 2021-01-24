@@ -7,6 +7,7 @@ import {
   BufferEvent,
   BufferMachineState,
   LINGER_DELAY_MS,
+  RecvSnapshotEvent,
   StateBuffer,
 } from '../playGame/BufferMachineTypes';
 
@@ -30,11 +31,15 @@ function getStartState(
   );
 }
 
-function recvSnapshot(index: number): BufferEvent<string> {
+function recvSnapshot(
+  index: number,
+  blockType: RecvSnapshotEvent<unknown>['blockType']
+): BufferEvent<string> {
   return {
     type: 'RECV_SNAPSHOT',
     snapshot: 'Snapshot ' + index,
     index: index,
+    blockType: blockType,
   };
 }
 
@@ -84,6 +89,33 @@ const UNBLOCKED = { loaded: { showHead: 'unblocked' } };
 const DETACHED = { loaded: 'showSnapshotDetached' };
 const SENDING = 'sendingGameEvent';
 
+const action_callApi_start = {
+  type: 'xstate.start',
+  activity: {
+    type: 'xstate.invoke',
+    src: 'sendGameEvent',
+  },
+};
+
+const action_callApi_stop = {
+  type: 'xstate.stop',
+  activity: {
+    type: 'xstate.invoke',
+    src: 'sendGameEvent',
+  },
+};
+
+const action_uiAlert = {
+  type: 'uiAlert',
+};
+
+const action_delayedUnblock = {
+  type: 'xstate.send',
+  id: 'UNBLOCK_HEAD',
+  event: { type: 'UNBLOCK_HEAD' },
+  delay: LINGER_DELAY_MS,
+};
+
 function makeSnapshots(loadedIndexes: number[]) {
   const snapshots = [];
   for (const i of loadedIndexes) {
@@ -126,7 +158,7 @@ describe('BufferMachine', () => {
       applyTransitions(
         start,
         {
-          event: recvSnapshot(2),
+          event: recvSnapshot(2, 'linger'),
           expectedContext: {
             currentIndexShowing: null,
             head: 2,
@@ -135,7 +167,7 @@ describe('BufferMachine', () => {
           expectValueToMatch: 'loading',
         },
         {
-          event: recvSnapshot(1),
+          event: recvSnapshot(1, 'linger'),
           expectedContext: contextShowingHeadAt(2),
           expectValueNotToMatch: 'loading',
         }
@@ -147,10 +179,10 @@ describe('BufferMachine', () => {
       expect(start.context.head).toBe(null);
       applyTransitions(
         start,
-        { event: recvSnapshot(1) },
-        { event: recvSnapshot(2) },
+        { event: recvSnapshot(1, 'linger') },
+        { event: recvSnapshot(2, 'linger') },
         {
-          event: recvSnapshot(3),
+          event: recvSnapshot(3, 'linger'),
           expectValueToMatch: 'loading',
         }
       );
@@ -158,12 +190,24 @@ describe('BufferMachine', () => {
   });
 
   describe('Head mode', () => {
-    const state_showHeadAt1 = applyTransitions(getStartStateWithHead(1), {
-      event: recvSnapshot(1),
+    test('starts showing the head state in "blocked" for a blocking state', () => {
+      applyTransitions(getStartStateWithHead(1), {
+        event: recvSnapshot(1, 'block'),
+        expectValueToMatch: BLOCKED,
+        expectAnyActions: false,
+      });
     });
 
-    test('starts showing the head state in "blocked"', () => {
-      expect(state_showHeadAt1.value).toEqual(BLOCKED);
+    test('starts showing the head state in "BLOCKED" for a lingering state, with a delayed unblock action', () => {
+      applyTransitions(getStartStateWithHead(1), {
+        event: recvSnapshot(1, 'linger'),
+        expectValueToMatch: BLOCKED,
+        expectActions: [action_delayedUnblock],
+      });
+    });
+
+    const state_showHeadAt1 = applyTransitions(getStartStateWithHead(1), {
+      event: recvSnapshot(1, 'block'),
     });
 
     test('when unblocking, transitions to "unblocked" if the next index is not available', () => {
@@ -174,11 +218,11 @@ describe('BufferMachine', () => {
       });
     });
 
-    test('when unblocking, immediately advances the head if the next index is available', () => {
+    test('when unblocking, immediately advances the head if the next (lingering) index is available', () => {
       applyTransitions(
         state_showHeadAt1,
         {
-          event: recvSnapshot(2),
+          event: recvSnapshot(2, 'linger'),
           expectedContext: contextShowingHeadAt(1, {
             loadedSnapshotIndexes: [1, 2],
           }),
@@ -188,18 +232,52 @@ describe('BufferMachine', () => {
           event: { type: 'UNBLOCK_HEAD' },
           expectedContext: contextShowingHeadAt(2),
           expectValueToMatch: BLOCKED,
+          expectActions: [action_delayedUnblock],
         }
       );
     });
 
-    test(`from "unblocked", on RECV, transitions to the next head if it's available`, () => {
+    test('when unblocking, immediately advances the head if the next (blocking) index is available', () => {
+      applyTransitions(
+        state_showHeadAt1,
+        {
+          event: recvSnapshot(2, 'block'),
+          expectedContext: contextShowingHeadAt(1, {
+            loadedSnapshotIndexes: [1, 2],
+          }),
+          expectValueToMatch: BLOCKED,
+        },
+        {
+          event: { type: 'UNBLOCK_HEAD' },
+          expectedContext: contextShowingHeadAt(2),
+          expectValueToMatch: BLOCKED,
+          expectAnyActions: false,
+        }
+      );
+    });
+
+    test(`from "unblocked", on RECV, transitions to the next lingering head if it's available`, () => {
       applyTransitions(
         state_showHeadAt1,
         { event: { type: 'UNBLOCK_HEAD' } },
         {
-          event: recvSnapshot(2),
+          event: recvSnapshot(2, 'linger'),
           expectedContext: contextShowingHeadAt(2),
           expectValueToMatch: BLOCKED,
+          expectActions: [action_delayedUnblock],
+        }
+      );
+    });
+
+    test(`from "unblocked", on RECV, transitions to the next blocking head if it's available`, () => {
+      applyTransitions(
+        state_showHeadAt1,
+        { event: { type: 'UNBLOCK_HEAD' } },
+        {
+          event: recvSnapshot(2, 'block'),
+          expectedContext: contextShowingHeadAt(2),
+          expectValueToMatch: BLOCKED,
+          expectAnyActions: false,
         }
       );
     });
@@ -209,7 +287,7 @@ describe('BufferMachine', () => {
         state_showHeadAt1,
         { event: { type: 'UNBLOCK_HEAD' } },
         {
-          event: recvSnapshot(3),
+          event: recvSnapshot(3, 'linger'),
           expectedContext: contextShowingHeadAt(1, {
             loadedSnapshotIndexes: [1, 3],
           }),
@@ -222,9 +300,9 @@ describe('BufferMachine', () => {
       applyTransitions(
         state_showHeadAt1,
         { event: { type: 'UNBLOCK_HEAD' } },
-        { event: recvSnapshot(3) },
+        { event: recvSnapshot(3, 'linger') },
         {
-          event: recvSnapshot(2),
+          event: recvSnapshot(2, 'linger'),
           expectedContext: contextShowingHeadAt(2, {
             loadedSnapshotIndexes: [1, 2, 3],
           }),
@@ -388,7 +466,7 @@ describe('BufferMachine', () => {
       test('jumping to an index > head that has already been fetched should have no effect', () => {
         applyTransitions(
           state_showHeadAt4Unblocked,
-          { event: recvSnapshot(6) },
+          { event: recvSnapshot(6, 'linger') },
           {
             event: { type: 'DETACHED_GO_TO_INDEX', index: 6 },
             expectedContext: {
@@ -442,7 +520,7 @@ describe('BufferMachine', () => {
       test('jumping to an index > head that has already been fetched should have no effect', () => {
         applyTransitions(
           state_detachedAt3_headIs4,
-          { event: recvSnapshot(6) },
+          { event: recvSnapshot(6, 'linger') },
           {
             event: { type: 'DETACHED_GO_TO_INDEX', index: 6 },
             expectedContext: {
@@ -470,7 +548,7 @@ describe('BufferMachine', () => {
 
     test('on RECV, the current shown index and head should not change', () => {
       applyTransitions(state_detachedAt3_headIs4, {
-        event: recvSnapshot(5),
+        event: recvSnapshot(5, 'linger'),
         expectedContext: {
           ...state_detachedAt3_headIs4.context,
           gameStateSnapshots: makeSnapshots([1, 2, 3, 4, 5]),
@@ -505,37 +583,11 @@ describe('BufferMachine', () => {
       } as AnyEventObject) as BufferEvent<string>;
     }
 
-    const action_callApi_start = {
-      type: 'xstate.start',
-      activity: {
-        type: 'xstate.invoke',
-        src: 'sendGameEvent',
-      },
-    };
-
-    const action_callApi_stop = {
-      type: 'xstate.stop',
-      activity: {
-        type: 'xstate.invoke',
-        src: 'sendGameEvent',
-      },
-    };
-
-    const action_uiAlert = {
-      type: 'uiAlert',
-    };
-
-    const action_delayedUnblock = {
-      type: 'xstate.send',
-      id: 'UNBLOCK_HEAD',
-      delay: LINGER_DELAY_MS,
-    };
-
     const state_showHeadAt2 = applyTransitions(
       getStartStateWithHead(1),
-      { event: recvSnapshot(1) },
+      { event: recvSnapshot(1, 'linger') },
       { event: { type: 'UNBLOCK_HEAD' } },
-      { event: recvSnapshot(2) }
+      { event: recvSnapshot(2, 'linger') }
     );
 
     test('accepts an event while displaying the head and transitions to the "busy" state', () => {
@@ -586,7 +638,7 @@ describe('BufferMachine', () => {
             expectActions: [action_callApi_stop],
           },
           {
-            event: recvSnapshot(3),
+            event: recvSnapshot(3, 'linger'),
             expectValueToMatch: BLOCKED, // Don't jump to unblocked as we do in the error cases
             expectedContext: contextShowingHeadAt(3),
             expectActions: [action_delayedUnblock],
@@ -602,7 +654,7 @@ describe('BufferMachine', () => {
         applyTransitions(
           state_sendingEventFrom2,
           {
-            event: recvSnapshot(3),
+            event: recvSnapshot(3, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2, {
               loadedSnapshotIndexes: [1, 2, 3],
@@ -626,7 +678,7 @@ describe('BufferMachine', () => {
         applyTransitions(
           state_sendingEventFrom2,
           {
-            event: recvSnapshot(3),
+            event: recvSnapshot(3, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2, {
               loadedSnapshotIndexes: [1, 2, 3],
@@ -634,7 +686,7 @@ describe('BufferMachine', () => {
             expectAnyActions: false,
           },
           {
-            event: recvSnapshot(4),
+            event: recvSnapshot(4, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2, {
               loadedSnapshotIndexes: [1, 2, 3, 4],
@@ -660,7 +712,7 @@ describe('BufferMachine', () => {
         applyTransitions(
           state_sendingEventFrom2,
           {
-            event: recvSnapshot(3),
+            event: recvSnapshot(3, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2, {
               loadedSnapshotIndexes: [1, 2, 3],
@@ -686,7 +738,7 @@ describe('BufferMachine', () => {
         applyTransitions(
           state_sendingEventFrom2,
           {
-            event: recvSnapshot(3),
+            event: recvSnapshot(3, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2, {
               loadedSnapshotIndexes: [1, 2, 3],
@@ -694,7 +746,7 @@ describe('BufferMachine', () => {
             expectAnyActions: false,
           },
           {
-            event: recvSnapshot(4),
+            event: recvSnapshot(4, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2, {
               loadedSnapshotIndexes: [1, 2, 3, 4],
@@ -728,7 +780,7 @@ describe('BufferMachine', () => {
             expectActions: [action_callApi_stop],
           },
           {
-            event: recvSnapshot(3),
+            event: recvSnapshot(3, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(3),
             expectActions: [action_callApi_start],
@@ -759,7 +811,7 @@ describe('BufferMachine', () => {
         applyTransitions(
           state_sendingEventFrom2,
           {
-            event: recvSnapshot(3),
+            event: recvSnapshot(3, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2, {
               loadedSnapshotIndexes: [1, 2, 3],
@@ -798,7 +850,7 @@ describe('BufferMachine', () => {
         applyTransitions(
           state_sendingEventFrom2,
           {
-            event: recvSnapshot(3),
+            event: recvSnapshot(3, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2, {
               loadedSnapshotIndexes: [1, 2, 3],
@@ -806,7 +858,7 @@ describe('BufferMachine', () => {
             expectAnyActions: false,
           },
           {
-            event: recvSnapshot(4),
+            event: recvSnapshot(4, 'linger'),
             expectValueToMatch: SENDING,
             expectedContext: contextShowingHeadAt(2, {
               loadedSnapshotIndexes: [1, 2, 3, 4],

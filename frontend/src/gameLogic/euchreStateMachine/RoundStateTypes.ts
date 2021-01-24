@@ -8,6 +8,7 @@ import {
 } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 import { BiddingContext } from './BiddingStateTypes';
+import { GameMeta } from './GameStateTypes';
 
 export type RoundContextAlways = {
   roundIndex: number;
@@ -23,7 +24,7 @@ export type RoundContextAfterBidding = RoundContextAlways & {
 
 export type RoundContext = RoundContextAlways & RoundContextAfterBidding;
 
-export type RoundMeta = unknown;
+export type RoundMeta = GameMeta;
 
 export type RoundStatesGeneric<T> = {
   waitForDeal: T;

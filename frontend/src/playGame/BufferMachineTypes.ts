@@ -94,8 +94,25 @@ export type BufferStateValue = TypedStateValue<BufferStateSchema<unknown>>;
 
 export type RecvSnapshotEvent<S> = {
   type: 'RECV_SNAPSHOT';
+
+  /** The game state snapshot */
   snapshot: S;
+
+  /**
+   * The index of this snapshot in the list of all snapshots. Probably corresponds to the
+   * `eventCount` field. */
   index: number;
+
+  /**
+   * Describes how the buffer machine will block the UI from advancing head while displaying this
+   * snapshot.
+   *
+   * - `block` This snapshot will be shown until an `UNBLOCK_HEAD` event is explicitly sent to the
+   *   buffer machine.
+   * - `linger` This snapshot will be shown for `LINGER_DISPLAY_MS` milliseconds before advancing to
+   *   the next snapshot.
+   */
+  blockType: 'block' | 'linger';
 };
 
 type SwitchToDetachedIndexEvent = {

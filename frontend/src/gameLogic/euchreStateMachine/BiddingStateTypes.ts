@@ -7,6 +7,7 @@ import {
   PlayerSpecificEvent,
 } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
+import { GameMeta } from './GameStateTypes';
 
 export type BiddingContext = {
   awaitedPlayer: Position;
@@ -14,7 +15,7 @@ export type BiddingContext = {
   trump?: Suit;
 };
 
-export type BiddingMeta = unknown;
+export type BiddingMeta = GameMeta;
 
 export type BiddingStatesGeneric<T> = {
   waitForPlayerToBid: T;

@@ -6,31 +6,22 @@ import {
   UltimateBidChart,
 } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import {
-  BiddingContext,
   BiddingEvent,
   PlayerBidEvent,
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
-import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
-import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { Bid } from '../gameLogic/EuchreTypes';
 import {
   ActionButton,
   actionButtonPropsForGameEvent,
 } from '../uiHelpers/ActionButton';
-import { DebugButton } from './DebugButton';
-import {
-  ScopedGameDisplayProps,
-  UnscopedGameDisplayProps,
-} from './GameDisplay';
-import { GameLayout, PLACEHOLDER } from './GameLayout';
+import { BiddingDisplayProps } from './BiddingDisplayDelegator';
+import { BidCardContent } from './components/BidCardContent';
+import { DebugButton } from './components/DebugButton';
+import { GameLayout } from './components/GameLayout';
 
-export type BiddingDisplayProps = ScopedGameDisplayProps<
-  BiddingContext & RoundContext & GameContext,
-  BiddingEvent
-> &
-  UnscopedGameDisplayProps;
-
-export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
+export function BiddingDisplayPlayerBid(
+  props: BiddingDisplayProps
+): JSX.Element {
   const bids = props.stateContext.bids;
   if (!bids) {
     throw new Error('Bids is not an object!!!');
@@ -55,7 +46,7 @@ export function BiddingDisplay(props: BiddingDisplayProps): JSX.Element {
       promptMessage={promptMessage}
       hands={props.stateContext.private_hands}
       userActionControls={<BidButtons {...props} />}
-      debugControls={<BiddingDebugControls {...props} />}
+      debugControls={<PlayerBidDebugControls {...props} />}
     />
   );
 }
@@ -105,17 +96,7 @@ function BidButton(
   );
 }
 
-export function BidCardContent(props: { bid: Bid | null }) {
-  const translatedBid =
-    props.bid === 'pass'
-      ? 'Pass'
-      : props.bid === null
-      ? PLACEHOLDER
-      : props.bid;
-  return <>{translatedBid}</>;
-}
-
-function BiddingDebugControls(props: BiddingDisplayProps) {
+function PlayerBidDebugControls(props: BiddingDisplayProps) {
   function renderButton(event: PlayerBidEvent) {
     return (
       <DebugButton

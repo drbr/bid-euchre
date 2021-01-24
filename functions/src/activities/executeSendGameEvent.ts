@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import { AnyEventObject } from 'xstate';
 import { GAME_NOT_FOUND_ERROR, INVALID_GAME_STATUS_ERROR } from '..';
 import {
   SendGameEventRequest,
@@ -47,7 +48,7 @@ export default async function executeSendGameEvent(
   }
 
   // If the action is for a specific player, make sure it's the player submitting the event
-  const positionEvent = event as PlayerSpecificEvent;
+  const positionEvent = event as PlayerSpecificEvent<AnyEventObject>;
   if (
     positionEvent.position &&
     positionEvent.position !== playerPositionInThisGame

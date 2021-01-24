@@ -7,6 +7,7 @@ import {
   BiddingContext,
   BiddingEvent,
   BiddingStateSchema,
+  NameTrumpEvent,
   PlayerBidEvent,
 } from './BiddingStateTypes';
 import { RoundContext } from './RoundStateTypes';
@@ -18,6 +19,9 @@ export const BiddingStates: StateNodeConfig<
 > = {
   key: 'bidding',
   initial: 'waitForPlayerToBid',
+  entry: assign((context) =>
+    assignInitialBiddingContext((context as unknown) as RoundContext)
+  ),
   states: {
     waitForPlayerToBid: {
       on: {
@@ -73,7 +77,7 @@ export const BiddingStates: StateNodeConfig<
       },
     },
 
-    biddingComplete: {
+    complete: {
       type: 'final',
     },
   },
@@ -119,6 +123,13 @@ function isBidEventValid(
   return (
     wasBidMadeByAwaitedPlayer(context, event) && isBidValid(context, event)
   );
+}
+
+function wasTrumpNamedByHighestBidder(
+  context: BiddingContext,
+  event: NameTrumpEvent
+): boolean {
+  return context.highestBidder === event.position;
 }
 
 /**

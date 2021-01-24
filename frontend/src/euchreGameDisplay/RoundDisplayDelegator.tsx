@@ -7,14 +7,16 @@ import {
 } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { getScopedValueString } from '../gameLogic/stateMachineUtils/getScopedValue';
 import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
-import { BiddingDisplay, BiddingDisplayProps } from './BiddingDisplay';
+import { TransientState } from './components/TransientState';
 import {
   ScopedGameDisplayProps,
   UnscopedGameDisplayProps,
-} from './GameDisplay';
-import { DealDisplay } from './DealDisplay';
-import { NameTrumpDisplay } from './NameTrumpDisplay';
-import { TransientState } from './TransientState';
+} from './GameDisplayProps';
+import { RoundDisplayDeal } from './RoundDisplayDeal';
+import {
+  BiddingDisplayDelegator,
+  BiddingDisplayProps,
+} from './BiddingDisplayDelegator';
 
 export type RoundDisplayProps = ScopedGameDisplayProps<
   RoundContext & GameContext,
@@ -22,7 +24,7 @@ export type RoundDisplayProps = ScopedGameDisplayProps<
 > &
   UnscopedGameDisplayProps;
 
-export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
+export function RoundDisplayDelegator(props: RoundDisplayProps): JSX.Element {
   const substate: RoundStateNames = getScopedValueString(
     props.stateValue,
     'runGame',
@@ -34,18 +36,17 @@ export function RoundDisplay(props: RoundDisplayProps): JSX.Element {
 
   switch (substate) {
     case 'waitForDeal':
-      return <DealDisplay {...props} />;
+      return <RoundDisplayDeal {...props} />;
     case 'bidding':
       return (
-        <BiddingDisplay {...((props as unknown) as BiddingDisplayProps)} />
+        <BiddingDisplayDelegator
+          {...((props as unknown) as BiddingDisplayProps)}
+        />
       );
-    case 'waitForPlayerToNameTrump':
-      return <NameTrumpDisplay {...props} />;
-    case 'checkWinningBidder':
     case 'dealDone':
     case 'roundComplete':
-    case 'scoring':
     case 'thePlay':
+    case 'scoring':
       return <TransientState substateName={substate} />;
     default:
       assertUnreachable(substate);

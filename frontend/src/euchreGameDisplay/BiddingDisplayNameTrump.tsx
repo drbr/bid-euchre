@@ -1,17 +1,19 @@
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import { Suit } from '../gameLogic/Cards';
-import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/RoundStateTypes';
+import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import {
   ActionButton,
   actionButtonPropsForGameEvent,
 } from '../uiHelpers/ActionButton';
-import { BidCardContent } from './BiddingDisplay';
-import { DebugButton } from './DebugButton';
-import { GameLayout } from './GameLayout';
-import { RoundDisplayProps } from './RoundDisplay';
+import { BiddingDisplayProps } from './BiddingDisplayDelegator';
+import { BidCardContent } from './components/BidCardContent';
+import { DebugButton } from './components/DebugButton';
+import { GameLayout } from './components/GameLayout';
 
-export function NameTrumpDisplay(props: RoundDisplayProps): JSX.Element {
+export function BiddingDisplayNameTrump(
+  props: BiddingDisplayProps
+): JSX.Element {
   const { highestBid, highestBidder } = props.stateContext;
 
   if (highestBid === undefined || highestBidder === undefined) {
@@ -40,7 +42,7 @@ export function NameTrumpDisplay(props: RoundDisplayProps): JSX.Element {
   );
 }
 
-function SuitButtons(props: RoundDisplayProps) {
+function SuitButtons(props: BiddingDisplayProps) {
   return (
     <Grid container spacing={1} justify="center">
       <SuitButton {...props} suit="C" />
@@ -51,7 +53,7 @@ function SuitButtons(props: RoundDisplayProps) {
   );
 }
 
-function SuitButton(props: RoundDisplayProps & { suit: Suit }) {
+function SuitButton(props: BiddingDisplayProps & { suit: Suit }) {
   if (!props.seatedAt) {
     return null;
   }
@@ -83,7 +85,7 @@ const SuitDisplay: Record<Suit, { text: string; color: string }> = {
   C: { text: '♣️️', color: 'black' },
 };
 
-function NameTrumpDebugControls(props: RoundDisplayProps) {
+function NameTrumpDebugControls(props: BiddingDisplayProps) {
   function renderButton(event: NameTrumpEvent) {
     return (
       <DebugButton

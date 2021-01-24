@@ -1,7 +1,11 @@
 import { State, Typestate } from 'xstate';
-import { Bid } from '../EuchreTypes';
 import { Position } from '../apiContract/database/Position';
-import { AutoTransitionEvent } from '../stateMachineUtils/SpecialEvents';
+import { Suit } from '../Cards';
+import { Bid } from '../EuchreTypes';
+import {
+  AutoTransitionEvent,
+  PlayerSpecificEvent,
+} from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 
 export type BiddingContext = {
@@ -9,6 +13,7 @@ export type BiddingContext = {
   awaitedPlayer: Position;
   highestBidder?: Position;
   highestBid?: Bid;
+  trump?: Suit;
 };
 
 export type BiddingMeta = unknown;
@@ -27,13 +32,20 @@ export type BiddingStateSchema = {
   states: BiddingStatesGeneric<TypedStateSchema<BiddingMeta, BiddingContext>>;
 };
 
-export type PlayerBidEvent = {
+export type PlayerBidEvent = PlayerSpecificEvent<{
   type: 'PLAYER_BID';
   bid: Bid;
-  position: Position;
-};
+}>;
 
-export type BiddingEvent = AutoTransitionEvent | PlayerBidEvent;
+export type NameTrumpEvent = PlayerSpecificEvent<{
+  type: 'NAME_TRUMP';
+  trumpSuit: Suit;
+}>;
+
+export type BiddingEvent =
+  | AutoTransitionEvent
+  | PlayerBidEvent
+  | NameTrumpEvent;
 
 export type BiddingState = State<
   BiddingContext,

@@ -3,7 +3,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import _ from 'lodash';
 import { Dispatch, useState } from 'react';
-import { GameLayout } from '../euchreGameDisplay/GameLayout';
+import { GameLayout } from '../euchreGameDisplay/components/GameLayout';
 import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { Position } from '../gameLogic/apiContract/database/Position';
 import { ActionButton } from '../uiHelpers/ActionButton';

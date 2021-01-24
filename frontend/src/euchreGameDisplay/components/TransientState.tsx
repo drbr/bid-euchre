@@ -6,6 +6,7 @@ export function TransientState(props: { substateName: string }) {
       `Rendering transient state: ${props.substateName}. These states should never be rendered in the UI.`
     );
   }, [props.substateName]);
+
   return (
     <div>
       <p>{props.substateName}</p>

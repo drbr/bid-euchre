@@ -1,14 +1,9 @@
 import { assign, StateNodeConfig } from 'xstate';
 import { deal } from '../deal';
 import { NextPlayer } from '../utils/ModelHelpers';
-import {
-  assignInitialBiddingContext,
-  BiddingStates,
-  getHighestBid,
-} from './BiddingStateMachine';
+import { BiddingStates } from './BiddingStateMachine';
 import { BiddingContext } from './BiddingStateTypes';
 import {
-  NameTrumpEvent,
   RoundContext,
   RoundEvent,
   RoundMeta,
@@ -58,13 +53,6 @@ export const RoundStates: StateNodeConfig<
         TypedStateSchema<RoundMeta, BiddingContext>,
         RoundEvent
       >),
-      entry: assign(
-        (context) =>
-          (assignInitialBiddingContext(context) as unknown) as RoundContext
-      ),
-      exit: assign((context) => {
-        return getHighestBid((context as unknown) as BiddingContext);
-      }),
       onDone: { target: 'checkWinningBidder' },
     },
 
@@ -96,11 +84,4 @@ function isDealerDealing(
   event: StartDealEvent
 ): boolean {
   return event.position === context.currentDealer;
-}
-
-function wasTrumpNamedByHighestBidder(
-  context: RoundContext,
-  event: NameTrumpEvent
-): boolean {
-  return context.highestBidder === event.position;
 }

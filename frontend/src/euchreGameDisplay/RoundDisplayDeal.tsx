@@ -4,11 +4,11 @@ import {
   ActionButton,
   actionButtonPropsForGameEvent,
 } from '../uiHelpers/ActionButton';
-import { DebugButton } from './DebugButton';
-import { GameLayout } from './GameLayout';
-import { RoundDisplayProps } from './RoundDisplay';
+import { DebugButton } from './components/DebugButton';
+import { GameLayout } from './components/GameLayout';
+import { RoundDisplayProps } from './RoundDisplayDelegator';
 
-export function DealDisplay(props: RoundDisplayProps): JSX.Element {
+export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
   const { currentDealer, roundIndex } = props.stateContext;
 
   const dealerName = props.gameConfig.playerFriendlyNames[currentDealer];

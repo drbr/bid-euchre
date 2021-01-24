@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { AnyEventObject } from 'xstate';
-import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
+import { GameDisplayDelegatorPure } from '../euchreGameDisplay/GameDisplayDelegator';
 import * as FunctionsClient from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
@@ -82,7 +82,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
       <p>
         {props.playerId ? null : 'You are a spectator of the current game!'}
       </p>
-      <GameDisplayPure
+      <GameDisplayDelegatorPure
         stateValue={gameState.value}
         stateContext={gameState.context}
         gameConfig={props.gameConfig}

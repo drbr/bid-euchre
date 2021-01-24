@@ -1,17 +1,20 @@
 import { State, Typestate } from 'xstate';
-import { Hand, Suit } from '../Cards';
-import { Bid } from '../EuchreTypes';
+import { Hand } from '../Cards';
 import { Position } from '../apiContract/database/Position';
-import { SecretActionCompleteEvent } from '../stateMachineUtils/SpecialEvents';
+import {
+  PlayerSpecificEvent,
+  SecretActionCompleteEvent,
+} from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
+import { BiddingContext } from './BiddingStateTypes';
 
 export type RoundContext = {
   roundIndex: number;
   currentDealer: Position;
   private_hands: Record<Position, Hand>;
-  highestBidder?: Position;
-  highestBid?: Bid;
-  trump?: Suit;
+  highestBidder: Required<BiddingContext>['highestBidder'];
+  highestBid: Required<BiddingContext>['highestBid'];
+  trump: Required<BiddingContext>['trump'];
 };
 
 export type RoundMeta = unknown;
@@ -31,21 +34,11 @@ export type RoundStateSchema = {
   states: RoundStatesGeneric<TypedStateSchema<RoundMeta, RoundContext>>;
 };
 
-export type StartDealEvent = {
+export type StartDealEvent = PlayerSpecificEvent<{
   type: 'DEALER_STARTS_DEAL';
-  position: Position;
-};
+}>;
 
-export type NameTrumpEvent = {
-  type: 'NAME_TRUMP';
-  position: Position;
-  trumpSuit: Suit;
-};
-
-export type RoundEvent =
-  | StartDealEvent
-  | NameTrumpEvent
-  | SecretActionCompleteEvent;
+export type RoundEvent = StartDealEvent | SecretActionCompleteEvent;
 
 export type RoundState = State<
   RoundContext,

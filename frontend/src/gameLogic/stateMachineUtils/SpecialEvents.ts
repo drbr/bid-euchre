@@ -1,11 +1,11 @@
-import { Position } from "../apiContract/database/Position";
+import { Position } from '../apiContract/database/Position';
 
 /**
  * Some events are meant to have been executed by a specific player. Those should implement this
  * interface; the server will verify that it was indeed that player who sent the event.
  */
-export type PlayerSpecificEvent = {
-  position?: Position;
+export type PlayerSpecificEvent<T> = T & {
+  position: Position;
 };
 
 export type StartGameEvent = {

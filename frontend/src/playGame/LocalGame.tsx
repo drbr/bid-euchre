@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import FlexView from 'react-flexview/lib';
 import { AnyEventObject } from 'xstate';
-import { GameDisplayPure } from '../euchreGameDisplay/GameDisplay';
+import { GameDisplayDelegatorPure } from '../euchreGameDisplay/GameDisplayDelegator';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import {
@@ -124,7 +124,7 @@ export function LocalGame(props: LocalGameProps) {
           send={sendGameEvent}
         />
       </FlexView>
-      <GameDisplayPure
+      <GameDisplayDelegatorPure
         stateValue={gameState.hydratedState.value}
         stateContext={gameState.hydratedState.context}
         isEventValid={isEventValid}

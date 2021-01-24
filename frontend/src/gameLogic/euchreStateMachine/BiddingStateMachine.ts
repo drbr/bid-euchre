@@ -56,7 +56,7 @@ export const BiddingStates: StateNodeConfig<
     checkWinningBidder: {
       always: [
         {
-          target: '#round.waitForDeal',
+          target: 'allPlayersPassedInfo',
           cond: allPlayersPassed,
         },
         {
@@ -65,15 +65,27 @@ export const BiddingStates: StateNodeConfig<
       ],
     },
 
+    allPlayersPassedInfo: {
+      on: {
+        AUTO_TRANSITION: '#round.waitForDeal',
+      },
+    },
+
     waitForPlayerToNameTrump: {
       on: {
         NAME_TRUMP: {
-          target: 'complete',
+          target: 'playerNamedTrumpInfo',
           cond: wasTrumpNamedByHighestBidder,
           actions: assign({
             trump: (context, event) => event.trumpSuit,
           }),
         },
+      },
+    },
+
+    playerNamedTrumpInfo: {
+      on: {
+        AUTO_TRANSITION: 'complete',
       },
     },
 
@@ -98,7 +110,7 @@ export function assignInitialBiddingContext(
 }
 
 function wasBidMadeByAwaitedPlayer(
-context: BiddingContext,
+  context: BiddingContext,
   event: PlayerBidEvent
 ): boolean {
   return event.position === context.awaitedPlayer;

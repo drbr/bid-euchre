@@ -40,6 +40,10 @@ export function BiddingDisplayDelegator(
       return <BiddingDisplayPlayerBid {...props} />;
     case 'waitForPlayerToNameTrump':
       return <BiddingDisplayNameTrump {...props} />;
+    // TODO render an "info state"
+    case 'allPlayersPassedInfo':
+    case 'playerNamedTrumpInfo':
+      return <TransientState substateName={substate} />;
     case 'checkIfAllPlayersHaveBid':
     case 'checkWinningBidder':
     case 'complete':

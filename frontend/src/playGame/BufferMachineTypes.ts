@@ -27,7 +27,7 @@ export type StateBuffer<S> = {
   readonly gameStateSnapshots: ReadonlyArray<S | undefined>;
 };
 
-export const LINGER_DELAY_MS = 500;
+export const LINGER_DELAY_MS = 1000;
 
 type BufferStatesGeneric<X> = {
   /**

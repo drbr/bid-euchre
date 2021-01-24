@@ -20,7 +20,9 @@ export type BiddingStatesGeneric<T> = {
   waitForPlayerToBid: T;
   checkIfAllPlayersHaveBid: T;
   checkWinningBidder: T;
+  allPlayersPassedInfo: T;
   waitForPlayerToNameTrump: T;
+  playerNamedTrumpInfo: T;
   complete: T;
 };
 

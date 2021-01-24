@@ -140,14 +140,14 @@ function makeSnapshotsWithoutBlockingInfo(
 function makeSnapshotsWithBlockingInfo(
   loadedSnapshots: {
     index: number;
-    block: BlockType;
+    blockType: BlockType;
   }[]
 ): ReadonlyArray<SnapshotWithBlockingInfo<string>> {
   const snapshots = [];
   for (const s of loadedSnapshots) {
     snapshots[s.index] = {
       snapshot: `Snapshot ${s.index}`,
-      blockType: s.block,
+      blockType: s.blockType,
     };
   }
   return snapshots;
@@ -360,10 +360,10 @@ describe('BufferMachine', () => {
 
   describe('Detached mode', () => {
     const loadedSnapshotsThrough4 = makeSnapshotsWithBlockingInfo([
-      { index: 1, block: 'block' },
-      { index: 2, block: 'block' },
-      { index: 3, block: 'block' },
-      { index: 4, block: 'block' },
+      { index: 1, blockType: 'block' },
+      { index: 2, blockType: 'block' },
+      { index: 3, blockType: 'block' },
+      { index: 4, blockType: 'block' },
     ]);
 
     const state_showHeadAt4Blocked = getStartState(
@@ -658,8 +658,8 @@ describe('BufferMachine', () => {
         head: 2,
         currentIndexShowing: 1,
         gameStateSnapshots: makeSnapshotsWithBlockingInfo([
-          { index: 1, block: 'block' },
-          { index: 2, block: 'block' },
+          { index: 1, blockType: 'linger' },
+          { index: 2, blockType: 'linger' },
         ]),
       };
 

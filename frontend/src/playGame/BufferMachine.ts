@@ -113,11 +113,11 @@ export function createBufferStateMachine<S>(): StateMachine<
               enterHead: {
                 always: [
                   {
-                    cond: nextHeadLingers,
+                    cond: headLingers,
                     target: 'lingering',
                   },
                   {
-                    cond: nextHeadBlocks,
+                    cond: headBlocks,
                     target: 'blocked',
                   },
                   {
@@ -270,22 +270,22 @@ function nextSnapshotIsAvailable(context: StateBuffer<unknown>): boolean {
   return !!context.gameStateSnapshots[nextIndex];
 }
 
-function nextHeadLingers<S>(
-  context: StateBuffer<S>,
-  event: BufferEvent<S>
-): boolean {
-  // Possibly in the future we will have a special action or some way to indicate
-  // that the next state should not block or linger
-  return true;
+function getHeadSnapshot(context: StateBuffer<unknown>) {
+  if (!context.head) {
+    return null;
+  }
+  const snapshotInfo = context.gameStateSnapshots[context.head];
+  return snapshotInfo ?? null;
 }
 
-function nextHeadBlocks<S>(
-  context: StateBuffer<S>,
-  event: BufferEvent<S>
-): boolean {
-  // Possibly in the future we will have a special action or some way to indicate
-  // that the next state should not block or linger
-  return false;
+function headLingers<S>(context: StateBuffer<S>): boolean {
+  const headSnapshot = getHeadSnapshot(context);
+  return headSnapshot?.blockType === 'linger';
+}
+
+function headBlocks<S>(context: StateBuffer<S>): boolean {
+  const headSnapshot = getHeadSnapshot(context);
+  return headSnapshot?.blockType === 'block';
 }
 
 function safelyAdvanceHead<S>(context: StateBuffer<S>): StateBuffer<S> {

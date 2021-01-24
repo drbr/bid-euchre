@@ -8,6 +8,10 @@ import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { RoundContextAlways } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { getScopedValueString } from '../gameLogic/stateMachineUtils/getScopedValue';
 import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
+import {
+  AllPlayersPassedInfo,
+  PlayerNamedTrumpInfo,
+} from './BiddingDisplayInfoState';
 import { BiddingDisplayNameTrump } from './BiddingDisplayNameTrump';
 import { BiddingDisplayPlayerBid } from './BiddingDisplayPlayerBid';
 import { TransientState } from './components/TransientState';
@@ -38,12 +42,12 @@ export function BiddingDisplayDelegator(
   switch (substate) {
     case 'waitForPlayerToBid':
       return <BiddingDisplayPlayerBid {...props} />;
+    case 'allPlayersPassedInfo':
+      return <AllPlayersPassedInfo {...props} />;
     case 'waitForPlayerToNameTrump':
       return <BiddingDisplayNameTrump {...props} />;
-    // TODO render an "info state"
-    case 'allPlayersPassedInfo':
     case 'playerNamedTrumpInfo':
-      return <TransientState substateName={substate} />;
+      return <PlayerNamedTrumpInfo {...props} />;
     case 'checkIfAllPlayersHaveBid':
     case 'checkWinningBidder':
     case 'complete':

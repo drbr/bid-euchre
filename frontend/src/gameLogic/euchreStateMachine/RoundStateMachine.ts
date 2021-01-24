@@ -34,12 +34,18 @@ export const RoundStates: StateNodeConfig<
       on: {
         DEALER_STARTS_DEAL: {
           cond: isDealerDealing,
-          actions: assign({
-            private_hands: (context, event) => deal(),
-          }),
-          target: 'dealDone',
+          target: 'doDeal',
         },
       },
+    },
+
+    doDeal: {
+      always: {
+        actions: assign({
+          private_hands: (context, event) => deal(),
+        }),
+        target: 'dealDone',
+      }
     },
 
     dealDone: {

@@ -43,6 +43,7 @@ export function RoundDisplayDelegator(props: RoundDisplayProps): JSX.Element {
           {...((props as unknown) as BiddingDisplayProps)}
         />
       );
+    case 'doDeal':
     case 'dealDone':
     case 'roundComplete':
     case 'thePlay':

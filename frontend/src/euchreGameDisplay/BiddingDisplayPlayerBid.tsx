@@ -23,9 +23,6 @@ export function BiddingDisplayPlayerBid(
   props: BiddingDisplayProps
 ): JSX.Element {
   const bids = props.stateContext.bids;
-  if (!bids) {
-    throw new Error('Bids is not an object!!!');
-  }
 
   const awaitedPosition = props.stateContext.awaitedPlayer;
   const awaitedPlayerName =
@@ -116,12 +113,14 @@ function PlayerBidDebugControls(props: BiddingDisplayProps) {
       })}
       {renderButton({
         type: 'PLAYER_BID',
-        bid: 2,
+        bid: 'pass',
+        // bid: 2,
         position: 'east',
       })}
       {renderButton({
         type: 'PLAYER_BID',
-        bid: 3,
+        bid: 'pass',
+        // bid: 3,
         position: 'south',
       })}
       {renderButton({

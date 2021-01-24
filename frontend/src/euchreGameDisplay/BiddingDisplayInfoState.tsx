@@ -1,0 +1,56 @@
+import { getHighestBidSoFar } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
+import { BiddingDisplayProps } from './BiddingDisplayDelegator';
+import { BidCardContent } from './components/BidCardContent';
+import { GameLayout } from './components/GameLayout';
+import { SuitDisplayInfo } from './components/SuitDisplayInfo';
+
+export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
+  const bids = props.stateContext.bids;
+
+  return (
+    <GameLayout
+      playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      seatedAt={props.seatedAt}
+      renderPlayerCardContent={(position) => (
+        <BidCardContent bid={bids[position]} />
+      )}
+      promptMessage="All players passed. A new hand will be dealt."
+      hands={props.stateContext.private_hands}
+    />
+  );
+}
+
+export function PlayerNamedTrumpInfo(props: BiddingDisplayProps): JSX.Element {
+  const bids = props.stateContext.bids;
+  const playerNames = props.gameConfig.playerFriendlyNames;
+
+  const positionWhoNamedTrump = getHighestBidSoFar(props.stateContext)
+    .highestBidder;
+  if (!positionWhoNamedTrump) {
+    throw Error('Nobody made a high bid');
+  }
+  const trumpSuit = props.stateContext.trump;
+  if (!trumpSuit) {
+    throw Error('A trump has not been named');
+  }
+
+  const playerNameWhoNamedTrump = playerNames[positionWhoNamedTrump];
+  const trumpSuitName = SuitDisplayInfo[trumpSuit].longName;
+
+  const promptMessage =
+    props.seatedAt === positionWhoNamedTrump
+      ? `You named ${trumpSuitName} as trump.`
+      : `${playerNameWhoNamedTrump} named ${trumpSuitName} as trump.`;
+
+  return (
+    <GameLayout
+      playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      seatedAt={props.seatedAt}
+      renderPlayerCardContent={(position) => (
+        <BidCardContent bid={bids[position]} />
+      )}
+      promptMessage={promptMessage}
+      hands={props.stateContext.private_hands}
+    />
+  );
+}

@@ -67,7 +67,7 @@ export const BiddingStates: StateNodeConfig<
 
     allPlayersPassedInfo: {
       on: {
-        AUTO_TRANSITION: '#round.waitForDeal',
+        AUTO_TRANSITION: '#round.doDeal',
       },
     },
 

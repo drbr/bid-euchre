@@ -27,6 +27,7 @@ export type RoundMeta = unknown;
 
 export type RoundStatesGeneric<T> = {
   waitForDeal: T;
+  doDeal: T;
   dealDone: T;
   bidding: T;
   thePlay: T;

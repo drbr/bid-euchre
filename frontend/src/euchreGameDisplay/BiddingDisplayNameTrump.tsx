@@ -11,10 +11,12 @@ import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { BidCardContent } from './components/BidCardContent';
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
+import { SuitDisplayInfo } from './components/SuitDisplayInfo';
 
 export function BiddingDisplayNameTrump(
   props: BiddingDisplayProps
 ): JSX.Element {
+  const bids = props.stateContext.bids;
   const { highestBid, highestBidder } = getHighestBidSoFar(props.stateContext);
 
   if (highestBid === undefined || highestBidder === undefined) {
@@ -33,7 +35,7 @@ export function BiddingDisplayNameTrump(
       seatedAt={props.seatedAt}
       awaitedPosition={highestBidder}
       renderPlayerCardContent={(position) => (
-        <BidCardContent bid={position === highestBidder ? highestBid : null} />
+        <BidCardContent bid={bids[position]} />
       )}
       promptMessage={promptMessage}
       hands={props.stateContext.private_hands}
@@ -65,7 +67,7 @@ function SuitButton(props: BiddingDisplayProps & { suit: Suit }) {
     trumpSuit: props.suit,
   };
 
-  const suitInfo = SuitDisplay[props.suit];
+  const suitInfo = SuitDisplayInfo[props.suit];
   return (
     <Grid item xs={3} sm={2}>
       <ActionButton
@@ -79,13 +81,6 @@ function SuitButton(props: BiddingDisplayProps & { suit: Suit }) {
   );
 }
 
-const SuitDisplay: Record<Suit, { text: string; color: string }> = {
-  H: { text: '♥️', color: 'red' },
-  D: { text: '♦️️', color: 'red' },
-  S: { text: '♠', color: 'black' },
-  C: { text: '♣️️', color: 'black' },
-};
-
 function NameTrumpDebugControls(props: BiddingDisplayProps) {
   function renderButton(event: NameTrumpEvent) {
     return (
@@ -93,7 +88,7 @@ function NameTrumpDebugControls(props: BiddingDisplayProps) {
         {...props}
         event={event}
         text={(event) =>
-          `${event.position} names ${SuitDisplay[event.trumpSuit].text}`
+          `${event.position} names ${SuitDisplayInfo[event.trumpSuit].text}`
         }
       />
     );

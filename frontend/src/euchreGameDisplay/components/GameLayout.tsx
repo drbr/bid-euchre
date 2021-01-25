@@ -13,6 +13,7 @@ import { SuitDisplayInfo } from './SuitDisplayInfo';
 export type GameLayoutProps = {
   playerFriendlyNames: Record<Position, string | null>;
   score: Record<Partnership, number> | null;
+  trumpSuit: Suit | null;
   seatedAt: Position | null;
   awaitedPosition?: Position;
   renderPlayerCardContent: (position: Position) => React.ReactNode;
@@ -126,7 +127,7 @@ export function GameLayout(props: GameLayoutProps) {
           <Spacer />
           <Player>{playerCardAtIndex(3)}</Player>
           <Spacer>
-            <Trump suit="C" />
+            {props.trumpSuit ? <Trump suit={props.trumpSuit} /> : null}
           </Spacer>
         </Grid>
       </Box>
@@ -201,7 +202,7 @@ function Trump(props: { suit: Suit }) {
   const suitInfo = SuitDisplayInfo[props.suit];
   return (
     <Box textAlign="center">
-      <Typography>Trump</Typography>
+      <Typography style={{ color: suitInfo.color }}>TRUMP</Typography>
       <Typography
         style={{
           fontSize: 60,

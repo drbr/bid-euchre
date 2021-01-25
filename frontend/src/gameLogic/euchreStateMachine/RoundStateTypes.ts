@@ -24,8 +24,6 @@ export type RoundContextAfterBidding = RoundContextAlways & {
 
 export type RoundContext = RoundContextAlways & RoundContextAfterBidding;
 
-export type RoundMeta = GameMeta;
-
 export type RoundStatesGeneric<T> = {
   waitForDeal: T;
   doDeal: T;
@@ -39,7 +37,8 @@ export type RoundStatesGeneric<T> = {
 export type RoundStateNames = keyof RoundStatesGeneric<unknown>;
 
 export type RoundStateSchema = {
-  states: RoundStatesGeneric<TypedStateSchema<RoundMeta, RoundContext>>;
+  meta: GameMeta;
+  states: RoundStatesGeneric<TypedStateSchema<GameMeta, RoundContext>>;
 };
 
 export type StartDealEvent = PlayerSpecificEvent<{

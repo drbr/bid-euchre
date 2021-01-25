@@ -270,7 +270,7 @@ function nextSnapshotIsAvailable(context: StateBuffer<unknown>): boolean {
   return !!context.gameStateSnapshots[nextIndex];
 }
 
-function getHeadSnapshot(context: StateBuffer<unknown>) {
+export function getHeadSnapshot(context: StateBuffer<unknown>) {
   if (!context.head) {
     return null;
   }

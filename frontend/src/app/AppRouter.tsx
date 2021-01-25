@@ -81,7 +81,10 @@ function ExperimentRoute(props: RouteComponentProps) {
 function LocalGameRoute(props: RouteComponentProps) {
   return (
     <App>
-      <LocalGameContainer />
+      {/* <LocalGameContainer /> */}
+      <XStateViz>
+        <LocalGameContainer />
+      </XStateViz>
     </App>
   );
 }

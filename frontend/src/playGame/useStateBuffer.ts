@@ -1,8 +1,9 @@
 import { useMachine } from '@xstate/react';
 import { useCallback, useEffect } from 'react';
 import { AnyEventObject } from 'xstate';
+import { flattenGameMeta } from '../gameLogic/stateMachineUtils/MetaUtils';
 import { HydratedGameState } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { createBufferStateMachine } from './BufferMachine';
+import { createBufferStateMachine, getHeadSnapshot } from './BufferMachine';
 import {
   BufferEvent,
   BufferMachineState,
@@ -15,10 +16,10 @@ import {
 const BufferMachine = createBufferStateMachine<HydratedGameState>();
 
 export type BufferMachineMode =
-  | 'loading'
-  | 'head'
-  | 'detached'
-  | 'sendingGameEvent';
+  | { mode: 'loading' }
+  | { mode: 'head'; blocking: boolean }
+  | { mode: 'detached' }
+  | { mode: 'sendingGameEvent' };
 const loadingState: BufferStateValue = 'loading';
 const headState: BufferStateValue = { loaded: 'showHead' };
 const detachedState: BufferStateValue = { loaded: 'showSnapshotDetached' };
@@ -28,13 +29,14 @@ function getBufferMachineMode<S>(
   state: BufferMachineState<S>
 ): BufferMachineMode {
   if (state.matches(loadingState)) {
-    return 'loading';
+    return { mode: 'loading' };
   } else if (state.matches(headState)) {
-    return 'head';
+    const blocking = getHeadSnapshot(state.context)?.blockType === 'block';
+    return { mode: 'head', blocking };
   } else if (state.matches(detachedState)) {
-    return 'detached';
+    return { mode: 'detached' };
   } else if (state.matches(sendingEventState)) {
-    return 'sendingGameEvent';
+    return { mode: 'sendingGameEvent' };
   } else {
     throw new Error('Buffer machine state did not match any expected value');
   }
@@ -59,7 +61,7 @@ export function useStateBuffer(params: {
       const currentGameState =
         context.gameStateSnapshots[context.currentIndexShowing ?? 0];
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return sendGameEventToServer(currentGameState!, gameEvent);
+      return sendGameEventToServer(currentGameState!.snapshot, gameEvent);
     },
     [sendGameEventToServer]
   );
@@ -67,20 +69,23 @@ export function useStateBuffer(params: {
   const [bufferMachineState, dispatchToBuffer] = useMachine(BufferMachine, {
     context: { head: initialHead },
     services: { sendGameEvent },
+    devTools: true,
   });
   const buffer = bufferMachineState.context;
   const bufferMachineMode = getBufferMachineMode(bufferMachineState);
 
   const currentGameState = buffer.currentIndexShowing
-    ? buffer.gameStateSnapshots[buffer.currentIndexShowing]
+    ? buffer.gameStateSnapshots[buffer.currentIndexShowing]?.snapshot
     : null;
 
   const addSnapshotToBuffer = useCallback(
     (snapshot: HydratedGameState) => {
+      const meta = flattenGameMeta(snapshot);
       dispatchToBuffer({
         type: 'RECV_SNAPSHOT',
         snapshot: snapshot,
         index: snapshot.hydratedState.context.eventCount,
+        blockType: meta.blocking ? 'block' : 'linger',
       });
     },
     [dispatchToBuffer]

@@ -27,6 +27,7 @@ export type GameStatesGeneric<T> = {
 export type GameStateNames = keyof GameStatesGeneric<unknown>;
 
 export type GameStateSchema = {
+  meta: GameMeta;
   states: {
     runGame: {
       states: GameStatesGeneric<TypedStateSchema<GameMeta, GameContext>>;

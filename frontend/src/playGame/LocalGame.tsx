@@ -92,7 +92,7 @@ export function LocalGame(props: LocalGameProps) {
 
   const isEventValid = useCallback(
     (event: AnyEventObject): boolean =>
-      props.bufferMachineMode === 'head' &&
+      props.bufferMachineMode.mode === 'head' &&
       willEventApply(GameStateMachine, props.gameState, event as GameEvent),
     [props.bufferMachineMode, props.gameState]
   );
@@ -129,7 +129,9 @@ export function LocalGame(props: LocalGameProps) {
         stateContext={gameState.hydratedState.context}
         isEventValid={isEventValid}
         sendGameEvent={sendGameEvent}
-        sendGameEventInProgress={props.bufferMachineMode === 'sendingGameEvent'}
+        sendGameEventInProgress={
+          props.bufferMachineMode.mode === 'sendingGameEvent'
+        }
         gameConfig={DummyGameConfig}
         seatedAt="south"
       />

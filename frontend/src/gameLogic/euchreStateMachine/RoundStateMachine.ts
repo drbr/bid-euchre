@@ -6,7 +6,6 @@ import { BiddingContext } from './BiddingStateTypes';
 import {
   RoundContext,
   RoundEvent,
-  RoundMeta,
   RoundStateSchema,
   StartDealEvent,
 } from './RoundStateTypes';
@@ -16,6 +15,7 @@ import {
   ThePlayStates,
 } from './ThePlayStateMachine';
 import { ThePlayContext } from './ThePlayStateTypes';
+import { GameMeta } from './GameStateTypes';
 
 export const RoundStates: StateNodeConfig<
   RoundContext,
@@ -45,7 +45,7 @@ export const RoundStates: StateNodeConfig<
           private_hands: (context, event) => deal(),
         }),
         target: 'dealDone',
-      }
+      },
     },
 
     dealDone: {
@@ -57,7 +57,7 @@ export const RoundStates: StateNodeConfig<
     bidding: {
       ...(BiddingStates as StateNodeConfig<
         RoundContext,
-        TypedStateSchema<RoundMeta, BiddingContext>,
+        TypedStateSchema<GameMeta, BiddingContext>,
         RoundEvent
       >),
       onDone: {
@@ -71,7 +71,7 @@ export const RoundStates: StateNodeConfig<
     thePlay: {
       ...(ThePlayStates as StateNodeConfig<
         RoundContext,
-        TypedStateSchema<RoundMeta, ThePlayContext>,
+        TypedStateSchema<GameMeta, ThePlayContext>,
         RoundEvent
       >),
       entry: assign(

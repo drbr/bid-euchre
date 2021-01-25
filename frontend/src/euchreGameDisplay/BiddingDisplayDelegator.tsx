@@ -11,7 +11,7 @@ import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
 import {
   AllPlayersPassedInfo,
   PlayerNamedTrumpInfo,
-} from './BiddingDisplayInfoState';
+} from './BiddingDisplayInfoStates';
 import { BiddingDisplayNameTrump } from './BiddingDisplayNameTrump';
 import { BiddingDisplayPlayerBid } from './BiddingDisplayPlayerBid';
 import { TransientState } from './components/TransientState';

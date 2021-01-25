@@ -15,8 +15,6 @@ export type BiddingContext = {
   trump?: Suit;
 };
 
-export type BiddingMeta = GameMeta;
-
 export type BiddingStatesGeneric<T> = {
   waitForPlayerToBid: T;
   checkIfAllPlayersHaveBid: T;
@@ -30,7 +28,8 @@ export type BiddingStatesGeneric<T> = {
 export type BiddingStateNames = keyof BiddingStatesGeneric<unknown>;
 
 export type BiddingStateSchema = {
-  states: BiddingStatesGeneric<TypedStateSchema<BiddingMeta, BiddingContext>>;
+  meta: GameMeta;
+  states: BiddingStatesGeneric<TypedStateSchema<GameMeta, BiddingContext>>;
 };
 
 export type PlayerBidEvent = PlayerSpecificEvent<{

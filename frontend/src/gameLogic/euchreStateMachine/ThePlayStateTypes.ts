@@ -6,8 +6,6 @@ export type ThePlayContext = {
   tricks: null;
 };
 
-export type ThePlayMeta = GameMeta;
-
 export type ThePlayStatesGeneric<T> = {
   entry: T;
   thePlayComplete: T;
@@ -16,7 +14,8 @@ export type ThePlayStatesGeneric<T> = {
 export type ThePlayStateNames = keyof ThePlayStatesGeneric<unknown>;
 
 export type ThePlayStateSchema = {
-  states: ThePlayStatesGeneric<TypedStateSchema<ThePlayMeta, ThePlayContext>>;
+  meta: GameMeta;
+  states: ThePlayStatesGeneric<TypedStateSchema<GameMeta, ThePlayContext>>;
 };
 
 export type ThePlayEvent = {

@@ -66,6 +66,7 @@ export const BiddingStates: StateNodeConfig<
     },
 
     allPlayersPassedInfo: {
+      meta: { blocking: true },
       on: {
         AUTO_TRANSITION: '#round.doDeal',
       },
@@ -84,6 +85,7 @@ export const BiddingStates: StateNodeConfig<
     },
 
     playerNamedTrumpInfo: {
+      meta: { blocking: true },
       on: {
         AUTO_TRANSITION: 'complete',
       },

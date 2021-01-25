@@ -65,11 +65,22 @@ export function sanitizeStateMetadata<
   E extends AnyEventObject,
   SS
 >(state: State<C, E, SS>) {
-  return _.pick(state, 'value', 'actions', 'event', '_event', 'context');
+  return _.pick(
+    state,
+    'value',
+    'actions',
+    'event',
+    '_event',
+    'context',
+    'meta'
+  );
 }
 
 export type SanitizedState<
   C extends EventCountContext,
   E extends AnyEventObject,
   SS
-> = Pick<State<C, E, SS>, 'value' | 'actions' | 'event' | '_event' | 'context'>;
+> = Pick<
+  State<C, E, SS>,
+  'value' | 'actions' | 'event' | '_event' | 'context' | 'meta'
+>;

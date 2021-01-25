@@ -58,7 +58,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
 
   const isEventValid = useCallback(
     (event: GameEvent) =>
-      bufferMachineMode === 'head' &&
+      bufferMachineMode.mode === 'head' &&
       willEventApply(GameStateMachine, currentGameState, event),
     [currentGameState, bufferMachineMode]
   );
@@ -67,7 +67,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
     return <div>Loading…</div>;
   }
 
-  const gameState = currentGameState.hydratedState;
+  const gameState = currentGameState?.hydratedState;
 
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -89,7 +89,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
         seatedAt={props.seatedAt}
         isEventValid={isEventValid}
         sendGameEvent={sendGameEventToBufferMachine}
-        sendGameEventInProgress={bufferMachineMode === 'sendingGameEvent'}
+        sendGameEventInProgress={bufferMachineMode.mode === 'sendingGameEvent'}
       />
     </div>
   );

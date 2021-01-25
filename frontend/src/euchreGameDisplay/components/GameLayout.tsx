@@ -4,10 +4,11 @@ import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import { Hand } from '../../gameLogic/Cards';
+import { Hand, Suit } from '../../gameLogic/Cards';
 import { Position } from '../../gameLogic/apiContract/database/Position';
 import { HandDisplay } from './HandDisplay';
 import { Partnership } from '../../gameLogic/EuchreTypes';
+import { SuitDisplayInfo } from './SuitDisplayInfo';
 
 export type GameLayoutProps = {
   playerFriendlyNames: Record<Position, string | null>;
@@ -124,7 +125,9 @@ export function GameLayout(props: GameLayoutProps) {
           {/* bottom row */}
           <Spacer />
           <Player>{playerCardAtIndex(3)}</Player>
-          <Spacer />
+          <Spacer>
+            <Trump suit="C" />
+          </Spacer>
         </Grid>
       </Box>
 
@@ -186,14 +189,29 @@ function ScoreSingle(props: {
 
   return (
     <Box textAlign="center">
-      <Grid container>
-        <Grid item xs={12}>
-          <Box marginBottom={0.5}>
-            <Typography noWrap>{teamName}</Typography>
-          </Box>
-          <Typography variant="h5">{teamScore}</Typography>
-        </Grid>
-      </Grid>
+      <Box marginBottom={0.5}>
+        <Typography noWrap>{teamName}</Typography>
+      </Box>
+      <Typography variant="h5">{teamScore}</Typography>
+    </Box>
+  );
+}
+
+function Trump(props: { suit: Suit }) {
+  const suitInfo = SuitDisplayInfo[props.suit];
+  return (
+    <Box textAlign="center">
+      <Typography>Trump</Typography>
+      <Typography
+        style={{
+          fontSize: 60,
+          color: suitInfo.color,
+          marginTop: -20,
+          marginBottom: -24,
+        }}
+      >
+        {suitInfo.text}
+      </Typography>
     </Box>
   );
 }

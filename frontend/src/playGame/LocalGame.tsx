@@ -12,13 +12,15 @@ import {
 import {
   HydratedGameState,
   hydrateStateFromConfig,
+  sanitizeStateMetadata,
+  serializeState,
 } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { transitionStateMachine } from '../gameLogic/stateMachineUtils/transitionStateMachine';
 import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import * as LocalGameStates from './LocalGameStates';
 import { BufferMachineMode, useStateBuffer } from './useStateBuffer';
 
-const InitialLocalGameState: GameStateConfig = LocalGameStates.StartBidding;
+const InitialLocalGameState: GameStateConfig = LocalGameStates.NameTrump;
 
 function hydrateInitialState() {
   return hydrateStateFromConfig(InitialLocalGameState);
@@ -92,6 +94,9 @@ export function LocalGame(props: LocalGameProps) {
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   (window as any).gameState = props.gameState.hydratedState;
+  (window as any).serializedGameState = serializeState(
+    sanitizeStateMetadata(props.gameState.hydratedState)
+  );
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   const isEventValid = useCallback(

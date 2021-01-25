@@ -4,7 +4,6 @@ import {
   DoneInvokeEvent,
   Machine,
   MachineConfig,
-  send,
   StateMachine,
   Typestate,
 } from 'xstate';
@@ -17,6 +16,8 @@ import {
   LINGER_DELAY_MS,
   RecvSnapshotEvent,
 } from './BufferMachineTypes';
+
+const DELAYED_UNBLOCK_ID = 'delayedUnblock';
 
 /**
  * This machine controls how the UI transitions through the game states. The state snapshots can be
@@ -109,6 +110,7 @@ export function createBufferStateMachine<S>(): StateMachine<
             on: {
               SEND_GAME_EVENT_TO_SERVER: '#sendingGameEvent.makeApiCall',
             },
+            exit: actions.cancel(DELAYED_UNBLOCK_ID),
             states: {
               enterHead: {
                 always: [
@@ -126,7 +128,10 @@ export function createBufferStateMachine<S>(): StateMachine<
                 ],
               },
               lingering: {
-                entry: send('UNBLOCK_HEAD', { delay: LINGER_DELAY_MS }),
+                entry: actions.send('UNBLOCK_HEAD', {
+                  delay: LINGER_DELAY_MS,
+                  id: DELAYED_UNBLOCK_ID,
+                }),
                 always: { target: 'blocked' },
               },
               blocked: {

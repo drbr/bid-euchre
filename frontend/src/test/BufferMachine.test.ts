@@ -8,7 +8,6 @@ import {
   BufferEvent,
   BufferMachineState,
   LINGER_DELAY_MS,
-  RecvSnapshotEvent,
   SnapshotWithBlockingInfo,
   StateBuffer,
 } from '../playGame/BufferMachineTypes';

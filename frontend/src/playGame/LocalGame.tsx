@@ -3,6 +3,7 @@ import FlexView from 'react-flexview/lib';
 import { AnyEventObject } from 'xstate';
 import { GameDisplayDelegatorPure } from '../euchreGameDisplay/GameDisplayDelegator';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
+import { Position } from '../gameLogic/apiContract/database/Position';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
@@ -25,6 +26,8 @@ function hydrateInitialState() {
   return hydrateStateFromConfig(InitialLocalGameState);
 }
 
+const seatedAt: Position | null = 'south';
+
 export function LocalGameContainer() {
   const {
     currentGameState,
@@ -33,7 +36,7 @@ export function LocalGameContainer() {
     unblockHead,
     bufferMachineMode,
   } = useStateBuffer({
-    participatingInGame: true,
+    participatingInGame: !!seatedAt,
     initialHead: 1,
     sendGameEventToServer: async (
       currentGameState: HydratedGameState,
@@ -142,7 +145,7 @@ export function LocalGame(props: LocalGameProps) {
         }
         unblockHead={props.unblockHead}
         gameConfig={DummyGameConfig}
-        seatedAt="south"
+        seatedAt={seatedAt}
       />
     </div>
   );

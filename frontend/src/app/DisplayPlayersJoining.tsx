@@ -6,7 +6,7 @@ import { Dispatch, useState } from 'react';
 import { GameLayout } from '../euchreGameDisplay/components/GameLayout';
 import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { Position } from '../gameLogic/apiContract/database/Position';
-import { ActionButton } from '../uiHelpers/ActionButton';
+import { ActionButton } from '../euchreGameDisplay/components/ActionButton';
 
 const MAX_NAME_LENGTH = 12;
 

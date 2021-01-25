@@ -6,8 +6,8 @@ import { EventObject } from 'xstate';
 import {
   ScopedGameDisplayProps,
   UnscopedGameDisplayProps,
-} from '../euchreGameDisplay/GameDisplayProps';
-import { absolutePositionFill, flexCenterChild } from '../style/LayoutStyles';
+} from '../GameDisplayProps';
+import { absolutePositionFill, flexCenterChild } from '../../style/LayoutStyles';
 
 export type BaseButtonProps = ComponentPropsWithoutRef<typeof Button>;
 export type ActionButtonSpecificProps = {

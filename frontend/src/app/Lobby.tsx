@@ -2,7 +2,7 @@ import { useNavigate } from '@reach/router';
 import { useState } from 'react';
 import FlexView from 'react-flexview/lib';
 import { makeNewGameAndNavigateThere } from '../routines/makeNewGameAndNavigateThere';
-import { ActionButton } from '../uiHelpers/ActionButton';
+import { ActionButton } from '../euchreGameDisplay/components/ActionButton';
 
 export function Lobby() {
   return (

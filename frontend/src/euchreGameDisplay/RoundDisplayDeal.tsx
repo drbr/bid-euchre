@@ -3,7 +3,7 @@ import { StartDealEvent } from '../gameLogic/euchreStateMachine/RoundStateTypes'
 import {
   ActionButton,
   actionButtonPropsForGameEvent,
-} from '../uiHelpers/ActionButton';
+} from './components/ActionButton';
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
 import { RoundDisplayProps } from './RoundDisplayDelegator';

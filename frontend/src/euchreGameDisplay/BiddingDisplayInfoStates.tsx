@@ -2,6 +2,7 @@ import { getHighestBidSoFar } from '../gameLogic/euchreStateMachine/BiddingState
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { BidCardContent } from './components/BidCardContent';
 import { GameLayout } from './components/GameLayout';
+import { InfoStateOKButton } from './components/InfoStateOKButton';
 import { SuitDisplayInfo } from './components/SuitDisplayInfo';
 
 export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
@@ -16,6 +17,7 @@ export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
       )}
       promptMessage="All players passed. A new hand will be dealt."
       hands={props.stateContext.private_hands}
+      userActionControls={<InfoStateOKButton {...props} />}
     />
   );
 }
@@ -51,6 +53,7 @@ export function PlayerNamedTrumpInfo(props: BiddingDisplayProps): JSX.Element {
       )}
       promptMessage={promptMessage}
       hands={props.stateContext.private_hands}
+      userActionControls={<InfoStateOKButton {...props} />}
     />
   );
 }

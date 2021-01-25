@@ -6,7 +6,7 @@ import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/BiddingStateType
 import {
   ActionButton,
   actionButtonPropsForGameEvent,
-} from '../uiHelpers/ActionButton';
+} from './components/ActionButton';
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { BidCardContent } from './components/BidCardContent';
 import { DebugButton } from './components/DebugButton';

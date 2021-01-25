@@ -17,6 +17,10 @@ import {
   BiddingDisplayDelegator,
   BiddingDisplayProps,
 } from './BiddingDisplayDelegator';
+import {
+  ThePlayDisplayDelegator,
+  ThePlayDisplayProps,
+} from './ThePlayDisplayDelegator';
 
 export type RoundDisplayProps = ScopedGameDisplayProps<
   RoundContextAlways & GameContext,
@@ -43,10 +47,15 @@ export function RoundDisplayDelegator(props: RoundDisplayProps): JSX.Element {
           {...((props as unknown) as BiddingDisplayProps)}
         />
       );
+    case 'thePlay':
+      return (
+        <ThePlayDisplayDelegator
+          {...((props as unknown) as ThePlayDisplayProps)}
+        />
+      );
     case 'doDeal':
     case 'dealDone':
     case 'roundComplete':
-    case 'thePlay':
     case 'scoring':
       return <TransientState substateName={substate} />;
     default:

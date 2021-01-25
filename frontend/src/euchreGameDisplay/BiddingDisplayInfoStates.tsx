@@ -22,7 +22,7 @@ export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
   );
 }
 
-export function PlayerNamedTrumpInfo(props: BiddingDisplayProps): JSX.Element {
+export function PlayerNamedTrumpInfo(props: BiddingDisplayProps) {
   const bids = props.stateContext.bids;
   const playerNames = props.gameConfig.playerFriendlyNames;
 
@@ -36,13 +36,16 @@ export function PlayerNamedTrumpInfo(props: BiddingDisplayProps): JSX.Element {
     throw Error('A trump has not been named');
   }
 
+  // The player who named the trump doesn't need to be notified that they did so;
+  // skip right ahead to the next real state.
+  if (props.seatedAt === positionWhoNamedTrump && props.unblockHead) {
+    props.unblockHead();
+    return null;
+  }
+
   const playerNameWhoNamedTrump = playerNames[positionWhoNamedTrump];
   const trumpSuitName = SuitDisplayInfo[trumpSuit].longName;
-
-  const promptMessage =
-    props.seatedAt === positionWhoNamedTrump
-      ? `You named ${trumpSuitName} as trump.`
-      : `${playerNameWhoNamedTrump} named ${trumpSuitName} as trump.`;
+  const promptMessage = `${playerNameWhoNamedTrump} named ${trumpSuitName} as trump.`;
 
   return (
     <GameLayout

@@ -7,14 +7,16 @@ import Typography from '@material-ui/core/Typography';
 import { Hand } from '../../gameLogic/Cards';
 import { Position } from '../../gameLogic/apiContract/database/Position';
 import { HandDisplay } from './HandDisplay';
+import { Partnership } from '../../gameLogic/EuchreTypes';
 
 export type GameLayoutProps = {
   playerFriendlyNames: Record<Position, string | null>;
+  score: Record<Partnership, number> | null;
   seatedAt: Position | null;
   awaitedPosition?: Position;
   renderPlayerCardContent: (position: Position) => React.ReactNode;
-  promptMessage?: string;
   hands?: Record<Position, Hand>;
+  promptMessage?: string;
   userActionControls?: React.ReactNode;
   debugControls?: React.ReactNode;
 };
@@ -31,9 +33,21 @@ const positionsByViewpoint: Record<Position, ReadonlyArray<Position>> = {
   west: ['east', 'north', 'south', 'west'],
 };
 
+/**
+ * Partnerships corresponding to [we, they] when viewed from the keyed position.
+ */
+const partnershipsByViewpoint: Record<Position, ReadonlyArray<Partnership>> = {
+  north: ['northsouth', 'eastwest'],
+  south: ['northsouth', 'eastwest'],
+  east: ['eastwest', 'northsouth'],
+  west: ['eastwest', 'northsouth'],
+};
+
 export function GameLayout(props: GameLayoutProps) {
   // Spectators view the game from South
   const positionsInOrder = positionsByViewpoint[props.seatedAt || 'south'];
+  const partnershipsInOrder =
+    partnershipsByViewpoint[props.seatedAt || 'south'];
 
   function playerCardAtIndex(i: number) {
     const position = positionsInOrder[i];
@@ -64,9 +78,27 @@ export function GameLayout(props: GameLayoutProps) {
       <Box mt={3} textAlign="left">
         <Grid container spacing={2} alignItems="center">
           {/* top row */}
-          <Spacer />
+          <Spacer>
+            {props.score ? (
+              <ScoreSingle
+                playerFriendlyNames={props.playerFriendlyNames}
+                score={props.score}
+                partnership={partnershipsInOrder[0]}
+                partnershipName={props.seatedAt ? 'We' : null}
+              />
+            ) : null}
+          </Spacer>
           <Player>{playerCardAtIndex(0)}</Player>
-          <Spacer />
+          <Spacer>
+            {props.score ? (
+              <ScoreSingle
+                playerFriendlyNames={props.playerFriendlyNames}
+                score={props.score}
+                partnership={partnershipsInOrder[1]}
+                partnershipName={props.seatedAt ? 'They' : null}
+              />
+            ) : null}
+          </Spacer>
 
           {/* middle row */}
           <Player>{playerCardAtIndex(1)}</Player>
@@ -108,8 +140,12 @@ export function GameLayout(props: GameLayoutProps) {
   );
 }
 
-function Spacer() {
-  return <Grid item xs={3} sm={4} />;
+function Spacer(props: React.PropsWithChildren<unknown>) {
+  return (
+    <Grid item xs={3} sm={4}>
+      {props.children}
+    </Grid>
+  );
 }
 
 function Player(props: React.PropsWithChildren<unknown>) {
@@ -117,6 +153,37 @@ function Player(props: React.PropsWithChildren<unknown>) {
     <Grid item xs={6} sm={4}>
       {props.children}
     </Grid>
+  );
+}
+
+function ScoreSingle(props: {
+  playerFriendlyNames: GameLayoutProps['playerFriendlyNames'];
+  score: NonNullable<GameLayoutProps['score']>;
+  partnership: Partnership;
+  partnershipName: string | null;
+}) {
+  const positionA = props.partnership === 'northsouth' ? 'north' : 'east';
+  const positionB = props.partnership === 'northsouth' ? 'south' : 'west';
+  const teamName = props.partnershipName ?? (
+    <>
+      {props.playerFriendlyNames[positionA]}
+      <br />
+      {props.playerFriendlyNames[positionB]}
+    </>
+  );
+  const teamScore = props.score[props.partnership];
+
+  return (
+    <Box textAlign="center">
+      <Grid container>
+        <Grid item xs={12}>
+          <Box overflow="hidden" textOverflow="ellipsis" marginBottom={0.5}>
+            {teamName}
+          </Box>
+          <Typography variant="h5">{teamScore}</Typography>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
 

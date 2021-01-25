@@ -35,6 +35,7 @@ export function BiddingDisplayPlayerBid(
   return (
     <GameLayout
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      score={props.stateContext.score}
       seatedAt={props.seatedAt}
       awaitedPosition={awaitedPosition}
       renderPlayerCardContent={(position) => (

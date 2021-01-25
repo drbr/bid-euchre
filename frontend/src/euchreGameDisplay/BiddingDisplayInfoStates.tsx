@@ -11,6 +11,7 @@ export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
   return (
     <GameLayout
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      score={props.stateContext.score}
       seatedAt={props.seatedAt}
       renderPlayerCardContent={(position) => (
         <BidCardContent bid={bids[position]} />
@@ -50,6 +51,7 @@ export function PlayerNamedTrumpInfo(props: BiddingDisplayProps) {
   return (
     <GameLayout
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      score={props.stateContext.score}
       seatedAt={props.seatedAt}
       renderPlayerCardContent={(position) => (
         <BidCardContent bid={bids[position]} />

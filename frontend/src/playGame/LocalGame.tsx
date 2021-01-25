@@ -6,7 +6,6 @@ import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataMode
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import {
   GameEvent,
-  GameState,
   GameStateConfig,
 } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
@@ -108,15 +107,15 @@ export function LocalGame(props: LocalGameProps) {
 
   return (
     <div>
-      <h1>Local Game</h1>
+      {/* <h1>Local Game</h1>
       <p>
         Use this to develop and test the game UI locally, without involving the
         server.
-      </p>
+      </p> */}
       <FlexView hAlignContent="center">
         {/* TODO buttons to go forward and back */}
       </FlexView>
-      <FlexView hAlignContent="center">
+      {/* <div>
         <ButtonToIncrementGameState
           eventName="START_GAME"
           state={gameState.hydratedState}
@@ -132,7 +131,7 @@ export function LocalGame(props: LocalGameProps) {
           state={gameState.hydratedState}
           send={sendGameEvent}
         />
-      </FlexView>
+      </div> */}
       <GameDisplayDelegatorPure
         stateValue={gameState.hydratedState.value}
         stateContext={gameState.hydratedState.context}
@@ -149,23 +148,23 @@ export function LocalGame(props: LocalGameProps) {
   );
 }
 
-function ButtonToIncrementGameState(props: {
-  eventName: GameEvent['type'];
-  state: GameState;
-  send: (event: GameEvent) => void;
-}) {
-  const buttonStyle: React.CSSProperties = { padding: 5, margin: 5 };
-  const enabled = props.state.nextEvents.includes(props.eventName);
-  return (
-    <button
-      disabled={!enabled}
-      style={buttonStyle}
-      onClick={() => props.send({ type: props.eventName })}
-    >
-      {props.eventName}
-    </button>
-  );
-}
+// function ButtonToIncrementGameState(props: {
+//   eventName: GameEvent['type'];
+//   state: GameState;
+//   send: (event: GameEvent) => void;
+// }) {
+//   const buttonStyle: React.CSSProperties = { padding: 5, margin: 5 };
+//   const enabled = props.state.nextEvents.includes(props.eventName);
+//   return (
+//     <button
+//       disabled={!enabled}
+//       style={buttonStyle}
+//       onClick={() => props.send({ type: props.eventName })}
+//     >
+//       {props.eventName}
+//     </button>
+//   );
+// }
 
 const DummyGameConfig: InProgressGameConfig = {
   gameStatus: 'inProgress',

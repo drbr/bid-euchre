@@ -38,6 +38,7 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
     <GameLayout
       playerFriendlyNames={playerNames}
       score={null}
+      trumpSuit={undefined}
       seatedAt="south"
       awaitedPosition={props.seatedAt ?? undefined}
       renderPlayerCardContent={(position) => (

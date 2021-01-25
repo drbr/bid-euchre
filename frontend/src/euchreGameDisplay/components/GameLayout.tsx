@@ -13,7 +13,7 @@ import { SuitDisplayInfo } from './SuitDisplayInfo';
 export type GameLayoutProps = {
   playerFriendlyNames: Record<Position, string | null>;
   score: Record<Partnership, number> | null;
-  trumpSuit: Suit | null;
+  trumpSuit: Suit | undefined;
   seatedAt: Position | null;
   awaitedPosition?: Position;
   renderPlayerCardContent: (position: Position) => React.ReactNode;

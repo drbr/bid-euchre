@@ -33,6 +33,7 @@ export function BiddingDisplayNameTrump(
     <GameLayout
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
+      trumpSuit={props.stateContext.trump}
       seatedAt={props.seatedAt}
       awaitedPosition={highestBidder}
       renderPlayerCardContent={(position) => (

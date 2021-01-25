@@ -58,11 +58,22 @@ export function GameLayout(props: GameLayoutProps) {
 
     return (
       <Paper>
-        <Box bgcolor={awaited ? '#ea78157a' : undefined}>
-          <Box p={1}>
-            <Typography variant="h6" align="center">
-              {playerName || PLACEHOLDER}
-            </Typography>
+        <Box
+          bgcolor={awaited ? '#ea78157a' : undefined}
+          height={120}
+          p={1}
+          display="flex"
+          flexDirection="column"
+        >
+          <Typography variant="h6" align="center" noWrap>
+            {playerName || PLACEHOLDER}
+          </Typography>
+          <Box
+            flex={1}
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+          >
             <Typography variant="h4" align="center">
               {PLACEHOLDER}
               {props.renderPlayerCardContent(position)}
@@ -74,7 +85,7 @@ export function GameLayout(props: GameLayoutProps) {
   }
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="md">
       <Box mt={3} textAlign="left">
         <Grid container spacing={2} alignItems="center">
           {/* top row */}
@@ -177,8 +188,8 @@ function ScoreSingle(props: {
     <Box textAlign="center">
       <Grid container>
         <Grid item xs={12}>
-          <Box overflow="hidden" textOverflow="ellipsis" marginBottom={0.5}>
-            {teamName}
+          <Box marginBottom={0.5}>
+            <Typography noWrap>{teamName}</Typography>
           </Box>
           <Typography variant="h5">{teamScore}</Typography>
         </Grid>

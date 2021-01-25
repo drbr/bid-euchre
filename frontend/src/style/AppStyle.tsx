@@ -9,6 +9,15 @@ export const MaterialUITheme = createMuiTheme({
   typography: {
     fontFamily: `"Verdana", "Helvetica", "Arial", sans-serif`,
   },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 700,
+      md: 900,
+      lg: 1399,
+      xl: 1400,
+    },
+  },
 });
 
 export const AppStyle = cssClass('AppContainer', {

@@ -170,7 +170,7 @@ const DummyGameConfig: InProgressGameConfig = {
   gameStatus: 'inProgress',
   playerFriendlyNames: {
     north: 'Nancy',
-    west: 'William',
+    west: 'WWWWWWWWWWWW',
     south: 'Susan',
     east: 'Edward',
   },

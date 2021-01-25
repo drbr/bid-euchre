@@ -62,7 +62,7 @@ export function GameLayout(props: GameLayoutProps) {
       <Paper>
         <Box
           bgcolor={awaited ? '#ea78157a' : undefined}
-          height={120}
+          height={100}
           p={1}
           display="flex"
           flexDirection="column"

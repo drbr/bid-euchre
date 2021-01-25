@@ -26,7 +26,7 @@ function hydrateInitialState() {
   return hydrateStateFromConfig(InitialLocalGameState);
 }
 
-const seatedAt: Position | null = 'south';
+const seatedAt: Position | null = 'north';
 
 export function LocalGameContainer() {
   const {
@@ -173,7 +173,7 @@ const DummyGameConfig: InProgressGameConfig = {
   gameStatus: 'inProgress',
   playerFriendlyNames: {
     north: 'Nancy',
-    west: 'WWWWWWWWWWWW',
+    west: 'Westeros King of all Evil',
     south: 'Susan',
     east: 'Edward',
   },

@@ -3,7 +3,10 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { ComponentPropsWithoutRef, useEffect, useState } from 'react';
 import { classes } from 'typestyle';
 import { EventObject } from 'xstate';
-import { ScopedGameDisplayProps } from "../euchreGameDisplay/GameDisplayProps";
+import {
+  ScopedGameDisplayProps,
+  UnscopedGameDisplayProps,
+} from '../euchreGameDisplay/GameDisplayProps';
 import { absolutePositionFill, flexCenterChild } from '../style/LayoutStyles';
 
 export type BaseButtonProps = ComponentPropsWithoutRef<typeof Button>;
@@ -83,7 +86,8 @@ export function ActionButton(
  */
 export function actionButtonPropsForGameEvent<E extends EventObject>(
   event: E,
-  gameDisplayProps: ScopedGameDisplayProps<unknown, E>
+  gameDisplayProps: ScopedGameDisplayProps<unknown, E> &
+    UnscopedGameDisplayProps
 ): ActionButtonSpecificProps {
   return {
     actionInProgress: gameDisplayProps.sendGameEventInProgress,

@@ -1,9 +1,9 @@
 import { useMachine } from '@xstate/react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { AnyEventObject } from 'xstate';
 import { flattenGameMeta } from '../gameLogic/stateMachineUtils/MetaUtils';
 import { HydratedGameState } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { createBufferStateMachine, getHeadSnapshot } from './BufferMachine';
+import { createBufferStateMachine, headShouldBlock } from './BufferMachine';
 import {
   BufferEvent,
   BufferMachineState,
@@ -17,7 +17,7 @@ const BufferMachine = createBufferStateMachine<HydratedGameState>();
 
 export type BufferMachineMode =
   | { mode: 'loading' }
-  | { mode: 'head'; blocking: boolean }
+  | { mode: 'head'; manuallyBlocked: boolean }
   | { mode: 'detached' }
   | { mode: 'sendingGameEvent' };
 const loadingState: BufferStateValue = 'loading';
@@ -31,8 +31,8 @@ function getBufferMachineMode<S>(
   if (state.matches(loadingState)) {
     return { mode: 'loading' };
   } else if (state.matches(headState)) {
-    const blocking = getHeadSnapshot(state.context)?.blockType === 'block';
-    return { mode: 'head', blocking };
+    const manuallyBlocked = headShouldBlock(state.context);
+    return { mode: 'head', manuallyBlocked };
   } else if (state.matches(detachedState)) {
     return { mode: 'detached' };
   } else if (state.matches(sendingEventState)) {
@@ -42,6 +42,7 @@ function getBufferMachineMode<S>(
   }
 }
 export function useStateBuffer(params: {
+  participatingInGame: boolean;
   initialHead: number;
   onHeadChanged?: (head: number) => void;
   sendGameEventToServer: (
@@ -49,7 +50,12 @@ export function useStateBuffer(params: {
     gameEvent: AnyEventObject
   ) => Promise<void>;
 }) {
-  const { initialHead, onHeadChanged, sendGameEventToServer } = params;
+  const {
+    participatingInGame,
+    initialHead,
+    onHeadChanged,
+    sendGameEventToServer,
+  } = params;
 
   const sendGameEvent = useCallback(
     (
@@ -80,16 +86,38 @@ export function useStateBuffer(params: {
 
   const addSnapshotToBuffer = useCallback(
     (snapshot: HydratedGameState) => {
+      // States should only block for the active players. We should let spectators see the game
+      // play out in near-real time without needing to manually advance the UI.
       const meta = flattenGameMeta(snapshot);
+      const blockType =
+        participatingInGame && meta.blocking ? 'block' : 'linger';
+
       dispatchToBuffer({
         type: 'RECV_SNAPSHOT',
         snapshot: snapshot,
         index: snapshot.hydratedState.context.eventCount,
-        blockType: meta.blocking ? 'block' : 'linger',
+        blockType: blockType,
       });
     },
-    [dispatchToBuffer]
+    [dispatchToBuffer, participatingInGame]
   );
+
+  /**
+   * This function is used for the UI to manually unblock a blocked state. It will be defined only
+   * when such a state is currently active – the UI can use the existence of the function to
+   * determine whether or not to show the unblock control.
+   *
+   * Even if a state node is configured as `blocking` via its metadata, we may not display it as
+   * blocked (see `addSnapshotToBuffer`), so we use the block type known by the state buffer,
+   * not the one initially configured in the state node.
+   */
+  const unblockHead: (() => void) | null = useMemo(() => {
+    const showingBlockedState =
+      bufferMachineMode.mode === 'head' && bufferMachineMode.manuallyBlocked;
+    return showingBlockedState
+      ? () => dispatchToBuffer({ type: 'UNBLOCK_HEAD' })
+      : null;
+  }, [dispatchToBuffer, bufferMachineMode]);
 
   useEffect(() => {
     if (buffer.head && onHeadChanged) {
@@ -106,6 +134,7 @@ export function useStateBuffer(params: {
     currentGameState,
     addSnapshotToBuffer,
     dispatchToBuffer,
+    unblockHead,
     bufferMachineMode,
   };
 }

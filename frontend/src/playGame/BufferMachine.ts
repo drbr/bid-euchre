@@ -113,11 +113,11 @@ export function createBufferStateMachine<S>(): StateMachine<
               enterHead: {
                 always: [
                   {
-                    cond: headLingers,
+                    cond: headShouldLinger,
                     target: 'lingering',
                   },
                   {
-                    cond: headBlocks,
+                    cond: headShouldBlock,
                     target: 'blocked',
                   },
                   {
@@ -270,7 +270,7 @@ function nextSnapshotIsAvailable(context: StateBuffer<unknown>): boolean {
   return !!context.gameStateSnapshots[nextIndex];
 }
 
-export function getHeadSnapshot(context: StateBuffer<unknown>) {
+function getHeadSnapshot(context: StateBuffer<unknown>) {
   if (!context.head) {
     return null;
   }
@@ -278,12 +278,12 @@ export function getHeadSnapshot(context: StateBuffer<unknown>) {
   return snapshotInfo ?? null;
 }
 
-function headLingers<S>(context: StateBuffer<S>): boolean {
+function headShouldLinger(context: StateBuffer<unknown>): boolean {
   const headSnapshot = getHeadSnapshot(context);
   return headSnapshot?.blockType === 'linger';
 }
 
-function headBlocks<S>(context: StateBuffer<S>): boolean {
+export function headShouldBlock(context: StateBuffer<unknown>): boolean {
   const headSnapshot = getHeadSnapshot(context);
   return headSnapshot?.blockType === 'block';
 }

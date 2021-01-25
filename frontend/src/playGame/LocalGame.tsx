@@ -29,8 +29,10 @@ export function LocalGameContainer() {
     currentGameState,
     addSnapshotToBuffer,
     dispatchToBuffer,
+    unblockHead,
     bufferMachineMode,
   } = useStateBuffer({
+    participatingInGame: true,
     initialHead: 1,
     sendGameEventToServer: async (
       currentGameState: HydratedGameState,
@@ -72,6 +74,7 @@ export function LocalGameContainer() {
       gameState={currentGameState}
       sendGameEvent={sendGameEventToBufferMachine}
       bufferMachineMode={bufferMachineMode}
+      unblockHead={unblockHead}
     />
   );
 }
@@ -80,6 +83,7 @@ export type LocalGameProps = {
   gameState: HydratedGameState;
   sendGameEvent: (event: GameEvent) => void;
   bufferMachineMode: BufferMachineMode;
+  unblockHead: (() => void) | null;
 };
 
 export function LocalGame(props: LocalGameProps) {
@@ -132,6 +136,7 @@ export function LocalGame(props: LocalGameProps) {
         sendGameEventInProgress={
           props.bufferMachineMode.mode === 'sendingGameEvent'
         }
+        unblockHead={props.unblockHead}
         gameConfig={DummyGameConfig}
         seatedAt="south"
       />

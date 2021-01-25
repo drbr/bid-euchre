@@ -43,8 +43,14 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
   const {
     currentGameState,
     dispatchToBuffer,
+    unblockHead,
     bufferMachineMode,
-  } = useBufferWithGameState({ gameId, playerId, sendGameEventToServer });
+  } = useBufferWithGameState({
+    gameId,
+    playerId,
+    participatingInGame: !!props.seatedAt,
+    sendGameEventToServer,
+  });
 
   const sendGameEventToBufferMachine = useCallback(
     (event: AnyEventObject) => {
@@ -90,6 +96,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
         isEventValid={isEventValid}
         sendGameEvent={sendGameEventToBufferMachine}
         sendGameEventInProgress={bufferMachineMode.mode === 'sendingGameEvent'}
+        unblockHead={unblockHead}
       />
     </div>
   );
@@ -98,6 +105,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
 function useBufferWithGameState(props: {
   gameId: string;
   playerId: string | null;
+  participatingInGame: boolean;
   sendGameEventToServer: (
     currentGameState: HydratedGameState,
     event: AnyEventObject
@@ -111,8 +119,10 @@ function useBufferWithGameState(props: {
     currentGameState,
     addSnapshotToBuffer,
     dispatchToBuffer,
+    unblockHead,
     bufferMachineMode,
   } = useStateBuffer({
+    participatingInGame: props.participatingInGame,
     initialHead: head,
     onHeadChanged: storeHead,
     sendGameEventToServer: props.sendGameEventToServer,
@@ -139,6 +149,7 @@ function useBufferWithGameState(props: {
   return {
     currentGameState,
     dispatchToBuffer,
+    unblockHead,
     bufferMachineMode,
   };
 }

@@ -12,11 +12,12 @@ export type ScopedGameDisplayProps<C, E extends EventObject> = {
   stateContext: C;
   isEventValid: (event: E) => boolean;
   sendGameEvent: (event: E) => void;
-  sendGameEventInProgress: boolean;
 };
 
 /** The "unscoped" props are the same no matter which state we're currently in. */
 export type UnscopedGameDisplayProps = {
   gameConfig: InProgressGameConfig;
   seatedAt: Position | null;
+  sendGameEventInProgress: boolean;
+  unblockHead: (() => void) | null;
 };

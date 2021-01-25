@@ -13,7 +13,7 @@ import {
   UnscopedGameDisplayProps,
 } from './GameDisplayProps';
 
-type GameDisplayProps = ScopedGameDisplayProps<GameContext, GameEvent> &
+export type GameDisplayProps = ScopedGameDisplayProps<GameContext, GameEvent> &
   UnscopedGameDisplayProps;
 
 export const GameDisplayDelegatorPure = memo(function GameDisplayDelegator(

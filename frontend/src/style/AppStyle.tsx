@@ -76,8 +76,8 @@ export const ColorSchemes = [
     },
   },
   {
-    $debugName: 'ColorScheme-White',
-    backgroundColor: 'white',
+    $debugName: 'ColorScheme-Gray',
+    backgroundColor: '#D9DEDE',
     color: 'black',
   },
 ];

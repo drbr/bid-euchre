@@ -42,7 +42,7 @@ function AppFooter(props: ColorSchemePickerProps) {
         vAlignContent="center"
         style={{ marginRight: 'auto', padding: 10 }}
       >
-        © 2020 Andrew Brandon-Rumman
+        © 2021 Andrew Brandon-Rumman
       </FlexView>
       <div style={{ marginLeft: 'auto' }}>
         <ColorSchemePicker {...props} />

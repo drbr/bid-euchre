@@ -109,7 +109,7 @@ export function LocalGame(props: LocalGameProps) {
   );
 
   return (
-    <div>
+    <div style={{ width: '100%' }}>
       {/* <h1>Local Game</h1>
       <p>
         Use this to develop and test the game UI locally, without involving the

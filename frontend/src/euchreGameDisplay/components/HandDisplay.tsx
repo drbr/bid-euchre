@@ -1,4 +1,3 @@
-import Box from '@material-ui/core/Box';
 import {
   ActionButton,
   actionButtonPropsForGameEvent,
@@ -89,11 +88,13 @@ export function HandDisplay(props: HandDisplayProps) {
   );
 }
 
+export const CARD_MAX_WIDTH = 100;
+
 export function CardIcon(props: { card: Card }) {
   const { suit, rank } = props.card;
   const CardComponent = CardComponentMapping[suit][rank];
   return (
-    <div style={{ paddingLeft: 3, paddingRight: 3 }}>
+    <div style={{ paddingLeft: 3, paddingRight: 3, maxWidth: CARD_MAX_WIDTH }}>
       <CardComponent
         preserveAspectRatio="xMidYMid meet"
         width="100%"

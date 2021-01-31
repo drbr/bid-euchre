@@ -42,7 +42,9 @@ export function BiddingDisplayNameTrump(
       )}
       promptMessage={promptMessage}
       handsElement={<HandDisplay renderAsButtons={false} {...props} />}
-      userActionControls={<SuitButtons {...props} />}
+      userActionControls={
+        highestBidder === props.seatedAt ? <SuitButtons {...props} /> : null
+      }
       debugControls={<NameTrumpDebugControls {...props} />}
     />
   );

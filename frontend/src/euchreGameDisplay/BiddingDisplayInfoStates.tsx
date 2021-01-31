@@ -1,4 +1,3 @@
-import { getHighestBidSoFar } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { BidCardContent } from './components/BidCardContent';
 import { GameLayout } from './components/GameLayout';
@@ -28,12 +27,7 @@ export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
 export function PlayerNamedTrumpInfo(props: BiddingDisplayProps) {
   const bids = props.stateContext.bids;
   const playerNames = props.gameConfig.playerFriendlyNames;
-
-  const positionWhoNamedTrump = getHighestBidSoFar(props.stateContext)
-    .highestBidder;
-  if (!positionWhoNamedTrump) {
-    throw Error('Nobody made a high bid');
-  }
+  const positionWhoNamedTrump = props.stateContext.awaitedPlayer;
   const trumpSuit = props.stateContext.trump;
   if (!trumpSuit) {
     throw Error('A trump has not been named');

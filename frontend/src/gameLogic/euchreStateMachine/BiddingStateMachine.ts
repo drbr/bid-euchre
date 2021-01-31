@@ -7,10 +7,10 @@ import {
   BiddingContext,
   BiddingEvent,
   BiddingStateSchema,
-  NameTrumpEvent,
   PlayerBidEvent,
 } from './BiddingStateTypes';
 import { RoundContext } from './RoundStateTypes';
+import { PlayerSpecificEvent } from '../stateMachineUtils/SpecialEvents';
 
 export const BiddingStates: StateNodeConfig<
   BiddingContext,
@@ -61,6 +61,10 @@ export const BiddingStates: StateNodeConfig<
         },
         {
           target: 'waitForPlayerToNameTrump',
+          actions: assign({
+            awaitedPlayer: (context) =>
+              getHighestBidOrThrow(context).highestBidder,
+          }),
         },
       ],
     },
@@ -76,7 +80,7 @@ export const BiddingStates: StateNodeConfig<
       on: {
         NAME_TRUMP: {
           target: 'playerNamedTrumpInfo',
-          cond: wasTrumpNamedByHighestBidder,
+          cond: wasEventMadeByAwaitedPlayer,
           actions: assign({
             trump: (context, event) => event.trumpSuit,
           }),
@@ -111,9 +115,9 @@ export function assignInitialBiddingContext(
   };
 }
 
-function wasBidMadeByAwaitedPlayer(
+function wasEventMadeByAwaitedPlayer(
   context: BiddingContext,
-  event: PlayerBidEvent
+  event: PlayerSpecificEvent<unknown>
 ): boolean {
   return event.position === context.awaitedPlayer;
 }
@@ -135,16 +139,8 @@ function isBidEventValid(
   event: PlayerBidEvent
 ): boolean {
   return (
-    wasBidMadeByAwaitedPlayer(context, event) && isBidValid(context, event)
+    wasEventMadeByAwaitedPlayer(context, event) && isBidValid(context, event)
   );
-}
-
-function wasTrumpNamedByHighestBidder(
-  context: BiddingContext,
-  event: NameTrumpEvent
-): boolean {
-  const { highestBidder } = getHighestBidSoFar(context);
-  return highestBidder === event.position;
 }
 
 /**
@@ -193,4 +189,17 @@ export function getHighestBidSoFar(
     ? highestSoFar
     : 'pass') as Bid;
   return { highestBidder, highestBid };
+}
+
+function getHighestBidOrThrow(
+  context: BiddingContext
+): {
+  highestBidder: Position;
+  highestBid: Bid;
+} {
+  const { highestBid, highestBidder } = getHighestBidSoFar(context);
+  if (!highestBid || !highestBidder) {
+    throw new Error('No player placed a bid');
+  }
+  return { highestBid, highestBidder };
 }

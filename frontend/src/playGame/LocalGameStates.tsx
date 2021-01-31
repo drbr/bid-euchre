@@ -218,7 +218,7 @@ export const NameTrump = JSON.parse(`
 				"suit": "S"
 			}]
 		},
-		"awaitedPlayer": "north",
+		"awaitedPlayer": "south",
 		"bids": {
 			"north": "pass",
 			"south": 3,

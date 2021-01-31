@@ -17,10 +17,14 @@ export type RoundContextAlways = {
 };
 
 export type RoundContextAfterBidding = RoundContextAlways & {
-  highestBidder?: Position;
-  highestBid?: Bid;
-  trump?: Required<BiddingContext>['trump'];
+  highestBidder: Position;
+  highestBid: Bid;
+  trump: Required<BiddingContext>['trump'];
 };
+
+// export type RoundContextAfterThePlay = RoundContextAfterBidding & {
+//   tricks?:
+// }
 
 export type RoundContext = RoundContextAlways & RoundContextAfterBidding;
 

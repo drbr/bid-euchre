@@ -1,7 +1,6 @@
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import { Suit } from '../gameLogic/Cards';
-import { getHighestBidSoFar } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import {
   ActionButton,
@@ -18,17 +17,12 @@ export function BiddingDisplayNameTrump(
   props: BiddingDisplayProps
 ): JSX.Element {
   const bids = props.stateContext.bids;
-  const { highestBid, highestBidder } = getHighestBidSoFar(props.stateContext);
-
-  if (highestBid === undefined || highestBidder === undefined) {
-    return <div>ERROR: Highest bidder has not been recorded</div>;
-  }
-
-  const highestBidderName = props.gameConfig.playerFriendlyNames[highestBidder];
+  const awaitedPlayer = props.stateContext.awaitedPlayer;
+  const awaitedPlayerName = props.gameConfig.playerFriendlyNames[awaitedPlayer];
   const promptMessage =
-    props.seatedAt === highestBidder
+    props.seatedAt === awaitedPlayer
       ? 'You won the bid! Select a suit to name as trump.'
-      : `Waiting for ${highestBidderName} to name the trump suit…`;
+      : `Waiting for ${awaitedPlayerName} to name the trump suit…`;
 
   return (
     <GameLayout
@@ -36,14 +30,14 @@ export function BiddingDisplayNameTrump(
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
       seatedAt={props.seatedAt}
-      awaitedPosition={highestBidder}
+      awaitedPosition={awaitedPlayer}
       renderPlayerCardContent={(position) => (
         <BidCardContent bid={bids[position]} />
       )}
       promptMessage={promptMessage}
       handsElement={<HandDisplay renderAsButtons={false} {...props} />}
       userActionControls={
-        highestBidder === props.seatedAt ? <SuitButtons {...props} /> : null
+        awaitedPlayer === props.seatedAt ? <SuitButtons {...props} /> : null
       }
       debugControls={<NameTrumpDebugControls {...props} />}
     />

@@ -11,6 +11,7 @@ import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { BidCardContent } from './components/BidCardContent';
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
+import { HandDisplay } from './components/HandDisplay';
 import { SuitDisplayInfo } from './components/SuitDisplayInfo';
 
 export function BiddingDisplayNameTrump(
@@ -40,7 +41,7 @@ export function BiddingDisplayNameTrump(
         <BidCardContent bid={bids[position]} />
       )}
       promptMessage={promptMessage}
-      hands={props.stateContext.private_hands}
+      handsElement={<HandDisplay renderAsButtons={false} {...props} />}
       userActionControls={<SuitButtons {...props} />}
       debugControls={<NameTrumpDebugControls {...props} />}
     />

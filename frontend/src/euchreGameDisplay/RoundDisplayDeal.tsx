@@ -6,6 +6,7 @@ import {
 } from './components/ActionButton';
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
+import { HandDisplay } from './components/HandDisplay';
 import { RoundDisplayProps } from './RoundDisplayDelegator';
 
 export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
@@ -29,7 +30,7 @@ export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
       awaitedPosition={currentDealer}
       renderPlayerCardContent={() => null}
       promptMessage={promptMessage}
-      hands={props.stateContext.private_hands}
+      handsElement={<HandDisplay renderAsButtons={false} {...props} />}
       userActionControls={<DealButton {...props} />}
       debugControls={<DealDebugControls {...props} />}
     />

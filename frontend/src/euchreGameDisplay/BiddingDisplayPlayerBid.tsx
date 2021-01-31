@@ -18,6 +18,7 @@ import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { BidCardContent } from './components/BidCardContent';
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
+import { HandDisplay } from './components/HandDisplay';
 
 export function BiddingDisplayPlayerBid(
   props: BiddingDisplayProps
@@ -43,7 +44,7 @@ export function BiddingDisplayPlayerBid(
         <BidCardContent bid={bids[position]} />
       )}
       promptMessage={promptMessage}
-      hands={props.stateContext.private_hands}
+      handsElement={<HandDisplay renderAsButtons={false} {...props} />}
       userActionControls={<BidButtons {...props} />}
       debugControls={<PlayerBidDebugControls {...props} />}
     />

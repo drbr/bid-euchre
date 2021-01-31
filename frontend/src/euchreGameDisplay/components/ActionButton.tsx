@@ -7,7 +7,10 @@ import {
   ScopedGameDisplayProps,
   UnscopedGameDisplayProps,
 } from '../GameDisplayProps';
-import { absolutePositionFill, flexCenterChild } from '../../style/LayoutStyles';
+import {
+  absolutePositionFill,
+  flexCenterChild,
+} from '../../style/LayoutStyles';
 
 export type BaseButtonProps = ComponentPropsWithoutRef<typeof Button>;
 export type ActionButtonSpecificProps = {
@@ -76,6 +79,12 @@ export function ActionButton(
   );
 }
 
+export type GameDisplayPropsForActionButton<E extends EventObject> = Pick<
+  ScopedGameDisplayProps<unknown, E>,
+  'isEventValid' | 'sendGameEvent'
+> &
+  Pick<UnscopedGameDisplayProps, 'sendGameEventInProgress'>;
+
 /**
  * The most common use case of an action button is for sending a game event.
  * This function returns the action button props that are related to the game event.
@@ -86,8 +95,7 @@ export function ActionButton(
  */
 export function actionButtonPropsForGameEvent<E extends EventObject>(
   event: E,
-  gameDisplayProps: ScopedGameDisplayProps<unknown, E> &
-    UnscopedGameDisplayProps
+  gameDisplayProps: GameDisplayPropsForActionButton<E>
 ): ActionButtonSpecificProps {
   return {
     actionInProgress: gameDisplayProps.sendGameEventInProgress,

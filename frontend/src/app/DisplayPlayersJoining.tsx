@@ -49,6 +49,7 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
           joinGame={() => props.joinGameAtPosition({ position, playerName })}
         />
       )}
+      handsElement={null}
       promptMessage={promptMessage}
       userActionControls={
         props.seatedAt ? null : (

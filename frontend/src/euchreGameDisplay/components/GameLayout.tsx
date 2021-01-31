@@ -4,9 +4,9 @@ import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import { Hand, Suit } from '../../gameLogic/Cards';
+import { Suit } from '../../gameLogic/Cards';
 import { Position } from '../../gameLogic/apiContract/database/Position';
-import { HandDisplay } from './HandDisplay';
+import { HandDisplayProps, HandDisplayStaticProps } from './HandDisplay';
 import { Partnership } from '../../gameLogic/EuchreTypes';
 import { SuitDisplayInfo } from './SuitDisplayInfo';
 
@@ -17,7 +17,9 @@ export type GameLayoutProps = {
   seatedAt: Position | null;
   awaitedPosition?: Position;
   renderPlayerCardContent: (position: Position) => React.ReactNode;
-  hands?: Record<Position, Hand>;
+  handsElement: React.ReactElement<
+    HandDisplayProps | HandDisplayStaticProps
+  > | null;
   promptMessage?: string;
   userActionControls?: React.ReactNode;
   debugControls?: React.ReactNode;
@@ -132,11 +134,7 @@ export function GameLayout(props: GameLayoutProps) {
         </Grid>
       </Box>
 
-      {props.seatedAt && props.hands ? (
-        <Box mt={3}>
-          <HandDisplay hand={props.hands[props.seatedAt]} />
-        </Box>
-      ) : null}
+      {props.handsElement ? <Box mt={3}>{props.handsElement}</Box> : null}
 
       {props.promptMessage ? (
         <Box mt={3}>

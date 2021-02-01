@@ -39,6 +39,8 @@ export const ThePlayStates: StateNodeConfig<
               target: 'waitForFollow',
               cond: isCardPlayedByAwaitedPlayerAndInTheirHand,
               actions: assign({
+                currentTrick: (context, event) =>
+                  trickWithCardPlayed(context, event),
                 private_hands: (context, event) =>
                   playerHandsWithCardRemoved(context, event),
                 awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
@@ -52,6 +54,8 @@ export const ThePlayStates: StateNodeConfig<
               target: 'checkIfAllPlayersHavePlayed',
               cond: isFollowValid,
               actions: assign({
+                currentTrick: (context, event) =>
+                  trickWithCardPlayed(context, event),
                 private_hands: (context, event) =>
                   playerHandsWithCardRemoved(context, event),
                 awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
@@ -150,10 +154,20 @@ function isFollowValid(context: ThePlayContext, event: PlayCardEvent): boolean {
     : true;
 }
 
+function trickWithCardPlayed(
+  context: ThePlayContext,
+  event: PlayCardEvent
+): ThePlayContext['currentTrick'] {
+  return {
+    ...context.currentTrick,
+    [event.position]: event.card,
+  };
+}
+
 function playerHandsWithCardRemoved(
   context: ThePlayContext,
   event: PlayCardEvent
-): Record<Position, Hand> {
+): ThePlayContext['private_hands'] {
   const originalHands = context.private_hands;
   return {
     ...originalHands,

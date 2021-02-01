@@ -14,7 +14,7 @@ import {
   Hand,
   Suit,
 } from '../Cards';
-import { mapPositions } from '../utils/ModelHelpers';
+import { mapPositions, NextPlayer } from '../utils/ModelHelpers';
 import { PartnershipForPlayer } from '../EuchreTypes';
 
 export const ThePlayStates: StateNodeConfig<
@@ -41,6 +41,7 @@ export const ThePlayStates: StateNodeConfig<
               actions: assign({
                 private_hands: (context, event) =>
                   playerHandsWithCardRemoved(context, event),
+                awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
               }),
             },
           },
@@ -53,6 +54,7 @@ export const ThePlayStates: StateNodeConfig<
               actions: assign({
                 private_hands: (context, event) =>
                   playerHandsWithCardRemoved(context, event),
+                awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
               }),
             },
           },
@@ -81,6 +83,9 @@ export const ThePlayStates: StateNodeConfig<
     },
     trickCompleteInfo: {
       meta: { blocking: true },
+      entry: assign({
+        awaitedPlayer: (context) => getTrickWinner(context),
+      }),
       on: {
         AUTO_TRANSITION: 'checkIfMoreTricksToPlay',
       },

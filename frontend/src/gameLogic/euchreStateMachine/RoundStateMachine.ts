@@ -1,11 +1,7 @@
 import { assign, StateNodeConfig } from 'xstate';
 import { deal } from '../deal';
 import { NextPlayer } from '../utils/ModelHelpers';
-import {
-  assignInitialBiddingContext,
-  BiddingStates,
-  getHighestBidSoFar,
-} from './BiddingStateMachine';
+import { BiddingStates, getHighestBidSoFar } from './BiddingStateMachine';
 import { BiddingContext } from './BiddingStateTypes';
 import {
   RoundContext,
@@ -14,10 +10,7 @@ import {
   StartDealEvent,
 } from './RoundStateTypes';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
-import {
-  assignInitialThePlayContext,
-  ThePlayStates,
-} from './ThePlayStateMachine';
+import { ThePlayStates } from './ThePlayStateMachine';
 import { ThePlayContext } from './ThePlayStateTypes';
 import { GameMeta } from './GameStateTypes';
 
@@ -78,7 +71,9 @@ export const RoundStates: StateNodeConfig<
         TypedStateSchema<GameMeta, ThePlayContext>,
         RoundEvent
       >),
-      onDone: { target: 'scoring' },
+      onDone: {
+        target: 'scoring',
+      },
     },
 
     scoring: {

@@ -24,8 +24,8 @@ export type RoundContextAfterBidding = RoundContextAlways & {
 };
 
 export type RoundContextAfterThePlay = RoundContextAfterBidding & {
-  trickCount: ThePlayContext['trickCount']
-}
+  trickCount: ThePlayContext['trickCount'];
+};
 
 export type RoundContext = RoundContextAlways & RoundContextAfterBidding;
 

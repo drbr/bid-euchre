@@ -34,7 +34,9 @@ export function ThePlayDisplayDelegator(
   }, [substate]);
 
   switch (substate) {
-    case 'entry':
+    case 'trick':
+    case 'trickCompleteInfo':
+    case 'checkIfMoreTricksToPlay':
     case 'thePlayComplete':
       return <TransientState substateName={substate} />;
     default:

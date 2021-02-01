@@ -26,7 +26,8 @@ function hydrateInitialState() {
   return hydrateStateFromConfig(InitialLocalGameState);
 }
 
-const seatedAt: Position | null = 'north';
+/** Change this variable to pick where you're seated at the table */
+const seatedAt: Position | null = 'south';
 
 export function LocalGameContainer() {
   const {
@@ -73,6 +74,17 @@ export function LocalGameContainer() {
     return <div>ERROR: Game state is not defined</div>;
   }
 
+  /* Add stuff to the window for debugging */
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  (window as any).goForward = () =>
+    dispatchToBuffer({ type: 'DETACHED_GO_FORWARD' });
+  (window as any).goBack = () => dispatchToBuffer({ type: 'DETACHED_GO_BACK' });
+  (window as any).gameState = currentGameState.hydratedState;
+  (window as any).serializedGameState = serializeState(
+    sanitizeStateMetadata(currentGameState.hydratedState)
+  );
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
   return (
     <LocalGame
       gameState={currentGameState}
@@ -93,14 +105,6 @@ export type LocalGameProps = {
 export function LocalGame(props: LocalGameProps) {
   const { sendGameEvent, gameState } = props;
 
-  /* Add stuff to the window for debugging */
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  (window as any).gameState = props.gameState.hydratedState;
-  (window as any).serializedGameState = serializeState(
-    sanitizeStateMetadata(props.gameState.hydratedState)
-  );
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-
   const isEventValid = useCallback(
     (event: AnyEventObject): boolean =>
       props.bufferMachineMode.mode === 'head' &&
@@ -110,31 +114,6 @@ export function LocalGame(props: LocalGameProps) {
 
   return (
     <div style={{ width: '100%' }}>
-      {/* <h1>Local Game</h1>
-      <p>
-        Use this to develop and test the game UI locally, without involving the
-        server.
-      </p> */}
-      <FlexView hAlignContent="center">
-        {/* TODO buttons to go forward and back */}
-      </FlexView>
-      {/* <div>
-        <ButtonToIncrementGameState
-          eventName="START_GAME"
-          state={gameState.hydratedState}
-          send={sendGameEvent}
-        />
-        <ButtonToIncrementGameState
-          eventName="AUTO_TRANSITION"
-          state={gameState.hydratedState}
-          send={sendGameEvent}
-        />
-        <ButtonToIncrementGameState
-          eventName="SECRET_ACTION_COMPLETE"
-          state={gameState.hydratedState}
-          send={sendGameEvent}
-        />
-      </div> */}
       <GameDisplayDelegatorPure
         stateValue={gameState.hydratedState.value}
         stateContext={gameState.hydratedState.context}
@@ -150,24 +129,6 @@ export function LocalGame(props: LocalGameProps) {
     </div>
   );
 }
-
-// function ButtonToIncrementGameState(props: {
-//   eventName: GameEvent['type'];
-//   state: GameState;
-//   send: (event: GameEvent) => void;
-// }) {
-//   const buttonStyle: React.CSSProperties = { padding: 5, margin: 5 };
-//   const enabled = props.state.nextEvents.includes(props.eventName);
-//   return (
-//     <button
-//       disabled={!enabled}
-//       style={buttonStyle}
-//       onClick={() => props.send({ type: props.eventName })}
-//     >
-//       {props.eventName}
-//     </button>
-//   );
-// }
 
 const DummyGameConfig: InProgressGameConfig = {
   gameStatus: 'inProgress',

@@ -177,7 +177,7 @@ function arePlayersOutOfCardsAfterTrick(context: ThePlayContext): boolean {
   return cardCounts[0] === 0;
 }
 
-function getTrickWinner(context: ThePlayContext): Position {
+export function getTrickWinner(context: ThePlayContext): Position {
   if (!haveAllPlayersPlayedToTrick(context)) {
     throw new Error('Trick is not yet complete; cannot determine a winner');
   }

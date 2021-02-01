@@ -13,6 +13,8 @@ import {
   ScopedGameDisplayProps,
   UnscopedGameDisplayProps,
 } from './GameDisplayProps';
+import { TrickCompleteInfo } from './ThePlayDisplayInfoStates';
+import { ThePlayDisplayTrick } from './ThePlayDisplayTrick';
 
 export type ThePlayDisplayProps = ScopedGameDisplayProps<
   ThePlayContext & RoundContextAfterBidding & GameContext,
@@ -35,7 +37,9 @@ export function ThePlayDisplayDelegator(
 
   switch (substate) {
     case 'trick':
+      return <ThePlayDisplayTrick {...props} />;
     case 'trickCompleteInfo':
+      return <TrickCompleteInfo {...props} />;
     case 'checkIfMoreTricksToPlay':
     case 'thePlayComplete':
       return <TransientState substateName={substate} />;

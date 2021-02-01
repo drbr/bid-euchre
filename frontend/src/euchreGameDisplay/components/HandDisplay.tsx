@@ -3,7 +3,7 @@ import FlexView from 'react-flexview/lib';
 import { AnyEventObject } from 'xstate';
 import { CardComponentMapping } from '../../cards/CardComponentMapping';
 import { Position } from '../../gameLogic/apiContract/database/Position';
-import { Card, Hand } from '../../gameLogic/Cards';
+import { Card } from '../../gameLogic/Cards';
 import { RoundContextAlways } from '../../gameLogic/euchreStateMachine/RoundStateTypes';
 import { PlayCardEvent } from '../../gameLogic/euchreStateMachine/ThePlayStateTypes';
 import { ScopedGameDisplayProps } from '../GameDisplayProps';
@@ -39,7 +39,7 @@ export function HandDisplay(props: HandDisplayProps) {
     return null;
   }
   const position = props.position;
-  const playerHand: Hand = props.stateContext.private_hands[position];
+  const playerHand = props.stateContext.private_hands[position];
 
   if (!props.renderAsButtons) {
     return (
@@ -101,13 +101,16 @@ export const CARD_MAX_WIDTH = 100;
 
 export function CardIcon(props: { card: Card }) {
   const { suit, rank } = props.card;
-  const CardComponent = CardComponentMapping[suit][rank];
+  const cardSpec = CardComponentMapping[suit][rank];
+  const CardComponent = cardSpec.component;
   return (
-    <CardComponent
-      preserveAspectRatio="xMidYMid meet"
-      width="100%"
-      height="100%"
-    />
+    <div style={{ height: '100%' }} role="img" aria-label={cardSpec.cardName}>
+      <CardComponent
+        preserveAspectRatio="xMidYMid meet"
+        width="100%"
+        height="100%"
+      />
+    </div>
   );
 }
 

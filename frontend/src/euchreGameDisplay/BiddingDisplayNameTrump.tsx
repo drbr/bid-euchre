@@ -2,12 +2,10 @@ import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import { Suit } from '../gameLogic/Cards';
 import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
-import {
-  actionButtonPropsForGameEvent,
-} from './components/ActionButtonProps';
-import { ActionButton } from "./components/ActionButton";
+import { actionButtonPropsForGameEvent } from './components/ActionButtonProps';
+import { ActionButton } from './components/ActionButton';
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
-import { BidCardContent } from './components/BidCardContent';
+import { displayedBid } from './components/displayedBid';
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
 import { HandDisplay } from './components/HandDisplay';
@@ -31,9 +29,7 @@ export function BiddingDisplayNameTrump(
       trumpSuit={props.stateContext.trump}
       seatedAt={props.seatedAt}
       awaitedPosition={awaitedPlayer}
-      renderPlayerCardContent={(position) => (
-        <BidCardContent bid={bids[position]} />
-      )}
+      renderPlayerCardContent={(position) => displayedBid(bids[position])}
       promptMessage={promptMessage}
       handsElement={
         <HandDisplay

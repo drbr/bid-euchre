@@ -25,39 +25,45 @@ import { ReactComponent as QS } from './svg/jumbo/QS.svg';
 import { ReactComponent as KS } from './svg/jumbo/KS.svg';
 import { ReactComponent as AS } from './svg/jumbo/AS.svg';
 
-type CardComponent = React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+type CardComponentSpec = {
+  component: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  cardName: string;
+};
 
-export const CardComponentMapping: Record<Suit, Record<Rank, CardComponent>> = {
+export const CardComponentMapping: Record<
+  Suit,
+  Record<Rank, CardComponentSpec>
+> = {
   C: {
-    '9': _9C,
-    '10': TC,
-    J: JC,
-    Q: QC,
-    K: KC,
-    A: AC,
+    '9': { component: _9C, cardName: '9 of Clubs' },
+    '10': { component: TC, cardName: '10 of Clubs' },
+    J: { component: JC, cardName: 'Jack of Clubs' },
+    Q: { component: QC, cardName: 'Queen of Clubs' },
+    K: { component: KC, cardName: 'King of Clubs' },
+    A: { component: AC, cardName: 'Ace of Clubs' },
   },
   D: {
-    '9': _9D,
-    '10': TD,
-    J: JD,
-    Q: QD,
-    K: KD,
-    A: AD,
+    '9': { component: _9D, cardName: '9 of Diamonds' },
+    '10': { component: TD, cardName: '10 of Diamonds' },
+    J: { component: JD, cardName: 'Jack of Diamonds' },
+    Q: { component: QD, cardName: 'Queen of Diamonds' },
+    K: { component: KD, cardName: 'King of Diamonds' },
+    A: { component: AD, cardName: 'Ace of Diamonds' },
   },
   H: {
-    '9': _9H,
-    '10': TH,
-    J: JH,
-    Q: QH,
-    K: KH,
-    A: AH,
+    '9': { component: _9H, cardName: '9 of Hearts' },
+    '10': { component: TH, cardName: '10 of Hearts' },
+    J: { component: JH, cardName: 'Jack of Hearts' },
+    Q: { component: QH, cardName: 'Queen of Hearts' },
+    K: { component: KH, cardName: 'King of Hearts' },
+    A: { component: AH, cardName: 'Ace of Hearts' },
   },
   S: {
-    '9': _9S,
-    '10': TS,
-    J: JS,
-    Q: QS,
-    K: KS,
-    A: AS,
+    '9': { component: _9S, cardName: '9 of Spades' },
+    '10': { component: TS, cardName: '10 of Spades' },
+    J: { component: JS, cardName: 'Jack of Spades' },
+    Q: { component: QS, cardName: 'Queen of Spades' },
+    K: { component: KS, cardName: 'King of Spades' },
+    A: { component: AS, cardName: 'Ace of Spades' },
   },
 };

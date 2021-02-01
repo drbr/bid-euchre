@@ -2,13 +2,13 @@ import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import { Suit } from '../../gameLogic/Cards';
 import { Position } from '../../gameLogic/apiContract/database/Position';
-import { HandDisplayProps, HandDisplayStaticProps } from './HandDisplay';
+import { Suit } from '../../gameLogic/Cards';
 import { Partnership } from '../../gameLogic/EuchreTypes';
+import { HandDisplayProps, HandDisplayStaticProps } from './HandDisplay';
 import { SuitDisplayInfo } from './SuitDisplayInfo';
+import { PLACEHOLDER, PlayerAreaWhiteBackground } from './PlayerArea';
 
 export type GameLayoutProps = {
   playerFriendlyNames: Record<Position, string | null>;
@@ -60,31 +60,16 @@ export function GameLayout(props: GameLayoutProps) {
       ? props.awaitedPosition === position
       : false;
 
+    const cardContent = props.renderPlayerCardContent(position);
+
     return (
-      <Paper>
-        <Box
-          bgcolor={awaited ? '#ea78157a' : undefined}
-          height={100}
-          p={1}
-          display="flex"
-          flexDirection="column"
-        >
-          <Typography variant="h6" align="center" noWrap>
-            {playerName || PLACEHOLDER}
-          </Typography>
-          <Box
-            flex={1}
-            display="flex"
-            flexDirection="column"
-            justifyContent="center"
-          >
-            <Typography variant="h4" align="center">
-              {PLACEHOLDER}
-              {props.renderPlayerCardContent(position)}
-            </Typography>
-          </Box>
-        </Box>
-      </Paper>
+      <PlayerAreaWhiteBackground
+        position={position}
+        playerName={playerName}
+        awaited={awaited}
+      >
+        {cardContent}
+      </PlayerAreaWhiteBackground>
     );
   }
 
@@ -241,5 +226,3 @@ function PromptText(props: { message?: string }) {
     </Typography>
   );
 }
-
-export const PLACEHOLDER = '\u200b';

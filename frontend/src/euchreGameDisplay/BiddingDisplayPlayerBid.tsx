@@ -10,12 +10,10 @@ import {
   PlayerBidEvent,
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import { Bid } from '../gameLogic/EuchreTypes';
-import {
-  actionButtonPropsForGameEvent,
-} from './components/ActionButtonProps';
-import { ActionButton } from "./components/ActionButton";
+import { actionButtonPropsForGameEvent } from './components/ActionButtonProps';
+import { ActionButton } from './components/ActionButton';
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
-import { BidCardContent } from './components/BidCardContent';
+import { displayedBid } from './components/displayedBid';
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
 import { HandDisplay } from './components/HandDisplay';
@@ -40,11 +38,15 @@ export function BiddingDisplayPlayerBid(
       trumpSuit={props.stateContext.trump}
       seatedAt={props.seatedAt}
       awaitedPosition={awaitedPosition}
-      renderPlayerCardContent={(position) => (
-        <BidCardContent bid={bids[position]} />
-      )}
+      renderPlayerCardContent={(position) => displayedBid(bids[position])}
       promptMessage={promptMessage}
-      handsElement={<HandDisplay position={props.seatedAt} renderAsButtons={false} {...props} />}
+      handsElement={
+        <HandDisplay
+          position={props.seatedAt}
+          renderAsButtons={false}
+          {...props}
+        />
+      }
       userActionControls={<BidButtons {...props} />}
       debugControls={<PlayerBidDebugControls {...props} />}
     />

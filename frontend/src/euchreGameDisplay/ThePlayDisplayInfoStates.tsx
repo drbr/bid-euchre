@@ -1,8 +1,9 @@
-import { ThePlayDisplayProps } from './ThePlayDisplayDelegator';
+import { getTrickWinner } from '../gameLogic/euchreStateMachine/ThePlayStateMachine';
 import { GameLayout } from './components/GameLayout';
 import { HandDisplay } from './components/HandDisplay';
 import { InfoStateOKButton } from './components/InfoStateOKButton';
-import { getTrickWinner } from '../gameLogic/euchreStateMachine/ThePlayStateMachine';
+import { ThePlayDisplayProps } from './ThePlayDisplayDelegator';
+import { PlayedCard } from './ThePlayDisplayTrick';
 
 export function TrickCompleteInfo(props: ThePlayDisplayProps): JSX.Element {
   const winningPosition = getTrickWinner(props.stateContext);
@@ -20,7 +21,9 @@ export function TrickCompleteInfo(props: ThePlayDisplayProps): JSX.Element {
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
       seatedAt={props.seatedAt}
-      renderPlayerCardContent={(position) => 'Hello'}
+      renderPlayerCardContent={(position) => (
+        <PlayedCard card={props.stateContext.currentTrick[position]} />
+      )}
       promptMessage={prompt}
       handsElement={
         <HandDisplay

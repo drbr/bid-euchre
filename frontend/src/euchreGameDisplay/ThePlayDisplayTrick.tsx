@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Card } from '../gameLogic/Cards';
 import { GameLayout } from './components/GameLayout';
-import { HandDisplay } from './components/HandDisplay';
+import { CardIcon, HandDisplay } from './components/HandDisplay';
 import { ThePlayDisplayProps } from './ThePlayDisplayDelegator';
 
 export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
@@ -21,7 +21,7 @@ export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
       seatedAt={props.seatedAt}
       awaitedPosition={awaitedPosition}
       renderPlayerCardContent={(position) => (
-        <ThePlayCardContent card={props.stateContext.currentTrick[position]} />
+        <PlayedCard card={props.stateContext.currentTrick[position]} />
       )}
       promptMessage={promptMessage}
       handsElement={
@@ -36,11 +36,9 @@ export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
   );
 }
 
-export function ThePlayCardContent(props: {
-  card: Card | null;
-}): JSX.Element | null {
+export function PlayedCard(props: { card: Card | null }): JSX.Element | null {
   if (props.card) {
-    return <span>{JSON.stringify(props.card)}</span>;
+    return <CardIcon card={props.card} />;
   } else {
     return null;
   }

@@ -1,5 +1,5 @@
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
-import { BidCardContent } from './components/BidCardContent';
+import { displayedBid } from './components/displayedBid';
 import { GameLayout } from './components/GameLayout';
 import { HandDisplay } from './components/HandDisplay';
 import { InfoStateOKButton } from './components/InfoStateOKButton';
@@ -14,9 +14,7 @@ export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
       seatedAt={props.seatedAt}
-      renderPlayerCardContent={(position) => (
-        <BidCardContent bid={bids[position]} />
-      )}
+      renderPlayerCardContent={(position) => displayedBid(bids[position])}
       promptMessage="All players passed. A new hand will be dealt."
       handsElement={
         <HandDisplay
@@ -56,9 +54,7 @@ export function PlayerNamedTrumpInfo(props: BiddingDisplayProps) {
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
       seatedAt={props.seatedAt}
-      renderPlayerCardContent={(position) => (
-        <BidCardContent bid={bids[position]} />
-      )}
+      renderPlayerCardContent={(position) => displayedBid(bids[position])}
       promptMessage={promptMessage}
       handsElement={
         <HandDisplay

@@ -81,14 +81,12 @@ export const ThePlayStates: StateNodeConfig<
         target: 'trickCompleteInfo',
         actions: assign({
           trickCount: (context) => addWonTrickToCount(context),
+          awaitedPlayer: (context) => getTrickWinner(context),
         }),
       },
     },
     trickCompleteInfo: {
       meta: { blocking: true },
-      entry: assign({
-        awaitedPlayer: (context) => getTrickWinner(context),
-      }),
       on: {
         AUTO_TRANSITION: 'checkIfMoreTricksToPlay',
       },

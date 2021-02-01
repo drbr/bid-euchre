@@ -13,7 +13,7 @@ export function TrickCompleteInfo(props: ThePlayDisplayProps): JSX.Element {
   const prompt =
     winningPosition === props.seatedAt
       ? 'You won the trick!'
-      : `${winningPlayerName} won the trick.`;
+      : `${winningPlayerName} won the trick!`;
 
   return (
     <GameLayout
@@ -21,6 +21,7 @@ export function TrickCompleteInfo(props: ThePlayDisplayProps): JSX.Element {
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
       seatedAt={props.seatedAt}
+      awaitedPosition={props.stateContext.awaitedPlayer}
       renderPlayerCardContent={(position) => (
         <PlayedCard card={props.stateContext.currentTrick[position]} />
       )}

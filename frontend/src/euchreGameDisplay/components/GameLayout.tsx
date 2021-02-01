@@ -90,7 +90,7 @@ export function GameLayout(props: GameLayoutProps) {
       <Box mt={3} textAlign="left">
         <Grid container spacing={1} alignItems="center">
           {/* top row */}
-          <Spacer>
+          <Spacer34>
             {props.score ? (
               <ScoreSingle
                 colorMode={props.colorMode}
@@ -100,9 +100,9 @@ export function GameLayout(props: GameLayoutProps) {
                 partnershipName={props.seatedAt ? 'We' : null}
               />
             ) : null}
-          </Spacer>
+          </Spacer34>
           <Player>{playerCardAtIndex(0)}</Player>
-          <Spacer>
+          <Spacer34>
             {props.score ? (
               <ScoreSingle
                 colorMode={props.colorMode}
@@ -112,26 +112,26 @@ export function GameLayout(props: GameLayoutProps) {
                 partnershipName={props.seatedAt ? 'They' : null}
               />
             ) : null}
-          </Spacer>
+          </Spacer34>
 
           {/* middle row */}
-          <Player>{playerCardAtIndex(1)}</Player>
           <Hidden xsDown>
-            <Spacer />
-            {/* <Center>
-              <PromptInGrid message={props.promptMessage} />
-            </Center> */}
+            <Spacer22 />
           </Hidden>
+          <Player>{playerCardAtIndex(1)}</Player>
           <Player>{playerCardAtIndex(2)}</Player>
+          <Hidden xsDown>
+            <Spacer22 />
+          </Hidden>
 
           {/* bottom row */}
-          <Spacer />
+          <Spacer34 />
           <Player>{playerCardAtIndex(3)}</Player>
-          <Spacer>
+          <Spacer34>
             {props.trumpSuit ? (
               <Trump suit={props.trumpSuit} colorMode={props.colorMode} />
             ) : null}
-          </Spacer>
+          </Spacer34>
         </Grid>
       </Box>
 
@@ -154,9 +154,17 @@ export function GameLayout(props: GameLayoutProps) {
   );
 }
 
-function Spacer(props: React.PropsWithChildren<unknown>) {
+function Spacer34(props: React.PropsWithChildren<unknown>) {
   return (
     <Grid item xs={3} sm={4} style={{ textAlign: 'center' }}>
+      {props.children}
+    </Grid>
+  );
+}
+
+function Spacer22(props: React.PropsWithChildren<unknown>) {
+  return (
+    <Grid item xs={2} sm={2} style={{ textAlign: 'center' }}>
       {props.children}
     </Grid>
   );
@@ -234,24 +242,6 @@ function Trump(props: { suit: Suit; colorMode: GameLayoutProps['colorMode'] }) {
     </Box>
   );
 }
-
-// function Center(props: React.PropsWithChildren<unknown>) {
-//   return (
-//     <Grid item xs={12} sm={4}>
-//       {props.children}
-//     </Grid>
-//   );
-// }
-
-// function PromptInGrid(props: { message?: string }) {
-//   return (
-//     <Box>
-//       <FlexView vAlignContent="center" hAlignContent="center" height={100}>
-//         <PromptText message={props.message} />
-//       </FlexView>
-//     </Box>
-//   );
-// }
 
 function PromptText(props: { message?: string }) {
   const messageOrSpacer = props.message ?? PLACEHOLDER;

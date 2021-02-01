@@ -2,6 +2,7 @@ import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
+import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { Position } from '../../gameLogic/apiContract/database/Position';
 import { Suit } from '../../gameLogic/Cards';
@@ -90,6 +91,7 @@ export function GameLayout(props: GameLayoutProps) {
           <Spacer>
             {props.score ? (
               <ScoreSingle
+                colorMode={props.colorMode}
                 playerFriendlyNames={props.playerFriendlyNames}
                 score={props.score}
                 partnership={partnershipsInOrder[0]}
@@ -101,6 +103,7 @@ export function GameLayout(props: GameLayoutProps) {
           <Spacer>
             {props.score ? (
               <ScoreSingle
+                colorMode={props.colorMode}
                 playerFriendlyNames={props.playerFriendlyNames}
                 score={props.score}
                 partnership={partnershipsInOrder[1]}
@@ -123,7 +126,9 @@ export function GameLayout(props: GameLayoutProps) {
           <Spacer />
           <Player>{playerCardAtIndex(3)}</Player>
           <Spacer>
-            {props.trumpSuit ? <Trump suit={props.trumpSuit} /> : null}
+            {props.trumpSuit ? (
+              <Trump suit={props.trumpSuit} colorMode={props.colorMode} />
+            ) : null}
           </Spacer>
         </Grid>
       </Box>
@@ -164,6 +169,7 @@ function Player(props: React.PropsWithChildren<unknown>) {
 }
 
 function ScoreSingle(props: {
+  colorMode: GameLayoutProps['colorMode'];
   playerFriendlyNames: GameLayoutProps['playerFriendlyNames'];
   score: NonNullable<GameLayoutProps['score']>;
   partnership: Partnership;
@@ -180,20 +186,26 @@ function ScoreSingle(props: {
   );
   const teamScore = props.score[props.partnership];
 
-  return (
-    <Box textAlign="center">
+  const scoreContent = (
+    <Box textAlign="center" padding={2}>
       <Box marginBottom={0.5}>
         <Typography noWrap>{teamName}</Typography>
       </Box>
       <Typography variant="h5">{teamScore}</Typography>
     </Box>
   );
+
+  if (props.colorMode === 'dark') {
+    return <Paper>{scoreContent}</Paper>;
+  } else {
+    return scoreContent;
+  }
 }
 
-function Trump(props: { suit: Suit }) {
+function Trump(props: { suit: Suit; colorMode: GameLayoutProps['colorMode'] }) {
   const suitInfo = SuitDisplayInfo[props.suit];
-  return (
-    <Box textAlign="center">
+  const trumpContent = (
+    <Box textAlign="center" padding={2}>
       <Typography style={{ color: suitInfo.color }}>TRUMP</Typography>
       <Typography
         style={{
@@ -207,6 +219,12 @@ function Trump(props: { suit: Suit }) {
       </Typography>
     </Box>
   );
+
+  if (props.colorMode === 'dark') {
+    return <Paper>{trumpContent}</Paper>;
+  } else {
+    return trumpContent;
+  }
 }
 
 // function Center(props: React.PropsWithChildren<unknown>) {

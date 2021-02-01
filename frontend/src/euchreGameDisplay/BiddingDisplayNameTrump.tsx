@@ -3,9 +3,9 @@ import Grid from '@material-ui/core/Grid';
 import { Suit } from '../gameLogic/Cards';
 import { NameTrumpEvent } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import {
-  ActionButton,
   actionButtonPropsForGameEvent,
-} from './components/ActionButton';
+} from './components/ActionButtonProps';
+import { ActionButton } from "./components/ActionButton";
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { BidCardContent } from './components/BidCardContent';
 import { DebugButton } from './components/DebugButton';

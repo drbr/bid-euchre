@@ -1,5 +1,4 @@
 import { useCallback, useEffect } from 'react';
-import FlexView from 'react-flexview/lib';
 import { AnyEventObject } from 'xstate';
 import { GameDisplayDelegatorPure } from '../euchreGameDisplay/GameDisplayDelegator';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';

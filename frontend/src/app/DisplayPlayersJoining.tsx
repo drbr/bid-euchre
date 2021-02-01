@@ -80,9 +80,9 @@ function JoinButton(props: {
   return props.playerNameAtPosition ? null : (
     <ActionButton
       fullWidth
-      disabled={!props.canJoin}
+      actionValid={props.canJoin}
       actionInProgress={props.joinInProgress}
-      onClick={props.joinGame}
+      sendEvent={props.joinGame}
     >
       Join
     </ActionButton>

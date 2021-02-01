@@ -1,16 +1,17 @@
-import {
-  ActionButton,
-  actionButtonPropsForGameEvent,
-  GameDisplayPropsForActionButton,
-} from './ActionButton';
-import { Card, Hand } from '../../gameLogic/Cards';
-import { CardComponentMapping } from '../../cards/CardComponentMapping';
+import { ReactElement } from 'react';
 import FlexView from 'react-flexview/lib';
+import { AnyEventObject } from 'xstate';
+import { CardComponentMapping } from '../../cards/CardComponentMapping';
+import { Position } from '../../gameLogic/apiContract/database/Position';
+import { Card, Hand } from '../../gameLogic/Cards';
+import { RoundContextAlways } from '../../gameLogic/euchreStateMachine/RoundStateTypes';
 import { PlayCardEvent } from '../../gameLogic/euchreStateMachine/ThePlayStateTypes';
 import { ScopedGameDisplayProps } from '../GameDisplayProps';
-import { RoundContextAlways } from '../../gameLogic/euchreStateMachine/RoundStateTypes';
-import { AnyEventObject } from 'xstate';
-import { Position } from '../../gameLogic/apiContract/database/Position';
+import {
+  actionButtonPropsForGameEvent,
+  GameDisplayPropsForActionButton,
+} from './ActionButtonProps';
+import { CardActionButton, NonInteractiveCard } from './ActionButton';
 
 /**
  * Props for Hand Display when cards cannot be played
@@ -47,11 +48,13 @@ export function HandDisplay(props: HandDisplayProps) {
 
   if (!props.renderAsButtons) {
     return (
-      <FlexView hAlignContent="center">
+      <CardsRow>
         {modifiedHand.map((card) => (
-          <CardIcon card={card} key={keyForCard(card)} />
+          <NonInteractiveCard key={keyForCard(card)}>
+            <CardIcon card={card} />
+          </NonInteractiveCard>
         ))}
-      </FlexView>
+      </CardsRow>
     );
   }
 
@@ -68,14 +71,34 @@ export function HandDisplay(props: HandDisplayProps) {
   }));
 
   return (
-    <FlexView hAlignContent="center">
+    <CardsRow>
       {allCardButtonProps.map((cardProps) => (
-        <ActionButton
+        <CardActionButton
           {...cardProps.actionButtonProps}
           key={keyForCard(cardProps.card)}
         >
           <CardIcon card={cardProps.card} />
-        </ActionButton>
+        </CardActionButton>
+      ))}
+    </CardsRow>
+  );
+}
+
+function CardsRow(props: { children: ReactElement[] }) {
+  return (
+    <FlexView hAlignContent="center">
+      {props.children.map((child) => (
+        <div
+          style={{
+            // paddingLeft: 3,
+            // paddingRight: 3,
+            maxWidth: CARD_MAX_WIDTH,
+            width: '14.28%',
+          }}
+          key={child?.key}
+        >
+          {child}
+        </div>
       ))}
     </FlexView>
   );
@@ -87,13 +110,11 @@ export function CardIcon(props: { card: Card }) {
   const { suit, rank } = props.card;
   const CardComponent = CardComponentMapping[suit][rank];
   return (
-    <div style={{ paddingLeft: 3, paddingRight: 3, maxWidth: CARD_MAX_WIDTH }}>
-      <CardComponent
-        preserveAspectRatio="xMidYMid meet"
-        width="100%"
-        height="100%"
-      />
-    </div>
+    <CardComponent
+      preserveAspectRatio="xMidYMid meet"
+      width="100%"
+      height="100%"
+    />
   );
 }
 

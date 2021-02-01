@@ -11,7 +11,6 @@ import { Position } from '../apiContract/database/Position';
 import {
   cardsInDescendingOrderForEffectiveSuit,
   getEffectiveSuit,
-  Hand,
   Suit,
 } from '../Cards';
 import { mapPositions, NextPlayer } from '../utils/ModelHelpers';

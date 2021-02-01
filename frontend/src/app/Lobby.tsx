@@ -32,8 +32,8 @@ export function NewGameSection() {
     <div>
       <ActionButton
         variant="contained"
-        disabled={false}
-        onClick={onButtonClick}
+        actionValid={true}
+        sendEvent={onButtonClick}
         actionInProgress={creatingGameInProgress}
       >
         New Game

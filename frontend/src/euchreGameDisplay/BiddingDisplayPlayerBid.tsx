@@ -11,9 +11,9 @@ import {
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import { Bid } from '../gameLogic/EuchreTypes';
 import {
-  ActionButton,
   actionButtonPropsForGameEvent,
-} from './components/ActionButton';
+} from './components/ActionButtonProps';
+import { ActionButton } from "./components/ActionButton";
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { BidCardContent } from './components/BidCardContent';
 import { DebugButton } from './components/DebugButton';

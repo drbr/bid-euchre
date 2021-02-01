@@ -1,9 +1,9 @@
 import Box from '@material-ui/core/Box';
 import { StartDealEvent } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import {
-  ActionButton,
   actionButtonPropsForGameEvent,
-} from './components/ActionButton';
+} from './components/ActionButtonProps';
+import { ActionButton } from "./components/ActionButton";
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
 import { HandDisplay } from './components/HandDisplay';

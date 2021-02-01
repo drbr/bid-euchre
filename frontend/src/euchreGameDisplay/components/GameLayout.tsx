@@ -86,7 +86,7 @@ export function GameLayout(props: GameLayoutProps) {
   return (
     <Container maxWidth="md">
       <Box mt={3} textAlign="left">
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={1} alignItems="center">
           {/* top row */}
           <Spacer>
             {props.score ? (
@@ -154,7 +154,7 @@ export function GameLayout(props: GameLayoutProps) {
 
 function Spacer(props: React.PropsWithChildren<unknown>) {
   return (
-    <Grid item xs={3} sm={4}>
+    <Grid item xs={3} sm={4} style={{ textAlign: 'center' }}>
       {props.children}
     </Grid>
   );
@@ -167,6 +167,8 @@ function Player(props: React.PropsWithChildren<unknown>) {
     </Grid>
   );
 }
+
+const SCORE_WIDTH_PX = 60;
 
 function ScoreSingle(props: {
   colorMode: GameLayoutProps['colorMode'];
@@ -187,7 +189,7 @@ function ScoreSingle(props: {
   const teamScore = props.score[props.partnership];
 
   const scoreContent = (
-    <Box textAlign="center" padding={2}>
+    <Box textAlign="center" padding={1}>
       <Box marginBottom={0.5}>
         <Typography noWrap>{teamName}</Typography>
       </Box>
@@ -196,7 +198,11 @@ function ScoreSingle(props: {
   );
 
   if (props.colorMode === 'dark') {
-    return <Paper>{scoreContent}</Paper>;
+    return (
+      <Box display="inline-block" width={SCORE_WIDTH_PX}>
+        <Paper style={{ backgroundColor: '#ffffffb0' }}>{scoreContent}</Paper>
+      </Box>
+    );
   } else {
     return scoreContent;
   }
@@ -205,7 +211,7 @@ function ScoreSingle(props: {
 function Trump(props: { suit: Suit; colorMode: GameLayoutProps['colorMode'] }) {
   const suitInfo = SuitDisplayInfo[props.suit];
   const trumpContent = (
-    <Box textAlign="center" padding={2}>
+    <Box textAlign="center" p={1} pb={2}>
       <Typography style={{ color: suitInfo.color }}>TRUMP</Typography>
       <Typography
         style={{
@@ -220,11 +226,11 @@ function Trump(props: { suit: Suit; colorMode: GameLayoutProps['colorMode'] }) {
     </Box>
   );
 
-  if (props.colorMode === 'dark') {
-    return <Paper>{trumpContent}</Paper>;
-  } else {
-    return trumpContent;
-  }
+  return (
+    <Box display="inline-block">
+      <Paper style={{ backgroundColor: '#ffffffb0' }}>{trumpContent}</Paper>
+    </Box>
+  );
 }
 
 // function Center(props: React.PropsWithChildren<unknown>) {

@@ -30,7 +30,12 @@ export function CardActionButton(
 ) {
   const actionButtonProps = useButtonPropsForActionButton(props);
   return (
-    <IconButtonForCard {...actionButtonProps}>
+    <IconButtonForCard
+      {...actionButtonProps}
+      style={{
+        opacity: actionButtonProps.disabled ? 0.5 : undefined,
+      }}
+    >
       {props.children}
     </IconButtonForCard>
   );

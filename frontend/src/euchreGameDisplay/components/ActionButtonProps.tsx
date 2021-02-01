@@ -33,7 +33,7 @@ export type ActionButtonDomainProps = {
  */
 export function useButtonPropsForActionButton(
   props: PropsWithChildren<ActionButtonDomainProps>
-): Pick<ButtonBaseProps, 'children' | 'onClick' | 'disabled'> {
+): Pick<Required<ButtonBaseProps>, 'children' | 'onClick' | 'disabled'> {
   // The parent component passes down the `loading` prop to indicate that an action is in progress.
   // However, because there may be multiple buttons on the screen, we want to show the loading
   // indicator only on the button that was actually clicked. We do that with this extra prop, which

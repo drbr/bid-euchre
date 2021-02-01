@@ -17,6 +17,7 @@ export function TrickCompleteInfo(props: ThePlayDisplayProps): JSX.Element {
 
   return (
     <GameLayout
+      colorMode="dark"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}

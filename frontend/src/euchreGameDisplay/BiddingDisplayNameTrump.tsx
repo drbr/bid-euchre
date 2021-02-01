@@ -24,6 +24,7 @@ export function BiddingDisplayNameTrump(
 
   return (
     <GameLayout
+      colorMode="light"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}

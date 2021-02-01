@@ -33,6 +33,7 @@ export function BiddingDisplayPlayerBid(
 
   return (
     <GameLayout
+      colorMode="light"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}

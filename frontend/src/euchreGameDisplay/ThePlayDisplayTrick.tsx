@@ -15,6 +15,7 @@ export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
 
   return (
     <GameLayout
+      colorMode="dark"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}

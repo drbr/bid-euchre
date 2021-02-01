@@ -10,6 +10,7 @@ export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
 
   return (
     <GameLayout
+      colorMode="light"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
@@ -50,6 +51,7 @@ export function PlayerNamedTrumpInfo(props: BiddingDisplayProps) {
 
   return (
     <GameLayout
+      colorMode="light"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}

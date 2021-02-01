@@ -1,9 +1,7 @@
 import Box from '@material-ui/core/Box';
 import { StartDealEvent } from '../gameLogic/euchreStateMachine/RoundStateTypes';
-import {
-  actionButtonPropsForGameEvent,
-} from './components/ActionButtonProps';
-import { ActionButton } from "./components/ActionButton";
+import { actionButtonPropsForGameEvent } from './components/ActionButtonProps';
+import { ActionButton } from './components/ActionButton';
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
 import { HandDisplay } from './components/HandDisplay';
@@ -23,6 +21,7 @@ export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
 
   return (
     <GameLayout
+      colorMode="light"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={undefined}

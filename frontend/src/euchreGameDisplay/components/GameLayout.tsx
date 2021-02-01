@@ -8,9 +8,14 @@ import { Suit } from '../../gameLogic/Cards';
 import { Partnership } from '../../gameLogic/EuchreTypes';
 import { HandDisplayProps, HandDisplayStaticProps } from './HandDisplay';
 import { SuitDisplayInfo } from './SuitDisplayInfo';
-import { PLACEHOLDER, PlayerAreaWhiteBackground } from './PlayerArea';
+import {
+  PLACEHOLDER,
+  PlayerAreaNoBackground,
+  PlayerAreaWhiteBackground,
+} from './PlayerArea';
 
 export type GameLayoutProps = {
+  colorMode: 'dark' | 'light';
   playerFriendlyNames: Record<Position, string | null>;
   score: Record<Partnership, number> | null;
   trumpSuit: Suit | undefined;
@@ -61,15 +66,19 @@ export function GameLayout(props: GameLayoutProps) {
       : false;
 
     const cardContent = props.renderPlayerCardContent(position);
+    const CardComponent =
+      props.colorMode === 'dark'
+        ? PlayerAreaNoBackground
+        : PlayerAreaWhiteBackground;
 
     return (
-      <PlayerAreaWhiteBackground
+      <CardComponent
         position={position}
         playerName={playerName}
         awaited={awaited}
       >
         {cardContent}
-      </PlayerAreaWhiteBackground>
+      </CardComponent>
     );
   }
 

@@ -26,7 +26,7 @@ function hydrateInitialState() {
 }
 
 /** Change this variable to pick where you're seated at the table */
-const seatedAt: Position | null = 'south';
+const seatedAt: Position | null = 'east';
 
 export function LocalGameContainer() {
   const {

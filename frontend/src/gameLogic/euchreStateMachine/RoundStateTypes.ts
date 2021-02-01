@@ -9,6 +9,7 @@ import {
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 import { BiddingContext } from './BiddingStateTypes';
 import { GameMeta } from './GameStateTypes';
+import { ThePlayContext } from './ThePlayStateTypes';
 
 export type RoundContextAlways = {
   roundIndex: number;
@@ -22,9 +23,9 @@ export type RoundContextAfterBidding = RoundContextAlways & {
   trump: Required<BiddingContext>['trump'];
 };
 
-// export type RoundContextAfterThePlay = RoundContextAfterBidding & {
-//   tricks?:
-// }
+export type RoundContextAfterThePlay = RoundContextAfterBidding & {
+  trickCount: ThePlayContext['trickCount']
+}
 
 export type RoundContext = RoundContextAlways & RoundContextAfterBidding;
 

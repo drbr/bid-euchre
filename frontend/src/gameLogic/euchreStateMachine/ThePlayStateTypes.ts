@@ -1,15 +1,36 @@
 import { State, Typestate } from 'xstate';
+import { Position } from '../apiContract/database/Position';
 import { Card } from '../Cards';
-import { PlayerSpecificEvent } from '../stateMachineUtils/SpecialEvents';
+import { Partnership } from '../EuchreTypes';
+import {
+  AutoTransitionEvent,
+  PlayerSpecificEvent,
+} from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 import { GameMeta } from './GameStateTypes';
+import { RoundContextAfterBidding } from './RoundStateTypes';
 
-export type ThePlayContext = {
-  tricks: null;
+export type ThePlayContext = Pick<
+  RoundContextAfterBidding,
+  'private_hands' | 'trump'
+> & {
+  trickCount: Record<Partnership, number>;
+  leader: Position;
+  awaitedPlayer: Position;
+  currentTrick: Record<Position, Card | null>;
 };
 
 export type ThePlayStatesGeneric<T> = {
-  entry: T;
+  trick: {
+    states: {
+      waitForLead: T;
+      waitForFollow: T;
+      checkIfAllPlayersHavePlayed: T;
+      complete: T;
+    };
+  };
+  trickCompleteInfo: T;
+  checkIfMoreTricksToPlay: T;
   thePlayComplete: T;
 };
 
@@ -25,7 +46,7 @@ export type PlayCardEvent = PlayerSpecificEvent<{
   card: Card;
 }>;
 
-export type ThePlayEvent = PlayCardEvent;
+export type ThePlayEvent = PlayCardEvent | AutoTransitionEvent;
 
 export type ThePlayState = State<
   ThePlayContext,

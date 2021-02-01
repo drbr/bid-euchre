@@ -26,14 +26,20 @@ export function ActionButton(props: ButtonProps & ActionButtonDomainProps) {
  * passed in via the `children` prop.
  */
 export function CardActionButton(
-  props: IconButtonProps & ActionButtonDomainProps
+  props: PropsWithChildren<ActionButtonDomainProps>
 ) {
   const actionButtonProps = useButtonPropsForActionButton(props);
-  return <IconButtonForCard {...props} {...actionButtonProps} />;
+  return (
+    <IconButtonForCard {...actionButtonProps}>
+      {props.children}
+    </IconButtonForCard>
+  );
 }
 
 export function NonInteractiveCard(props: PropsWithChildren<unknown>) {
-  return <IconButtonForCard disabled={true} />;
+  return (
+    <IconButtonForCard disabled={false}>{props.children}</IconButtonForCard>
+  );
 }
 
 /**

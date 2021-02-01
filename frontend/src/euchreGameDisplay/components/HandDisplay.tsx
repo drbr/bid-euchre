@@ -39,17 +39,12 @@ export function HandDisplay(props: HandDisplayProps) {
     return null;
   }
   const position = props.position;
-
-  // TODO Temp code for seven cards in a hand
-  const modifiedHand: Hand = [
-    ...props.stateContext.private_hands[position],
-    { suit: 'S', rank: 'A' },
-  ];
+  const playerHand: Hand = props.stateContext.private_hands[position];
 
   if (!props.renderAsButtons) {
     return (
       <CardsRow>
-        {modifiedHand.map((card) => (
+        {playerHand.map((card) => (
           <NonInteractiveCard key={keyForCard(card)}>
             <CardIcon card={card} />
           </NonInteractiveCard>
@@ -58,7 +53,7 @@ export function HandDisplay(props: HandDisplayProps) {
     );
   }
 
-  const allCardButtonProps = modifiedHand.map((card) => ({
+  const allCardButtonProps = playerHand.map((card) => ({
     card,
     actionButtonProps: actionButtonPropsForGameEvent(
       {
@@ -86,14 +81,12 @@ export function HandDisplay(props: HandDisplayProps) {
 
 function CardsRow(props: { children: ReactElement[] }) {
   return (
-    <FlexView hAlignContent="center">
+    <FlexView hAlignContent="center" wrap>
       {props.children.map((child) => (
         <div
           style={{
-            // paddingLeft: 3,
-            // paddingRight: 3,
             maxWidth: CARD_MAX_WIDTH,
-            width: '14.28%',
+            width: '16.66%',
           }}
           key={child?.key}
         >

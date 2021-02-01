@@ -25,6 +25,7 @@ export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={undefined}
+      trickCount={undefined}
       seatedAt={props.seatedAt}
       awaitedPosition={currentDealer}
       renderPlayerCardContent={() => null}

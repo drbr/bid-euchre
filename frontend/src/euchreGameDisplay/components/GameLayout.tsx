@@ -20,6 +20,7 @@ export type GameLayoutProps = {
   playerFriendlyNames: Record<Position, string | null>;
   score: Record<Partnership, number> | null;
   trumpSuit: Suit | undefined;
+  trickCount: Record<Position, number> | undefined;
   seatedAt: Position | null;
   awaitedPosition?: Position;
   renderPlayerCardContent: (position: Position) => React.ReactNode;
@@ -77,6 +78,7 @@ export function GameLayout(props: GameLayoutProps) {
         position={position}
         playerName={playerName}
         awaited={awaited}
+        trickCount={props.trickCount}
       >
         {cardContent}
       </CardComponent>

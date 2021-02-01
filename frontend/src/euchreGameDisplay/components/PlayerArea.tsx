@@ -11,6 +11,7 @@ export type PlayerAreaProps = {
   position: Position;
   playerName: string | null;
   awaited: boolean;
+  trickCount?: Record<Position, number>;
 };
 
 const PLAYER_AREA_HEIGHT_PX = 150;
@@ -18,7 +19,7 @@ const PLAYER_AREA_HEIGHT_PX = 150;
 export function PlayerAreaWhiteBackground(
   props: PropsWithChildren<PlayerAreaProps>
 ) {
-  const { playerName, awaited, children } = props;
+  const { awaited, children } = props;
 
   return (
     <Paper>
@@ -31,7 +32,7 @@ export function PlayerAreaWhiteBackground(
         height={PLAYER_AREA_HEIGHT_PX}
       >
         <Typography align="center" noWrap style={{ flexShrink: 0 }}>
-          {playerName || PLACEHOLDER}
+          {getPlayerNameWithTrickCount(props)}
         </Typography>
         <FlexView grow vAlignContent="center" hAlignContent="center">
           <PlayerCardUserContent>{children}</PlayerCardUserContent>
@@ -44,7 +45,7 @@ export function PlayerAreaWhiteBackground(
 export function PlayerAreaNoBackground(
   props: PropsWithChildren<PlayerAreaProps>
 ) {
-  const { playerName, awaited, children } = props;
+  const { awaited, children } = props;
 
   return (
     <FlexView
@@ -57,7 +58,7 @@ export function PlayerAreaNoBackground(
       }}
     >
       <Typography align="center" noWrap style={{ flexShrink: 0 }}>
-        {playerName || PLACEHOLDER}
+        {getPlayerNameWithTrickCount(props)}
       </Typography>
       <FlexView
         grow
@@ -69,6 +70,30 @@ export function PlayerAreaNoBackground(
       </FlexView>
     </FlexView>
   );
+}
+
+function getPlayerNameWithTrickCount(props: PlayerAreaProps) {
+  const trickCount = props.trickCount ? props.trickCount[props.position] : 0;
+  const nameWithTricks =
+    trickCount > 0 ? (
+      <FlexView hAlignContent="center">
+        <span
+          style={{
+            display: 'inline-block',
+            flexShrink: 1,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {props.playerName}
+        </span>
+        <strong style={{ flexShrink: 0, marginLeft: 6 }}>({trickCount})</strong>
+      </FlexView>
+    ) : (
+      props.playerName
+    );
+
+  return nameWithTricks || PLACEHOLDER;
 }
 
 function PlayerCardUserContent(props: PropsWithChildren<unknown>): JSX.Element {

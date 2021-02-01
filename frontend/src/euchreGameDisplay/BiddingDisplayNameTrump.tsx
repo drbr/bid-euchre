@@ -28,6 +28,7 @@ export function BiddingDisplayNameTrump(
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
+      trickCount={undefined}
       seatedAt={props.seatedAt}
       awaitedPosition={awaitedPlayer}
       renderPlayerCardContent={(position) => displayedBid(bids[position])}

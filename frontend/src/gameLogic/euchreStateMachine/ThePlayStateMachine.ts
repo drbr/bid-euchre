@@ -14,7 +14,7 @@ import {
   Suit,
 } from '../Cards';
 import { mapPositions, NextPlayer } from '../utils/ModelHelpers';
-import { PartnershipForPlayer } from '../EuchreTypes';
+import { PartnershipForPosition } from '../EuchreTypes';
 
 export const ThePlayStates: StateNodeConfig<
   ThePlayContext,
@@ -221,8 +221,10 @@ export function assignInitialThePlayContext(
     trump: parentContext.trump,
     ...assignInitialTrickContextForLeader(parentContext.highestBidder),
     trickCount: {
-      northsouth: 0,
-      eastwest: 0,
+      north: 0,
+      south: 0,
+      east: 0,
+      west: 0,
     },
   };
 }
@@ -246,9 +248,8 @@ function addWonTrickToCount(
   context: ThePlayContext
 ): ThePlayContext['trickCount'] {
   const trickWinner = getTrickWinner(context);
-  const winningPartnership = PartnershipForPlayer[trickWinner];
   return {
     ...context.trickCount,
-    [winningPartnership]: context.trickCount[winningPartnership] + 1,
+    [trickWinner]: context.trickCount[trickWinner] + 1,
   };
 }

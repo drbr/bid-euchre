@@ -21,6 +21,7 @@ export function TrickCompleteInfo(props: ThePlayDisplayProps): JSX.Element {
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
+      trickCount={props.stateContext.trickCount}
       seatedAt={props.seatedAt}
       awaitedPosition={props.stateContext.awaitedPlayer}
       renderPlayerCardContent={(position) => (

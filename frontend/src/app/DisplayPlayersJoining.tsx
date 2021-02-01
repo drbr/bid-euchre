@@ -36,10 +36,11 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
 
   return (
     <GameLayout
-      colorMode='light'
+      colorMode="light"
       playerFriendlyNames={playerNames}
       score={null}
       trumpSuit={undefined}
+      trickCount={undefined}
       seatedAt="south"
       awaitedPosition={props.seatedAt ?? undefined}
       renderPlayerCardContent={(position) => (

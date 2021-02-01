@@ -14,6 +14,7 @@ export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
+      trickCount={undefined}
       seatedAt={props.seatedAt}
       renderPlayerCardContent={(position) => displayedBid(bids[position])}
       promptMessage="All players passed. A new hand will be dealt."
@@ -55,6 +56,7 @@ export function PlayerNamedTrumpInfo(props: BiddingDisplayProps) {
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
+      trickCount={undefined}
       seatedAt={props.seatedAt}
       renderPlayerCardContent={(position) => displayedBid(bids[position])}
       promptMessage={promptMessage}

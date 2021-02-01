@@ -1,7 +1,6 @@
 import { State, Typestate } from 'xstate';
 import { Position } from '../apiContract/database/Position';
 import { Card } from '../Cards';
-import { Partnership } from '../EuchreTypes';
 import {
   AutoTransitionEvent,
   PlayerSpecificEvent,
@@ -14,7 +13,7 @@ export type ThePlayContext = Pick<
   RoundContextAfterBidding,
   'private_hands' | 'trump'
 > & {
-  trickCount: Record<Partnership, number>;
+  trickCount: Record<Position, number>;
   leader: Position;
   awaitedPlayer: Position;
   currentTrick: Record<Position, Card | null>;

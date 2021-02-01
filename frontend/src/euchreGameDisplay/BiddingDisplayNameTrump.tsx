@@ -35,7 +35,13 @@ export function BiddingDisplayNameTrump(
         <BidCardContent bid={bids[position]} />
       )}
       promptMessage={promptMessage}
-      handsElement={<HandDisplay renderAsButtons={false} {...props} />}
+      handsElement={
+        <HandDisplay
+          position={props.seatedAt}
+          renderAsButtons={false}
+          {...props}
+        />
+      }
       userActionControls={
         awaitedPlayer === props.seatedAt ? <SuitButtons {...props} /> : null
       }

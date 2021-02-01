@@ -30,7 +30,13 @@ export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
       awaitedPosition={currentDealer}
       renderPlayerCardContent={() => null}
       promptMessage={promptMessage}
-      handsElement={<HandDisplay renderAsButtons={false} {...props} />}
+      handsElement={
+        <HandDisplay
+          position={props.seatedAt}
+          renderAsButtons={false}
+          {...props}
+        />
+      }
       userActionControls={<DealButton {...props} />}
       debugControls={<DealDebugControls {...props} />}
     />

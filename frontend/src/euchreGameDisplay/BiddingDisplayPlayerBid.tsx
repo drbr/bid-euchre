@@ -44,7 +44,7 @@ export function BiddingDisplayPlayerBid(
         <BidCardContent bid={bids[position]} />
       )}
       promptMessage={promptMessage}
-      handsElement={<HandDisplay renderAsButtons={false} {...props} />}
+      handsElement={<HandDisplay position={props.seatedAt} renderAsButtons={false} {...props} />}
       userActionControls={<BidButtons {...props} />}
       debugControls={<PlayerBidDebugControls {...props} />}
     />

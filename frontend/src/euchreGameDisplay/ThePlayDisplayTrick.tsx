@@ -24,9 +24,14 @@ export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
         <ThePlayCardContent card={props.stateContext.currentTrick[position]} />
       )}
       promptMessage={promptMessage}
-      handsElement={<HandDisplay renderAsButtons={true} {...props} />}
-      // userActionControls={<BidButtons {...props} />}
-      // debugControls={<PlayerBidDebugControls {...props} />}
+      handsElement={
+        <HandDisplay
+          position={props.seatedAt}
+          renderAsButtons={true}
+          {...props}
+        />
+      }
+      debugControls={<TrickDebugControls {...props} />}
     />
   );
 }
@@ -39,4 +44,12 @@ export function ThePlayCardContent(props: {
   } else {
     return null;
   }
+}
+
+function TrickDebugControls(props: ThePlayDisplayProps): JSX.Element {
+  const awaitedPlayer = props.stateContext.awaitedPlayer;
+
+  return (
+    <HandDisplay position={awaitedPlayer} renderAsButtons={true} {...props} />
+  );
 }

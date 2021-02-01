@@ -22,7 +22,13 @@ export function TrickCompleteInfo(props: ThePlayDisplayProps): JSX.Element {
       seatedAt={props.seatedAt}
       renderPlayerCardContent={(position) => 'Hello'}
       promptMessage={prompt}
-      handsElement={<HandDisplay renderAsButtons={false} {...props} />}
+      handsElement={
+        <HandDisplay
+          position={props.seatedAt}
+          renderAsButtons={false}
+          {...props}
+        />
+      }
       userActionControls={<InfoStateOKButton {...props} />}
     />
   );

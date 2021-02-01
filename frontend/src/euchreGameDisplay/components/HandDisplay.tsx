@@ -7,24 +7,18 @@ import { Card, Hand } from '../../gameLogic/Cards';
 import { CardComponentMapping } from '../../cards/CardComponentMapping';
 import FlexView from 'react-flexview/lib';
 import { PlayCardEvent } from '../../gameLogic/euchreStateMachine/ThePlayStateTypes';
-import {
-  ScopedGameDisplayProps,
-  UnscopedGameDisplayProps,
-} from '../GameDisplayProps';
+import { ScopedGameDisplayProps } from '../GameDisplayProps';
 import { RoundContextAlways } from '../../gameLogic/euchreStateMachine/RoundStateTypes';
 import { AnyEventObject } from 'xstate';
+import { Position } from '../../gameLogic/apiContract/database/Position';
 
 /**
  * Props for Hand Display when cards cannot be played
  */
-export type HandDisplayStaticProps = Pick<
-  UnscopedGameDisplayProps,
-  'seatedAt'
-> &
-  Pick<
-    ScopedGameDisplayProps<RoundContextAlways, AnyEventObject>,
-    'stateContext'
-  >;
+export type HandDisplayStaticProps = { position: Position | null } & Pick<
+  ScopedGameDisplayProps<RoundContextAlways, AnyEventObject>,
+  'stateContext'
+>;
 
 /**
  * Props for Hand Display in either static or dynamic mode
@@ -40,11 +34,10 @@ export type HandDisplayProps = HandDisplayStaticProps &
   );
 
 export function HandDisplay(props: HandDisplayProps) {
-  if (!props.seatedAt) {
+  if (!props.position) {
     return null;
   }
-
-  const position = props.seatedAt;
+  const position = props.position;
 
   // TODO Temp code for seven cards in a hand
   const modifiedHand: Hand = [

@@ -18,7 +18,13 @@ export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
         <BidCardContent bid={bids[position]} />
       )}
       promptMessage="All players passed. A new hand will be dealt."
-      handsElement={<HandDisplay renderAsButtons={false} {...props} />}
+      handsElement={
+        <HandDisplay
+          position={props.seatedAt}
+          renderAsButtons={false}
+          {...props}
+        />
+      }
       userActionControls={<InfoStateOKButton {...props} />}
     />
   );
@@ -54,7 +60,13 @@ export function PlayerNamedTrumpInfo(props: BiddingDisplayProps) {
         <BidCardContent bid={bids[position]} />
       )}
       promptMessage={promptMessage}
-      handsElement={<HandDisplay renderAsButtons={false} {...props} />}
+      handsElement={
+        <HandDisplay
+          position={props.seatedAt}
+          renderAsButtons={false}
+          {...props}
+        />
+      }
       userActionControls={<InfoStateOKButton {...props} />}
     />
   );

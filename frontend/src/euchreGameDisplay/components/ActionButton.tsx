@@ -43,7 +43,7 @@ export function CardActionButton(
 
 export function NonInteractiveCard(props: PropsWithChildren<unknown>) {
   return (
-    <IconButtonForCard disabled={false}>{props.children}</IconButtonForCard>
+    <IconButtonForCard disabled={true}>{props.children}</IconButtonForCard>
   );
 }
 

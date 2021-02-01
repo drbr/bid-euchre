@@ -14,7 +14,7 @@ export type PlayerAreaProps = {
   trickCount?: Record<Position, number>;
 };
 
-const PLAYER_AREA_HEIGHT_PX = 150;
+const PLAYER_AREA_HEIGHT_PX = 130;
 
 export function PlayerAreaWhiteBackground(
   props: PropsWithChildren<PlayerAreaProps>

@@ -135,7 +135,11 @@ export function GameLayout(props: GameLayoutProps) {
         </Grid>
       </Box>
 
-      {props.handsElement ? <Box mt={3}>{props.handsElement}</Box> : null}
+      {props.handsElement ? (
+        <Box mt={2} pt={1} borderTop="1px solid">
+          {props.handsElement}
+        </Box>
+      ) : null}
 
       {props.promptMessage ? (
         <Box mt={3}>

@@ -6,15 +6,16 @@ import {
 } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { getScopedValueString } from '../gameLogic/stateMachineUtils/getScopedValue';
 import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
-import {
-  RoundDisplayDelegator,
-  RoundDisplayProps,
-} from './RoundDisplayDelegator';
 import { TransientState } from './components/TransientState';
+import { RoundCompleteInfo } from './GameDisplayInfoStates';
 import {
   ScopedGameDisplayProps,
   UnscopedGameDisplayProps,
 } from './GameDisplayProps';
+import {
+  RoundDisplayDelegator,
+  RoundDisplayProps,
+} from './RoundDisplayDelegator';
 
 export type GameDisplayProps = ScopedGameDisplayProps<GameContext, GameEvent> &
   UnscopedGameDisplayProps;
@@ -35,10 +36,11 @@ export const GameDisplayDelegatorPure = memo(function GameDisplayDelegator(
       return (
         <RoundDisplayDelegator {...((props as unknown) as RoundDisplayProps)} />
       );
-    case 'entry':
-    case 'checkIfGameIsWon':
     case 'roundCompleteInfo':
     case 'gameCompleteInfo':
+      return <RoundCompleteInfo {...props} />;
+    case 'entry':
+    case 'checkIfGameIsWon':
       return <TransientState substateName={substate} />;
     default:
       assertUnreachable(substate);

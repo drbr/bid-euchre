@@ -27,7 +27,7 @@ export type GameLayoutProps = {
   handsElement: React.ReactElement<
     HandDisplayProps | HandDisplayStaticProps
   > | null;
-  promptMessage?: string;
+  promptMessage?: React.ReactNode | string;
   userActionControls?: React.ReactNode;
   debugControls?: React.ReactNode;
 };
@@ -135,15 +135,13 @@ export function GameLayout(props: GameLayoutProps) {
         </Grid>
       </Box>
 
-      {props.handsElement ? (
-        <Box mt={2} pt={1} borderTop="1px solid">
-          {props.handsElement}
-        </Box>
-      ) : null}
+      <Box mt={2} pt={1} borderTop="1px solid">
+        {props.handsElement}
+      </Box>
 
       {props.promptMessage ? (
         <Box mt={3}>
-          <PromptText message={props.promptMessage} />
+          <PromptText>{props.promptMessage}</PromptText>
         </Box>
       ) : null}
 
@@ -247,8 +245,8 @@ function Trump(props: { suit: Suit; colorMode: GameLayoutProps['colorMode'] }) {
   );
 }
 
-function PromptText(props: { message?: string }) {
-  const messageOrSpacer = props.message ?? PLACEHOLDER;
+function PromptText(props: { children?: React.ReactNode }) {
+  const messageOrSpacer = props.children ?? PLACEHOLDER;
   return (
     <Typography variant="body1" align="center">
       {messageOrSpacer}

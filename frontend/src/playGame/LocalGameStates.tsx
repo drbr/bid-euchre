@@ -134,8 +134,8 @@ export const NameTrump = JSON.parse(`
 	},
 	"context": {
 		"score": {
-			"eastwest": 37,
-			"northsouth": -45
+			"eastwest": 0,
+			"northsouth": 0
 		},
 		"eventCount": 1,
 		"previousEventCount": 0,

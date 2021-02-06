@@ -24,6 +24,12 @@ const initialGameContext: GameContext = {
     eastwest: 0,
     northsouth: 0,
   },
+  trickCount: {
+    east: 0,
+    west: 0,
+    north: 0,
+    south: 0,
+  },
   scoreDelta: null,
   eventCount: 0,
   previousEventCount: null,
@@ -64,7 +70,9 @@ export const GameStateMachine = Machine<
             onDone: {
               target: 'checkIfGameIsWon',
               actions: assign((context) =>
-                assignScore(context as GameContext & RoundContext)
+                assignScoreFromRoundContext(
+                  context as GameContext & RoundContext
+                )
               ),
             },
           },
@@ -102,7 +110,7 @@ export const GameStateMachine = Machine<
   // }
 );
 
-function assignScore(
+export function assignScoreFromRoundContext(
   context: GameContext & RoundContext
 ): Pick<GameContext, 'score' | 'scoreDelta'> {
   const { highestBid, highestBidder, trickCount, score } = context;
@@ -133,6 +141,7 @@ function assignScore(
   };
 
   const scoreDelta: ScoreDelta = {
+    bidWasMet,
     northsouth: offense === 'northsouth' ? offenseScore : defenseScore,
     eastwest: offense === 'northsouth' ? defenseScore : offenseScore,
   };
@@ -148,18 +157,31 @@ function assignScore(
 
 const WIN_GAME_POINTS = 32;
 
+export function getSides(
+  context: GameContext
+): { offense: Partnership; defense: Partnership } {
+  const offense = _.findKey(
+    context.scoreDelta,
+    (d) => typeof d === 'object' && d.side === 'offense'
+  ) as Partnership;
+  const defense = OpposingTeamOf[offense];
+
+  if (!offense || !defense) {
+    throw new Error(
+      'Cannot determine partnership sides; score delta was not defined'
+    );
+  }
+
+  return { offense, defense };
+}
+
 /**
  * First team to pass the point threshold is the winner. The "offense" team always scores first,
  * so offense wins if both teams pass the threshold on the same turn, even if the defense ended
  * up at a higher score.
  */
-function determineWinner(context: GameContext): Partnership | null {
-  const offense = _.findKey(
-    context.scoreDelta,
-    (d) => d.side === 'offense'
-  ) as Partnership;
-  const defense = OpposingTeamOf[offense];
-
+export function determineWinner(context: GameContext): Partnership | null {
+  const { offense, defense } = getSides(context);
   if (context.score[offense] >= WIN_GAME_POINTS) {
     return offense;
   }

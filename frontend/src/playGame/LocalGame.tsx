@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { AnyEventObject } from 'xstate';
 import { GameDisplayDelegatorPure } from '../euchreGameDisplay/GameDisplayDelegator';
-import { sendGameEvent } from '../firebase/CloudFunctionsClient';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { Position } from '../gameLogic/apiContract/database/Position';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';

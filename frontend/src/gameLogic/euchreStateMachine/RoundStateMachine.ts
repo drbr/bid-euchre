@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { assign, StateNodeConfig } from 'xstate';
 import { deal } from '../deal';
 import { NextPlayer, PartnerOf } from '../utils/PositionHelpers';

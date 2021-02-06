@@ -1,32 +1,48 @@
 import * as React from 'react';
-import { Card } from '../gameLogic/Cards';
-import { GameLayout } from './components/GameLayout';
-import { CardIcon, HandDisplay } from './components/HandDisplay';
+import { PartnerOf } from '../gameLogic/utils/PositionHelpers';
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
+import { GameLayout } from './components/GameLayout';
+import { HandDisplay } from './components/HandDisplay';
 
 export function BiddingDisplayPassCardToPartner(
   props: BiddingDisplayProps
 ): JSX.Element {
+  const maker = props.stateContext.highestBidder;
+  if (!maker) {
+    throw new Error(
+      'Highest bidder is not recorded; they cannot exchange cards'
+    );
+  }
+  const partner = PartnerOf[maker];
+  const playerNames = props.gameConfig.playerFriendlyNames;
   const awaitedPosition = props.stateContext.awaitedPlayer;
-  const awaitedPlayerName =
-    props.gameConfig.playerFriendlyNames[awaitedPosition];
+
   const promptMessage =
-    props.stateContext.awaitedPlayer === props.seatedAt
-      ? "It's your turn. Click a card to play it."
-      : `Waiting for ${awaitedPlayerName} to play a card…`;
+    props.seatedAt === maker
+      ? promptForMaker({
+          partnerName: playerNames[partner],
+          waitingOnMeNow: props.seatedAt === awaitedPosition,
+        })
+      : props.seatedAt === partner
+      ? promptForPartner({
+          makerName: playerNames[maker],
+          waitingOnMeNow: props.seatedAt === awaitedPosition,
+        })
+      : promptForOthers({
+          makerName: playerNames[maker],
+          partnerName: playerNames[partner],
+        });
 
   return (
     <GameLayout
-      colorMode="dark"
+      colorMode="light"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
-      trickCount={props.stateContext.trickCount}
+      trickCount={undefined}
       seatedAt={props.seatedAt}
       awaitedPosition={awaitedPosition}
-      renderPlayerCardContent={(position) => (
-        <PlayedCard card={props.stateContext.currentTrick[position]} />
-      )}
+      renderPlayerCardContent={() => null}
       promptMessage={promptMessage}
       handsElement={
         <HandDisplay
@@ -35,23 +51,44 @@ export function BiddingDisplayPassCardToPartner(
           {...props}
         />
       }
-      debugControls={<TrickDebugControls {...props} />}
+      debugControls={<PassCardDebugControls {...props} />}
     />
   );
 }
 
-export function PlayedCard(props: { card: Card | null }): JSX.Element | null {
-  if (props.card) {
-    return <CardIcon card={props.card} />;
-  } else {
-    return null;
-  }
-}
-
-function TrickDebugControls(props: ThePlayDisplayProps): JSX.Element {
+function PassCardDebugControls(props: BiddingDisplayProps): JSX.Element {
   const awaitedPlayer = props.stateContext.awaitedPlayer;
 
   return (
     <HandDisplay position={awaitedPlayer} renderAsButtons={true} {...props} />
   );
+}
+
+function promptForMaker(params: {
+  waitingOnMeNow: boolean;
+  partnerName: string;
+}): string {
+  if (params.waitingOnMeNow) {
+    return "Select a card to exchange with a card from your partner's hand.";
+  } else {
+    return `Waiting for ${params.partnerName} to exchange a card.`;
+  }
+}
+
+function promptForPartner(params: {
+  makerName: string;
+  waitingOnMeNow: boolean;
+}): string {
+  if (params.waitingOnMeNow) {
+    return "Select a card to give to your partner's hand.";
+  } else {
+    return `Waiting for ${params.makerName} to discard a card from their hand.`;
+  }
+}
+
+function promptForOthers(params: {
+  makerName: string;
+  partnerName: string;
+}): string {
+  return `Waiting for ${params.makerName} and ${params.partnerName} to exchange cards.`;
 }

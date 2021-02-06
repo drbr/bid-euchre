@@ -11,12 +11,12 @@ import {
   BiddingContext,
   BiddingEvent,
   BiddingStateSchema,
-  PassCardEvent,
   PlayerBidEvent,
 } from './BiddingStateTypes';
 import { RoundContext } from './RoundStateTypes';
 import { PlayerSpecificEvent } from '../stateMachineUtils/SpecialEvents';
 import { isCardPlayedByAwaitedPlayerAndInTheirHand } from './ThePlayStateMachine';
+import { PlayCardEvent } from './ThePlayStateTypes';
 
 export const BiddingStates: StateNodeConfig<
   BiddingContext,
@@ -115,7 +115,7 @@ export const BiddingStates: StateNodeConfig<
 
     waitForMakerToPassCard: {
       on: {
-        PASS_CARD: {
+        PLAY_CARD: {
           target: 'makerPassedCard',
           cond: isCardPlayedByAwaitedPlayerAndInTheirHand,
           actions: assign({
@@ -135,7 +135,7 @@ export const BiddingStates: StateNodeConfig<
 
     waitForPartnerToPassCard: {
       on: {
-        PASS_CARD: {
+        PLAY_CARD: {
           target: 'partnerPassedCard',
           cond: isCardPlayedByAwaitedPlayerAndInTheirHand,
           actions: assign({
@@ -265,7 +265,7 @@ export function getHighestBidOrThrow(
 
 export function playerHandsForPassedCard(
   context: BiddingContext,
-  event: PassCardEvent
+  event: PlayCardEvent
 ): BiddingContext['private_hands'] {
   const originalHands = context.private_hands;
 

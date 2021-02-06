@@ -1,6 +1,6 @@
 import { State, Typestate } from 'xstate';
 import { Position } from '../apiContract/database/Position';
-import { Card, Suit } from '../Cards';
+import { Suit } from '../Cards';
 import { Bid } from '../EuchreTypes';
 import {
   AutoTransitionEvent,
@@ -10,6 +10,7 @@ import {
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 import { GameMeta } from './GameStateTypes';
 import { RoundContext } from './RoundStateTypes';
+import { PlayCardEvent } from './ThePlayStateTypes';
 
 export type BiddingContext = Pick<RoundContext, 'private_hands'> & {
   awaitedPlayer: Position;
@@ -49,17 +50,12 @@ export type NameTrumpEvent = PlayerSpecificEvent<{
   trumpSuit: Suit;
 }>;
 
-export type PassCardEvent = PlayerSpecificEvent<{
-  type: 'PASS_CARD';
-  card: Card;
-}>;
-
 export type BiddingEvent =
   | AutoTransitionEvent
   | SecretActionCompleteEvent
   | PlayerBidEvent
   | NameTrumpEvent
-  | PassCardEvent;
+  | PlayCardEvent;
 
 export type BiddingState = State<
   BiddingContext,

@@ -4,7 +4,6 @@ import { actionButtonPropsForGameEvent } from './components/ActionButtonProps';
 import { ActionButton } from './components/ActionButton';
 import { DebugButton } from './components/DebugButton';
 import { GameLayout } from './components/GameLayout';
-import { HandDisplay } from './components/HandDisplay';
 import { RoundDisplayProps } from './RoundDisplayDelegator';
 
 export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
@@ -13,11 +12,15 @@ export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
   const dealerName = props.gameConfig.playerFriendlyNames[currentDealer];
   const dealerPrompt =
     roundIndex === 0 ? 'You are the first dealer' : 'You are the next dealer';
+  const nonDealerPrompt =
+    roundIndex === 0
+      ? `Waiting for ${dealerName} to deal the first round…`
+      : `Waiting for ${dealerName} to deal the next round…`;
 
   const promptMessage =
     props.seatedAt === currentDealer
       ? `${dealerPrompt}. Click the DEAL button to start the round.`
-      : `Waiting for ${dealerName} to deal the next round…`;
+      : nonDealerPrompt;
 
   return (
     <GameLayout
@@ -30,13 +33,7 @@ export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
       awaitedPosition={currentDealer}
       renderPlayerCardContent={() => null}
       promptMessage={promptMessage}
-      handsElement={
-        <HandDisplay
-          position={props.seatedAt}
-          renderAsButtons={false}
-          {...props}
-        />
-      }
+      handsElement={null}
       userActionControls={<DealButton {...props} />}
       debugControls={<DealDebugControls {...props} />}
     />

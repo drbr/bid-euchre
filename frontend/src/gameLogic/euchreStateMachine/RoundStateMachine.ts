@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import { assign, StateNodeConfig } from 'xstate';
 import { deal } from '../deal';
 import { NextPlayer } from '../utils/PositionHelpers';
@@ -22,7 +23,7 @@ export const RoundStates: StateNodeConfig<
   id: 'round',
   key: 'round',
   initial: 'waitForDeal',
-  entry: assign(assignInitialRoundContext),
+  entry: assign((context) => assignInitialRoundContext(context)),
   states: {
     waitForDeal: {
       on: {
@@ -81,9 +82,15 @@ export const RoundStates: StateNodeConfig<
 
 function assignInitialRoundContext(context: RoundContext): RoundContext {
   return {
-    roundIndex: context.roundIndex ? context.roundIndex + 1 : 0,
-    currentDealer: NextPlayer[context.currentDealer] || 'north',
-    private_hands: context.private_hands,
+    // Initially roundIndex should be 0, on subsequent rounds increment it by 1
+    roundIndex: (context.roundIndex ?? -1) + 1,
+    currentDealer: NextPlayer[context.currentDealer] ?? 'north',
+    private_hands: context.private_hands ?? {
+      north: [],
+      south: [],
+      east: [],
+      west: [],
+    },
     highestBidder: undefined,
     highestBid: undefined,
     trump: undefined,

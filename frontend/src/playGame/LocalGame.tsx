@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { AnyEventObject } from 'xstate';
 import { GameDisplayDelegatorPure } from '../euchreGameDisplay/GameDisplayDelegator';
+import { sendGameEvent } from '../firebase/CloudFunctionsClient';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { Position } from '../gameLogic/apiContract/database/Position';
 import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
@@ -19,7 +20,7 @@ import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import * as LocalGameStates from './LocalGameStates';
 import { BufferMachineMode, useStateBuffer } from './useStateBuffer';
 
-const InitialLocalGameState: GameStateConfig = LocalGameStates.StartBidding;
+const InitialLocalGameState: GameStateConfig = LocalGameStates.WaitForDeal;
 
 function hydrateInitialState() {
   return hydrateStateFromConfig(InitialLocalGameState);

@@ -128,6 +128,7 @@ export function useStateBuffer(params: {
   /* Add stuff to the window for debugging */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   (window as any).stateBuffer = buffer;
+  (window as any).dispatchToBuffer = dispatchToBuffer;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return {

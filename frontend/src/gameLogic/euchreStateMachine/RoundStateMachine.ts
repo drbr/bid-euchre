@@ -69,12 +69,8 @@ export const RoundStates: StateNodeConfig<
         RoundEvent
       >),
       onDone: {
-        target: 'scoring',
+        target: 'roundComplete',
       },
-    },
-
-    scoring: {
-      always: 'roundComplete',
     },
 
     roundComplete: {

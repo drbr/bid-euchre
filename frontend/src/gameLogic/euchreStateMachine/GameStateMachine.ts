@@ -69,9 +69,22 @@ export const GameStateMachine = Machine<
             },
           },
           checkIfGameIsWon: {
-            always: {},
+            always: [
+              {
+                target: 'roundCompleteInfo',
+                cond: (context) => !determineWinner(context),
+              },
+              {
+                target: 'gameCompleteInfo',
+              },
+            ],
           },
-          roundCompleteInfo: {},
+          roundCompleteInfo: {
+            meta: { blocking: true },
+            on: {
+              AUTO_TRANSITION: 'round',
+            },
+          },
           gameCompleteInfo: { type: 'final' },
         },
       },
@@ -131,4 +144,27 @@ function assignScore(
     },
     scoreDelta,
   };
+}
+
+const WIN_GAME_POINTS = 32;
+
+/**
+ * First team to pass the point threshold is the winner. The "offense" team always scores first,
+ * so offense wins if both teams pass the threshold on the same turn, even if the defense ended
+ * up at a higher score.
+ */
+function determineWinner(context: GameContext): Partnership | null {
+  const offense = _.findKey(
+    context.scoreDelta,
+    (d) => d.side === 'offense'
+  ) as Partnership;
+  const defense = OpposingTeamOf[offense];
+
+  if (context.score[offense] >= WIN_GAME_POINTS) {
+    return offense;
+  }
+  if (context.score[defense] >= WIN_GAME_POINTS) {
+    return defense;
+  }
+  return null;
 }

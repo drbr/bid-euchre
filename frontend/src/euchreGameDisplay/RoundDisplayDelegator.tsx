@@ -56,7 +56,6 @@ export function RoundDisplayDelegator(props: RoundDisplayProps): JSX.Element {
     case 'doDeal':
     case 'dealDone':
     case 'roundComplete':
-    case 'scoring':
       return <TransientState substateName={substate} />;
     default:
       assertUnreachable(substate);

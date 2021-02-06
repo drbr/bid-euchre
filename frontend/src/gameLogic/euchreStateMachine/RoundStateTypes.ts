@@ -27,7 +27,6 @@ export type RoundStatesGeneric<T> = {
   dealDone: T;
   bidding: T;
   thePlay: T;
-  scoring: T;
   roundComplete: T;
 };
 

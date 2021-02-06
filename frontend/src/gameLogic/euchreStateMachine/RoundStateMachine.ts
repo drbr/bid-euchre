@@ -22,10 +22,7 @@ export const RoundStates: StateNodeConfig<
   id: 'round',
   key: 'round',
   initial: 'waitForDeal',
-  entry: assign({
-    roundIndex: (context) => (context.roundIndex ? context.roundIndex + 1 : 0),
-    currentDealer: (context) => NextPlayer[context.currentDealer] || 'north',
-  }),
+  entry: assign(assignInitialRoundContext),
   states: {
     waitForDeal: {
       on: {
@@ -85,6 +82,23 @@ export const RoundStates: StateNodeConfig<
     },
   },
 };
+
+function assignInitialRoundContext(context: RoundContext): RoundContext {
+  return {
+    roundIndex: context.roundIndex ? context.roundIndex + 1 : 0,
+    currentDealer: NextPlayer[context.currentDealer] || 'north',
+    private_hands: context.private_hands,
+    highestBidder: undefined,
+    highestBid: undefined,
+    trump: undefined,
+    trickCount: {
+      north: 0,
+      south: 0,
+      east: 0,
+      west: 0,
+    },
+  };
+}
 
 function isDealerDealing(
   context: RoundContext,

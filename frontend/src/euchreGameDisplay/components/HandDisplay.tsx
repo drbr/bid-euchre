@@ -4,7 +4,7 @@ import { AnyEventObject } from 'xstate';
 import { CardComponentMapping } from '../../cards/CardComponentMapping';
 import { Position } from '../../gameLogic/apiContract/database/Position';
 import { Card } from '../../gameLogic/Cards';
-import { RoundContextAlways } from '../../gameLogic/euchreStateMachine/RoundStateTypes';
+import { RoundContext } from '../../gameLogic/euchreStateMachine/RoundStateTypes';
 import { PlayCardEvent } from '../../gameLogic/euchreStateMachine/ThePlayStateTypes';
 import { ScopedGameDisplayProps } from '../GameDisplayProps';
 import {
@@ -17,7 +17,7 @@ import { CardActionButton, NonInteractiveCard } from './ActionButton';
  * Props for Hand Display when cards cannot be played
  */
 export type HandDisplayStaticProps = { position: Position | null } & Pick<
-  ScopedGameDisplayProps<RoundContextAlways, AnyEventObject>,
+  ScopedGameDisplayProps<RoundContext, AnyEventObject>,
   'stateContext'
 >;
 

@@ -5,7 +5,7 @@ import {
   ThePlayStateNames,
 } from '../gameLogic/euchreStateMachine/ThePlayStateTypes';
 import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
-import { RoundContextAfterBidding } from '../gameLogic/euchreStateMachine/RoundStateTypes';
+import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
 import { getScopedValueString } from '../gameLogic/stateMachineUtils/getScopedValue';
 import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
 import { TransientState } from './components/TransientState';
@@ -17,7 +17,7 @@ import { TrickCompleteInfo } from './ThePlayDisplayInfoStates';
 import { ThePlayDisplayTrick } from './ThePlayDisplayTrick';
 
 export type ThePlayDisplayProps = ScopedGameDisplayProps<
-  ThePlayContext & RoundContextAfterBidding & GameContext,
+  ThePlayContext & RoundContext & GameContext,
   ThePlayEvent
 > &
   UnscopedGameDisplayProps;

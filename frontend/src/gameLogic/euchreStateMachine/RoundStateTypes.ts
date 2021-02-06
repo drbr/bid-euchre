@@ -11,23 +11,15 @@ import { BiddingContext } from './BiddingStateTypes';
 import { GameMeta } from './GameStateTypes';
 import { ThePlayContext } from './ThePlayStateTypes';
 
-export type RoundContextAlways = {
+export type RoundContext = {
   roundIndex: number;
   currentDealer: Position;
   private_hands: Record<Position, Hand>;
-};
-
-export type RoundContextAfterBidding = RoundContextAlways & {
-  highestBidder: Position;
-  highestBid: Bid;
-  trump: Required<BiddingContext>['trump'];
-};
-
-export type RoundContextAfterThePlay = RoundContextAfterBidding & {
+  highestBidder: Position | undefined;
+  highestBid: Bid | undefined;
+  trump: BiddingContext['trump'];
   trickCount: ThePlayContext['trickCount'];
 };
-
-export type RoundContext = RoundContextAlways & RoundContextAfterBidding;
 
 export type RoundStatesGeneric<T> = {
   waitForDeal: T;

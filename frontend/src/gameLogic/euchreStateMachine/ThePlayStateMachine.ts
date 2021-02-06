@@ -6,7 +6,7 @@ import {
   ThePlayEvent,
   ThePlayStateSchema,
 } from './ThePlayStateTypes';
-import { RoundContextAfterBidding } from './RoundStateTypes';
+import { RoundContext } from './RoundStateTypes';
 import { Position } from '../apiContract/database/Position';
 import {
   cardsInDescendingOrderForEffectiveSuit,
@@ -14,7 +14,6 @@ import {
   Suit,
 } from '../Cards';
 import { mapPositions, NextPlayer } from '../utils/ModelHelpers';
-import { PartnershipForPosition } from '../EuchreTypes';
 
 export const ThePlayStates: StateNodeConfig<
   ThePlayContext,
@@ -24,9 +23,7 @@ export const ThePlayStates: StateNodeConfig<
   key: 'thePlay',
   initial: 'trick',
   entry: assign((context) =>
-    assignInitialThePlayContext(
-      (context as unknown) as RoundContextAfterBidding
-    )
+    assignInitialThePlayContext((context as unknown) as RoundContext)
   ),
   states: {
     trick: {
@@ -128,11 +125,15 @@ function isCardPlayedByAwaitedPlayerAndInTheirHand(
 
 function getEffectiveLedSuit(context: ThePlayContext): Suit {
   const ledCard = context.currentTrick[context.leader];
+  const trump = context.trump;
   if (!ledCard) {
-    throw new Error('Cannot evaluate follow card, no card was led!');
+    throw new Error('Cannot evaluate trick, no card was led!');
+  }
+  if (!trump) {
+    throw new Error('Cannot evaluate trick, no trump is named!');
   }
 
-  return getEffectiveSuit({ card: ledCard, trump: context.trump });
+  return getEffectiveSuit({ card: ledCard, trump });
 }
 
 function isFollowValid(context: ThePlayContext, event: PlayCardEvent): boolean {
@@ -143,6 +144,10 @@ function isFollowValid(context: ThePlayContext, event: PlayCardEvent): boolean {
   const followerHand = context.private_hands[event.position];
   const trump = context.trump;
   const ledSuit = getEffectiveLedSuit(context);
+  if (!trump) {
+    throw new Error('Cannot evaluate follow card, no trump is named!');
+  }
+
   const followerHasAnyOfLedSuit = followerHand.some(
     (card) => getEffectiveSuit({ card, trump }) === ledSuit
   );
@@ -189,10 +194,14 @@ function arePlayersOutOfCardsAfterTrick(context: ThePlayContext): boolean {
 }
 
 export function getTrickWinner(context: ThePlayContext): Position {
+  const trump = context.trump;
+
   if (!haveAllPlayersPlayedToTrick(context)) {
     throw new Error('Trick is not yet complete; cannot determine a winner');
   }
-  const trump = context.trump;
+  if (!trump) {
+    throw new Error('Cannot evaluate trick; trump is not named!');
+  }
   const ledSuit = getEffectiveLedSuit(context);
 
   const possibleWinningCards = [
@@ -214,12 +223,17 @@ export function getTrickWinner(context: ThePlayContext): Position {
 }
 
 export function assignInitialThePlayContext(
-  parentContext: RoundContextAfterBidding
+  parentContext: RoundContext
 ): ThePlayContext {
+  const highestBidder = parentContext.highestBidder;
+  if (!highestBidder) {
+    throw new Error('Cannot start The Play, no highest bidder is recorded');
+  }
+
   return {
     private_hands: parentContext.private_hands,
     trump: parentContext.trump,
-    ...assignInitialTrickContextForLeader(parentContext.highestBidder),
+    ...assignInitialTrickContextForLeader(highestBidder),
     trickCount: {
       north: 0,
       south: 0,

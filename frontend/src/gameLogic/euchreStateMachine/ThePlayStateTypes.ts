@@ -7,12 +7,9 @@ import {
 } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 import { GameMeta } from './GameStateTypes';
-import { RoundContextAfterBidding } from './RoundStateTypes';
+import { RoundContext } from './RoundStateTypes';
 
-export type ThePlayContext = Pick<
-  RoundContextAfterBidding,
-  'private_hands' | 'trump'
-> & {
+export type ThePlayContext = Pick<RoundContext, 'private_hands' | 'trump'> & {
   trickCount: Record<Position, number>;
   leader: Position;
   awaitedPlayer: Position;

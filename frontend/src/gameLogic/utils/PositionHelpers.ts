@@ -69,3 +69,16 @@ export function forEachPosition<T>(
 ): void {
   mapPositions(record, iteratee);
 }
+
+export function filterPositions<T>(
+  record: Record<Position, T>,
+  iteratee: (t: T, p: Position) => boolean
+): T[] {
+  const result: T[] = [];
+  forEachPosition(record, (t, p) => {
+    if (iteratee(t, p)) {
+      result.push(t);
+    }
+  });
+  return result;
+}

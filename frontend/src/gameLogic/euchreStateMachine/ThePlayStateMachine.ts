@@ -13,11 +13,7 @@ import {
   getEffectiveSuit,
   Suit,
 } from '../Cards';
-import {
-  forEachPosition,
-  mapPositions,
-  NextPlayer,
-} from '../utils/PositionHelpers';
+import { filterPositions, NextPlayer } from '../utils/PositionHelpers';
 import { BiddingContext } from './BiddingStateTypes';
 
 export const ThePlayStates: StateNodeConfig<
@@ -201,24 +197,26 @@ function playerHandsWithCardRemoved(
 
 function haveAllPlayersPlayedToTrick(context: ThePlayContext): boolean {
   const playersSittingOut = context.playersSittingOut;
-
-  forEachPosition(context.currentTrick, (card, position) => {
-    if (!playersSittingOut.includes(position) && !card) {
-      return false;
-    }
-  });
-
-  return true;
+  const cardsFromParticipatingPlayers = filterPositions(
+    context.currentTrick,
+    (_, position) => !playersSittingOut.includes(position)
+  );
+  return cardsFromParticipatingPlayers.every((card) => card !== null);
 }
 
 function arePlayersOutOfCardsAfterTrick(context: ThePlayContext): boolean {
-  const cardCounts = mapPositions(context.private_hands, (hand) => hand.length);
-  for (const count of cardCounts) {
-    if (count !== cardCounts[0]) {
+  const playersSittingOut = context.playersSittingOut;
+  const handCountsFromParticipatingPlayers = filterPositions(
+    context.private_hands,
+    (_, position) => !playersSittingOut.includes(position)
+  ).map((hand) => hand.length);
+
+  for (const count of handCountsFromParticipatingPlayers) {
+    if (count !== handCountsFromParticipatingPlayers[0]) {
       throw new Error('Not all players have the same number of cards');
     }
   }
-  return cardCounts[0] === 0;
+  return handCountsFromParticipatingPlayers[0] === 0;
 }
 
 export function getTrickWinner(context: ThePlayContext): Position {

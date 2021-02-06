@@ -80,7 +80,7 @@ export const GameStateMachine = Machine<
             always: [
               {
                 target: 'roundCompleteInfo',
-                cond: (context) => !determineWinner(context),
+                cond: (context) => !determineGameWinner(context),
               },
               {
                 target: 'gameCompleteInfo',
@@ -123,13 +123,14 @@ export function assignScoreFromRoundContext(
     throw new Error('Cannot compute score; highest bid is not a number');
   }
 
+  const tricksRequired = highestBid > 6 ? 6 : highestBid;
   const teamTricks: Record<Partnership, number> = {
     northsouth: trickCount.north + trickCount.south,
     eastwest: trickCount.east + trickCount.west,
   };
 
   const offense = PartnershipForPosition[highestBidder];
-  const bidWasMet = teamTricks[offense] >= highestBid;
+  const bidWasMet = teamTricks[offense] >= tricksRequired;
 
   const offenseScore = {
     side: 'offense' as const,
@@ -180,7 +181,7 @@ export function getSides(
  * so offense wins if both teams pass the threshold on the same turn, even if the defense ended
  * up at a higher score.
  */
-export function determineWinner(context: GameContext): Partnership | null {
+export function determineGameWinner(context: GameContext): Partnership | null {
   const { offense, defense } = getSides(context);
   if (context.score[offense] >= WIN_GAME_POINTS) {
     return offense;

@@ -1,11 +1,12 @@
 import { Position } from '../gameLogic/apiContract/database/Position';
 import {
-  determineWinner,
+  determineGameWinner,
   getSides,
 } from '../gameLogic/euchreStateMachine/GameStateMachine';
 import { Partnership } from '../gameLogic/EuchreTypes';
 import { PositionsForPartnership } from '../gameLogic/utils/PositionHelpers';
 import { GameLayout } from './components/GameLayout';
+import { InfoStateOKButton } from './components/InfoStateOKButton';
 import { GameDisplayProps } from './GameDisplayDelegator';
 
 export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
@@ -19,11 +20,11 @@ export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
 
   const offenseNames = getTeamNames(offense, playerNames);
   const offenseScore = scoreDelta[offense].delta;
-  const offensePrompt = `${offenseNames}: ${offenseScore}`;
+  const offensePrompt = getTeamPrompt(offenseNames, offenseScore);
 
   const defenseNames = getTeamNames(defense, playerNames);
   const defenseScore = scoreDelta[defense].delta;
-  const defensePrompt = `${defenseNames}: ${defenseScore}`;
+  const defensePrompt = getTeamPrompt(defenseNames, defenseScore);
 
   const bidWasMetPrompt = `${offenseNames} fulfilled their bid.`;
   const bidWasNotMetPrompt = `${offenseNames} did not fulfill their bid.`;
@@ -31,10 +32,12 @@ export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
     scoreDelta.bidWasMet ? bidWasMetPrompt : bidWasNotMetPrompt
   }`;
 
-  const winner = determineWinner(props.stateContext);
-  const winnerPrompt = winner
-    ? `${winner === offense ? offenseNames : defenseNames} won the game!`
-    : null;
+  const winner = determineGameWinner(props.stateContext);
+  const winnerActionControls = winner ? (
+    `${winner === offense ? offenseNames : defenseNames} won the game!`
+  ) : (
+    <InfoStateOKButton {...props} />
+  );
 
   return (
     <GameLayout
@@ -54,7 +57,7 @@ export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
         </div>
       }
       handsElement={null}
-      userActionControls={winnerPrompt}
+      userActionControls={winnerActionControls}
     />
   );
 }
@@ -66,4 +69,12 @@ function getTeamNames(
   const positions = PositionsForPartnership[team];
   const names = positions.map((pos) => playerNames[pos]).join('/');
   return names;
+}
+
+function getTeamPrompt(teamNames: string, teamScore: number) {
+  return (
+    <p>
+      {teamNames}: <strong>{teamScore}</strong>
+    </p>
+  );
 }

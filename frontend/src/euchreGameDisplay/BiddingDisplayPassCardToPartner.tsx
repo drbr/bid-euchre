@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { getHighestBidOrThrow } from '../gameLogic/euchreStateMachine/BiddingStateMachine';
 import { PartnerOf } from '../gameLogic/utils/PositionHelpers';
 import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { GameLayout } from './components/GameLayout';
@@ -7,7 +8,7 @@ import { HandDisplay } from './components/HandDisplay';
 export function BiddingDisplayPassCardToPartner(
   props: BiddingDisplayProps
 ): JSX.Element {
-  const maker = props.stateContext.highestBidder;
+  const maker = getHighestBidOrThrow(props.stateContext).highestBidder;
   if (!maker) {
     throw new Error(
       'Highest bidder is not recorded; they cannot exchange cards'

@@ -17,6 +17,7 @@ export type RoundContext = {
   private_hands: Record<Position, Hand>;
   highestBidder: Position | undefined;
   highestBid: Bid | undefined;
+  playersSittingOut: ReadonlyArray<Position>;
   trump: BiddingContext['trump'];
   trickCount: ThePlayContext['trickCount'];
 };

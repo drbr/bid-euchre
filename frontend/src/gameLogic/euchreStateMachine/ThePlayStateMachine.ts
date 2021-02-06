@@ -14,6 +14,7 @@ import {
   Suit,
 } from '../Cards';
 import { mapPositions, NextPlayer } from '../utils/PositionHelpers';
+import { BiddingContext, PassCardEvent } from './BiddingStateTypes';
 
 export const ThePlayStates: StateNodeConfig<
   ThePlayContext,
@@ -108,9 +109,9 @@ export const ThePlayStates: StateNodeConfig<
   },
 };
 
-function isCardPlayedByAwaitedPlayerAndInTheirHand(
-  context: ThePlayContext,
-  event: PlayCardEvent
+export function isCardPlayedByAwaitedPlayerAndInTheirHand(
+  context: ThePlayContext | BiddingContext,
+  event: PlayCardEvent | PassCardEvent
 ): boolean {
   if (event.position !== context.awaitedPlayer) {
     return false;

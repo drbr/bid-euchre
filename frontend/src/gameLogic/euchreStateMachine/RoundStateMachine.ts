@@ -1,8 +1,8 @@
 import * as _ from 'lodash';
 import { assign, StateNodeConfig } from 'xstate';
 import { deal } from '../deal';
-import { NextPlayer } from '../utils/PositionHelpers';
-import { BiddingStates, getHighestBidSoFar } from './BiddingStateMachine';
+import { NextPlayer, PartnerOf } from '../utils/PositionHelpers';
+import { BiddingStates, getHighestBidOrThrow } from './BiddingStateMachine';
 import { BiddingContext } from './BiddingStateTypes';
 import {
   RoundContext,
@@ -58,7 +58,7 @@ export const RoundStates: StateNodeConfig<
       onDone: {
         target: 'thePlay',
         actions: assign((context) =>
-          getHighestBidSoFar((context as unknown) as BiddingContext)
+          assignBiddingResult((context as unknown) as BiddingContext)
         ),
       },
     },
@@ -93,6 +93,7 @@ function assignInitialRoundContext(context: RoundContext): RoundContext {
     },
     highestBidder: undefined,
     highestBid: undefined,
+    playersSittingOut: [],
     trump: undefined,
     trickCount: {
       north: 0,
@@ -101,6 +102,15 @@ function assignInitialRoundContext(context: RoundContext): RoundContext {
       west: 0,
     },
   };
+}
+
+function assignBiddingResult(
+  context: BiddingContext
+): Pick<RoundContext, 'highestBid' | 'highestBidder' | 'playersSittingOut'> {
+  const { highestBid, highestBidder } = getHighestBidOrThrow(context);
+  const partner = PartnerOf[highestBidder];
+  const playersSittingOut = highestBid > 6 ? [partner] : [];
+  return { highestBid, highestBidder, playersSittingOut };
 }
 
 function isDealerDealing(

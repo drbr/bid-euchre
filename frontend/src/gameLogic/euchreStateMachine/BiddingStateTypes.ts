@@ -1,15 +1,17 @@
 import { State, Typestate } from 'xstate';
 import { Position } from '../apiContract/database/Position';
-import { Suit } from '../Cards';
+import { Card, Suit } from '../Cards';
 import { Bid } from '../EuchreTypes';
 import {
   AutoTransitionEvent,
   PlayerSpecificEvent,
+  SecretActionCompleteEvent,
 } from '../stateMachineUtils/SpecialEvents';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 import { GameMeta } from './GameStateTypes';
+import { RoundContext } from './RoundStateTypes';
 
-export type BiddingContext = {
+export type BiddingContext = Pick<RoundContext, 'private_hands'> & {
   awaitedPlayer: Position;
   bids: Record<Position, Bid | null>;
   trump?: Suit;
@@ -22,6 +24,11 @@ export type BiddingStatesGeneric<T> = {
   allPlayersPassedInfo: T;
   waitForPlayerToNameTrump: T;
   playerNamedTrumpInfo: T;
+  checkIfGoingAlone: T;
+  waitForMakerToPassCard: T;
+  makerPassedCard: T;
+  waitForPartnerToPassCard: T;
+  partnerPassedCard: T;
   complete: T;
 };
 
@@ -42,10 +49,17 @@ export type NameTrumpEvent = PlayerSpecificEvent<{
   trumpSuit: Suit;
 }>;
 
+export type PassCardEvent = PlayerSpecificEvent<{
+  type: 'PASS_CARD';
+  card: Card;
+}>;
+
 export type BiddingEvent =
   | AutoTransitionEvent
+  | SecretActionCompleteEvent
   | PlayerBidEvent
-  | NameTrumpEvent;
+  | NameTrumpEvent
+  | PassCardEvent;
 
 export type BiddingState = State<
   BiddingContext,

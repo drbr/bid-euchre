@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import {
   BiddingContext,
   BiddingEvent,
-  BiddingStateNames,
+  BiddingStateNames
 } from '../gameLogic/euchreStateMachine/BiddingStateTypes';
 import { GameContext } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { RoundContext } from '../gameLogic/euchreStateMachine/RoundStateTypes';
@@ -10,14 +10,15 @@ import { getScopedValueString } from '../gameLogic/stateMachineUtils/getScopedVa
 import { assertUnreachable } from '../uiHelpers/TypescriptUtils';
 import {
   AllPlayersPassedInfo,
-  PlayerNamedTrumpInfo,
+  PlayerNamedTrumpInfo
 } from './BiddingDisplayInfoStates';
 import { BiddingDisplayNameTrump } from './BiddingDisplayNameTrump';
+import { BiddingDisplayPassCardToPartner } from './BiddingDisplayPassCardToPartner';
 import { BiddingDisplayPlayerBid } from './BiddingDisplayPlayerBid';
 import { TransientState } from './components/TransientState';
 import {
   ScopedGameDisplayProps,
-  UnscopedGameDisplayProps,
+  UnscopedGameDisplayProps
 } from './GameDisplayProps';
 
 export type BiddingDisplayProps = ScopedGameDisplayProps<
@@ -48,8 +49,14 @@ export function BiddingDisplayDelegator(
       return <BiddingDisplayNameTrump {...props} />;
     case 'playerNamedTrumpInfo':
       return <PlayerNamedTrumpInfo {...props} />;
+    case 'waitForMakerToPassCard':
+    case 'waitForPartnerToPassCard':
+      return <BiddingDisplayPassCardToPartner {...props} />;
     case 'checkIfAllPlayersHaveBid':
     case 'checkWinningBidder':
+    case 'checkIfGoingAlone':
+    case 'makerPassedCard':
+    case 'partnerPassedCard':
     case 'complete':
       return <TransientState substateName={substate} />;
     default:

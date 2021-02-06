@@ -2,15 +2,21 @@ import * as _ from 'lodash';
 import { assign, StateNodeConfig } from 'xstate';
 import { Bid } from '../EuchreTypes';
 import { Position } from '../apiContract/database/Position';
-import { forEachPosition, NextPlayer } from '../utils/PositionHelpers';
+import {
+  forEachPosition,
+  NextPlayer,
+  PartnerOf,
+} from '../utils/PositionHelpers';
 import {
   BiddingContext,
   BiddingEvent,
   BiddingStateSchema,
+  PassCardEvent,
   PlayerBidEvent,
 } from './BiddingStateTypes';
 import { RoundContext } from './RoundStateTypes';
 import { PlayerSpecificEvent } from '../stateMachineUtils/SpecialEvents';
+import { isCardPlayedByAwaitedPlayerAndInTheirHand } from './ThePlayStateMachine';
 
 export const BiddingStates: StateNodeConfig<
   BiddingContext,
@@ -91,7 +97,59 @@ export const BiddingStates: StateNodeConfig<
     playerNamedTrumpInfo: {
       meta: { blocking: true },
       on: {
-        AUTO_TRANSITION: 'complete',
+        AUTO_TRANSITION: 'checkIfGoingAlone',
+      },
+    },
+
+    checkIfGoingAlone: {
+      always: [
+        {
+          target: 'waitForMakerToPassCard',
+          cond: (context) => getHighestBidOrThrow(context).highestBid === 12,
+        },
+        {
+          target: 'complete',
+        },
+      ],
+    },
+
+    waitForMakerToPassCard: {
+      on: {
+        PASS_CARD: {
+          target: 'makerPassedCard',
+          cond: isCardPlayedByAwaitedPlayerAndInTheirHand,
+          actions: assign({
+            private_hands: (context, event) =>
+              playerHandsForPassedCard(context, event),
+            awaitedPlayer: (context) => PartnerOf[context.awaitedPlayer],
+          }),
+        },
+      },
+    },
+
+    makerPassedCard: {
+      on: {
+        SECRET_ACTION_COMPLETE: 'waitForPartnerToPassCard',
+      },
+    },
+
+    waitForPartnerToPassCard: {
+      on: {
+        PASS_CARD: {
+          target: 'partnerPassedCard',
+          cond: isCardPlayedByAwaitedPlayerAndInTheirHand,
+          actions: assign({
+            private_hands: (context, event) =>
+              playerHandsForPassedCard(context, event),
+            awaitedPlayer: (context) => PartnerOf[context.awaitedPlayer],
+          }),
+        },
+      },
+    },
+
+    partnerPassedCard: {
+      on: {
+        SECRET_ACTION_COMPLETE: 'complete',
       },
     },
 
@@ -106,6 +164,7 @@ export function assignInitialBiddingContext(
 ): BiddingContext {
   return {
     awaitedPlayer: NextPlayer[parentContext.currentDealer],
+    private_hands: parentContext.private_hands,
     bids: {
       north: null,
       south: null,
@@ -191,7 +250,7 @@ export function getHighestBidSoFar(
   return { highestBidder, highestBid };
 }
 
-function getHighestBidOrThrow(
+export function getHighestBidOrThrow(
   context: BiddingContext
 ): {
   highestBidder: Position;
@@ -202,4 +261,25 @@ function getHighestBidOrThrow(
     throw new Error('No player placed a bid');
   }
   return { highestBid, highestBidder };
+}
+
+export function playerHandsForPassedCard(
+  context: BiddingContext,
+  event: PassCardEvent
+): BiddingContext['private_hands'] {
+  const originalHands = context.private_hands;
+
+  const passer = event.position;
+  const passee = PartnerOf[event.position];
+
+  const passerHand = originalHands[passer].filter(
+    (c) => !_.isEqual(c, event.card)
+  );
+  const passeeHand = originalHands[passee].concat(event.card);
+
+  return {
+    ...originalHands,
+    [passer]: passerHand,
+    [passee]: passeeHand,
+  };
 }

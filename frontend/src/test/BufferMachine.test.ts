@@ -126,6 +126,11 @@ const action_delayedUnblock = {
   delay: LINGER_DELAY_MS,
 };
 
+const action_delayedUnblock_cancel = {
+  type: 'xstate.cancel',
+  sendId: 'delayedUnblock',
+};
+
 function makeSnapshotsWithoutBlockingInfo(
   loadedIndexes: number[]
 ): ReadonlyArray<Partial<SnapshotWithBlockingInfo<string>>> {
@@ -639,14 +644,18 @@ describe('BufferMachine', () => {
       { event: recvSnapshot(2, 'linger') }
     );
 
-    test('accepts an event while displaying the head and transitions to the "busy" state', () => {
-      applyTransitions(state_showHeadAt2, {
-        event: event_sendGameEvent,
-        expectedContext: contextShowingHeadAt(2),
-        expectValueToMatch: SENDING,
-        expectActions: [action_callApi_start],
-      });
-    });
+    test(
+      'accepts an event while displaying the head, and transitions to the "busy" state, ' +
+        'and cancels any pending unblock action',
+      () => {
+        applyTransitions(state_showHeadAt2, {
+          event: event_sendGameEvent,
+          expectedContext: contextShowingHeadAt(2),
+          expectValueToMatch: SENDING,
+          expectActions: [action_delayedUnblock_cancel, action_callApi_start],
+        });
+      }
+    );
 
     const state_sendingEventFrom2 = applyTransitions(state_showHeadAt2, {
       event: event_sendGameEvent,

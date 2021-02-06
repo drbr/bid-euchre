@@ -121,7 +121,7 @@ const action_uiAlert = {
 
 const action_delayedUnblock = {
   type: 'xstate.send',
-  id: 'UNBLOCK_HEAD',
+  id: 'delayedUnblock',
   event: { type: 'UNBLOCK_HEAD' },
   delay: LINGER_DELAY_MS,
 };

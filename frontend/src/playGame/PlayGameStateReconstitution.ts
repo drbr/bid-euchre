@@ -89,20 +89,20 @@ export function reconstituteGameStateIfInSync(
 //   return onStateMachineContextFetched(prev, next, 'private');
 // }
 
-function onStateFetched(
-  prev: GameStateConfig,
-  next: GameStateConfig,
-  type: string
-) {
-  const actualPrevCount = prev.context.eventCount;
-  const expectedPrevCount = next.context.previousEventCount || 0;
-  const nextCount = next.context.eventCount;
-  console.debug(`Received new ${type} game state from the database`);
-  console.debug(next);
-  if (actualPrevCount !== expectedPrevCount) {
-    console.warn(
-      `Possible error in state transition: previous local state had event count ${actualPrevCount}, ` +
-        `new state has previous eventCount ${expectedPrevCount} and current count ${nextCount}`
-    );
-  }
-}
+// function onStateFetched(
+//   prev: GameStateConfig,
+//   next: GameStateConfig,
+//   type: string
+// ) {
+//   const actualPrevCount = prev.context.eventCount;
+//   const expectedPrevCount = next.context.previousEventCount || 0;
+//   const nextCount = next.context.eventCount;
+//   console.debug(`Received new ${type} game state from the database`);
+//   console.debug(next);
+//   if (actualPrevCount !== expectedPrevCount) {
+//     console.warn(
+//       `Possible error in state transition: previous local state had event count ${actualPrevCount}, ` +
+//         `new state has previous eventCount ${expectedPrevCount} and current count ${nextCount}`
+//     );
+//   }
+// }

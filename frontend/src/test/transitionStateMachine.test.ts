@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import './CustomMatchers';
 import {
   INVALID_STATE_TRANSITION_ERROR,

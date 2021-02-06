@@ -6,7 +6,7 @@ import { forEachPosition } from '../gameLogic/utils/PositionHelpers';
 import {
   SampleFullContext,
   SamplePlayerIdentities,
-  sampleFullPrivateContextFor as sampleFullPrivateContextFor,
+  sampleFullPrivateContextFor,
   samplePrivateOnlyContextFor,
   SamplePublicContext,
 } from './PublicPrivateContextSampleData';

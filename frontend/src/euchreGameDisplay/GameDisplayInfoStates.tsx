@@ -73,8 +73,8 @@ function getTeamNames(
 
 function getTeamPrompt(teamNames: string, teamScore: number) {
   return (
-    <p>
+    <span>
       {teamNames}: <strong>{teamScore}</strong>
-    </p>
+    </span>
   );
 }

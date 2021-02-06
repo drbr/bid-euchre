@@ -1,6 +1,6 @@
 import { assign, StateNodeConfig } from 'xstate';
 import { deal } from '../deal';
-import { NextPlayer } from '../utils/ModelHelpers';
+import { NextPlayer } from '../utils/PositionHelpers';
 import { BiddingStates, getHighestBidSoFar } from './BiddingStateMachine';
 import { BiddingContext } from './BiddingStateTypes';
 import {

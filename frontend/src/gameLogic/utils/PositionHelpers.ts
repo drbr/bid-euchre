@@ -1,4 +1,5 @@
-import { Position } from "../apiContract/database/Position";
+import { Position } from '../apiContract/database/Position';
+import { Partnership } from '../EuchreTypes';
 
 /** Maps each position to the next player, going around the table to the left. */
 export const NextPlayer: Record<Position, Position> = {
@@ -6,6 +7,33 @@ export const NextPlayer: Record<Position, Position> = {
   east: 'south',
   south: 'west',
   west: 'north',
+};
+
+export const PartnershipForPosition: Record<Position, Partnership> = {
+  north: 'northsouth',
+  south: 'northsouth',
+  east: 'eastwest',
+  west: 'eastwest',
+};
+
+export const PositionsForPartnership: Record<
+  Partnership,
+  ReadonlyArray<Position>
+> = {
+  northsouth: ['north', 'south'],
+  eastwest: ['east', 'west'],
+};
+
+export const OpposingTeamOf: Record<Partnership, Partnership> = {
+  northsouth: 'eastwest',
+  eastwest: 'northsouth',
+};
+
+export const PartnerOf: Record<Position, Position> = {
+  north: 'south',
+  south: 'north',
+  east: 'west',
+  west: 'east',
 };
 
 /**

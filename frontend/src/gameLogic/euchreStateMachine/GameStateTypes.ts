@@ -10,8 +10,16 @@ import {
   TypedStateSchema,
 } from '../stateMachineUtils/TypedStateInterfaces';
 
+/**
+ * The points awarded to each team in the latest round. Because the "offense" team scores first,
+ * they win if they pass the threshold, even if the "defense" team lands at a higher total, so we
+ * track the two teams separately.
+ */
+export type ScoreDelta = Record<Partnership, { side: 'offense' | 'defense', delta: number}>;
+
 export type GameContext = EventCountContext & {
   score: Record<Partnership, number>;
+  scoreDelta: ScoreDelta | null;
 };
 
 export type GameMeta = {
@@ -21,7 +29,9 @@ export type GameMeta = {
 export type GameStatesGeneric<T> = {
   entry: T;
   round: T;
-  gameComplete: T;
+  checkIfGameIsWon: T;
+  roundCompleteInfo: T;
+  gameCompleteInfo: T;
 };
 
 export type GameStateNames = keyof GameStatesGeneric<unknown>;

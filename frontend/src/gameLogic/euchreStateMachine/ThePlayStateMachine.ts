@@ -13,7 +13,7 @@ import {
   getEffectiveSuit,
   Suit,
 } from '../Cards';
-import { mapPositions, NextPlayer } from '../utils/ModelHelpers';
+import { mapPositions, NextPlayer } from '../utils/PositionHelpers';
 
 export const ThePlayStates: StateNodeConfig<
   ThePlayContext,

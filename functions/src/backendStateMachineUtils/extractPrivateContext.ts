@@ -2,7 +2,7 @@ import { PartialDeep } from 'type-fest';
 import { PlayerIdentities } from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
 import { mergePublicAndPrivateStateContexts } from '../../../frontend/src/gameLogic/stateMachineUtils/mergePublicAndPrivateStateContexts';
 import { EventCountContext } from '../../../frontend/src/gameLogic/stateMachineUtils/TypedStateInterfaces';
-import { forEachPosition } from '../../../frontend/src/gameLogic/utils/ModelHelpers';
+import { forEachPosition } from '../../../frontend/src/gameLogic/utils/PositionHelpers';
 import _ from './importDeepdash';
 
 export const PRIVATE_PREFIX = /\.?private_/;

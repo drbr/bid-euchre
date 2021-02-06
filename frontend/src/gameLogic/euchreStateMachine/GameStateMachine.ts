@@ -1,14 +1,21 @@
-import { Machine, StateNodeConfig } from 'xstate';
+import * as _ from 'lodash';
+import { assign, Machine, StateNodeConfig } from 'xstate';
 import { BiddingContext } from './BiddingStateTypes';
 import {
   GameContext,
   GameEvent,
   GameMeta,
   GameStateSchema,
+  ScoreDelta,
 } from './GameStateTypes';
 import { RoundStates } from './RoundStateMachine';
 import { RoundContext } from './RoundStateTypes';
 import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
+import {
+  PartnershipForPosition,
+  OpposingTeamOf,
+} from '../utils/PositionHelpers';
+import { Partnership } from '../EuchreTypes';
 
 export type AllContext = GameContext & RoundContext & BiddingContext;
 
@@ -17,6 +24,7 @@ const initialGameContext: GameContext = {
     eastwest: 0,
     northsouth: 0,
   },
+  scoreDelta: null,
   eventCount: 0,
   previousEventCount: null,
 };
@@ -53,8 +61,18 @@ export const GameStateMachine = Machine<
               TypedStateSchema<GameMeta, RoundContext>,
               GameEvent
             >),
+            onDone: {
+              target: 'checkIfGameIsWon',
+              actions: assign((context) =>
+                assignScore(context as GameContext & RoundContext)
+              ),
+            },
           },
-          gameComplete: { type: 'final' },
+          checkIfGameIsWon: {
+            always: {},
+          },
+          roundCompleteInfo: {},
+          gameCompleteInfo: { type: 'final' },
         },
       },
       // recordEvents: {
@@ -70,3 +88,47 @@ export const GameStateMachine = Machine<
   //   actions: GameActions,
   // }
 );
+
+function assignScore(
+  context: GameContext & RoundContext
+): Pick<GameContext, 'score' | 'scoreDelta'> {
+  const { highestBid, highestBidder, trickCount, score } = context;
+  if (!(highestBid && highestBidder && trickCount && score)) {
+    throw new Error(
+      'Cannot compute score; highest bid/bidder, trick count, and score are not present'
+    );
+  }
+  if (!_.isNumber(highestBid)) {
+    throw new Error('Cannot compute score; highest bid is not a number');
+  }
+
+  const teamTricks: Record<Partnership, number> = {
+    northsouth: trickCount.north + trickCount.south,
+    eastwest: trickCount.east + trickCount.west,
+  };
+
+  const offense = PartnershipForPosition[highestBidder];
+  const bidWasMet = teamTricks[offense] >= highestBid;
+
+  const offenseScore = {
+    side: 'offense' as const,
+    delta: bidWasMet ? teamTricks[offense] : -highestBid,
+  };
+  const defenseScore = {
+    side: 'defense' as const,
+    delta: teamTricks[OpposingTeamOf[offense]],
+  };
+
+  const scoreDelta: ScoreDelta = {
+    northsouth: offense === 'northsouth' ? offenseScore : defenseScore,
+    eastwest: offense === 'northsouth' ? defenseScore : offenseScore,
+  };
+
+  return {
+    score: {
+      northsouth: score.northsouth + scoreDelta.northsouth.delta,
+      eastwest: score.eastwest + scoreDelta.eastwest.delta,
+    },
+    scoreDelta,
+  };
+}

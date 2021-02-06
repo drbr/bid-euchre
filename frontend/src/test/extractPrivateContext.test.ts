@@ -2,7 +2,7 @@ import {
   ExtractContextsOpts,
   extractPublicAndPrivateGameStateContexts,
 } from '../../../functions/src/backendStateMachineUtils/extractPrivateContext';
-import { forEachPosition } from '../gameLogic/utils/ModelHelpers';
+import { forEachPosition } from '../gameLogic/utils/PositionHelpers';
 import {
   SampleFullContext,
   SamplePlayerIdentities,

@@ -72,7 +72,7 @@ function promptForMaker(params: {
   if (params.waitingOnMeNow) {
     return "Select a card to exchange with a card from your partner's hand.";
   } else {
-    return `Waiting for ${params.partnerName} to exchange a card.`;
+    return `Waiting for ${params.partnerName} to exchange a card…`;
   }
 }
 
@@ -83,7 +83,7 @@ function promptForPartner(params: {
   if (params.waitingOnMeNow) {
     return "Select a card to give to your partner's hand.";
   } else {
-    return `Waiting for ${params.makerName} to discard a card from their hand.`;
+    return `Waiting for ${params.makerName} to discard a card from their hand…`;
   }
 }
 
@@ -91,5 +91,5 @@ function promptForOthers(params: {
   makerName: string;
   partnerName: string;
 }): string {
-  return `Waiting for ${params.makerName} and ${params.partnerName} to exchange cards.`;
+  return `Waiting for ${params.makerName} and ${params.partnerName} to exchange cards…`;
 }

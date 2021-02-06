@@ -120,14 +120,14 @@ function PlayerBidDebugControls(props: BiddingDisplayProps) {
       })}
       {renderButton({
         type: 'PLAYER_BID',
-        // bid: 'pass',
-        bid: 2,
+        bid: 'pass',
+        // bid: 2,
         position: 'east',
       })}
       {renderButton({
         type: 'PLAYER_BID',
-        // bid: 'pass',
-        bid: 3,
+        bid: 'pass',
+        // bid: 3,
         position: 'south',
       })}
       {renderButton({

@@ -123,7 +123,7 @@ export function assignScoreFromRoundContext(
     throw new Error('Cannot compute score; highest bid is not a number');
   }
 
-  const tricksRequired = highestBid > 6 ? 6 : highestBid;
+  const tricksRequired = Math.max(highestBid, 6);
   const teamTricks: Record<Partnership, number> = {
     northsouth: trickCount.north + trickCount.south,
     eastwest: trickCount.east + trickCount.west,
@@ -134,7 +134,7 @@ export function assignScoreFromRoundContext(
 
   const offenseScore = {
     side: 'offense' as const,
-    delta: bidWasMet ? teamTricks[offense] : -highestBid,
+    delta: bidWasMet ? Math.max(teamTricks[offense], highestBid) : -highestBid,
   };
   const defenseScore = {
     side: 'defense' as const,

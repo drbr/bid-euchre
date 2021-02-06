@@ -13,7 +13,11 @@ import {
   getEffectiveSuit,
   Suit,
 } from '../Cards';
-import { mapPositions, NextPlayer } from '../utils/PositionHelpers';
+import {
+  forEachPosition,
+  mapPositions,
+  NextPlayer,
+} from '../utils/PositionHelpers';
 import { BiddingContext } from './BiddingStateTypes';
 
 export const ThePlayStates: StateNodeConfig<
@@ -40,11 +44,12 @@ export const ThePlayStates: StateNodeConfig<
                   trickWithCardPlayed(context, event),
                 private_hands: (context, event) =>
                   playerHandsWithCardRemoved(context, event),
-                awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
+                awaitedPlayer: (context) => getNextPlayer(context),
               }),
             },
           },
         },
+
         waitForFollow: {
           on: {
             PLAY_CARD: {
@@ -55,11 +60,12 @@ export const ThePlayStates: StateNodeConfig<
                   trickWithCardPlayed(context, event),
                 private_hands: (context, event) =>
                   playerHandsWithCardRemoved(context, event),
-                awaitedPlayer: (context) => NextPlayer[context.awaitedPlayer],
+                awaitedPlayer: (context) => getNextPlayer(context),
               }),
             },
           },
         },
+
         checkIfAllPlayersHavePlayed: {
           always: [
             {
@@ -71,6 +77,7 @@ export const ThePlayStates: StateNodeConfig<
             },
           ],
         },
+
         complete: {
           type: 'final',
         },
@@ -83,12 +90,14 @@ export const ThePlayStates: StateNodeConfig<
         }),
       },
     },
+
     trickCompleteInfo: {
       meta: { blocking: true },
       on: {
         AUTO_TRANSITION: 'checkIfMoreTricksToPlay',
       },
     },
+
     checkIfMoreTricksToPlay: {
       always: [
         {
@@ -103,6 +112,7 @@ export const ThePlayStates: StateNodeConfig<
         },
       ],
     },
+
     thePlayComplete: {
       type: 'final',
     },
@@ -157,6 +167,15 @@ function isFollowValid(context: ThePlayContext, event: PlayCardEvent): boolean {
     : true;
 }
 
+/** Gets the next person to play, taking into account that someone might be playing alone. */
+function getNextPlayer(context: ThePlayContext): Position {
+  let next = NextPlayer[context.awaitedPlayer];
+  while (context.playersSittingOut.includes(next)) {
+    next = NextPlayer[next];
+  }
+  return next;
+}
+
 function trickWithCardPlayed(
   context: ThePlayContext,
   event: PlayCardEvent
@@ -181,7 +200,15 @@ function playerHandsWithCardRemoved(
 }
 
 function haveAllPlayersPlayedToTrick(context: ThePlayContext): boolean {
-  return _.every(context.currentTrick, (card) => card !== null);
+  const playersSittingOut = context.playersSittingOut;
+
+  forEachPosition(context.currentTrick, (card, position) => {
+    if (!playersSittingOut.includes(position) && !card) {
+      return false;
+    }
+  });
+
+  return true;
 }
 
 function arePlayersOutOfCardsAfterTrick(context: ThePlayContext): boolean {
@@ -233,6 +260,7 @@ export function assignInitialThePlayContext(
 
   return {
     private_hands: parentContext.private_hands,
+    playersSittingOut: parentContext.playersSittingOut,
     trump: parentContext.trump,
     ...assignInitialTrickContextForLeader(highestBidder),
     trickCount: {

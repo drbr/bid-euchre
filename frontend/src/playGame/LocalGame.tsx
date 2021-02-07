@@ -19,7 +19,7 @@ import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import * as LocalGameStates from './LocalGameStates';
 import { BufferMachineMode, useStateBuffer } from './useStateBuffer';
 
-const InitialLocalGameState: GameStateConfig = LocalGameStates.PlayedOneCard;
+const InitialLocalGameState: GameStateConfig = LocalGameStates.WaitForDeal;
 
 function hydrateInitialState() {
   return hydrateStateFromConfig(InitialLocalGameState);

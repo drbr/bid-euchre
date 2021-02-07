@@ -82,6 +82,8 @@ function JoinButton(props: {
   return props.playerNameAtPosition ? null : (
     <ActionButton
       fullWidth
+      size="large"
+      style={{ height: '100%' }}
       actionValid={props.canJoin}
       actionInProgress={props.joinInProgress}
       sendEvent={props.joinGame}

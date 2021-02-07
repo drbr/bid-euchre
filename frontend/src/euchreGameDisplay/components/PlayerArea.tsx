@@ -21,6 +21,7 @@ export function PlayerAreaWhiteBackground(
   props: PropsWithChildren<PlayerAreaProps>
 ) {
   const { awaited, children } = props;
+  const playerName = getPlayerNameWithTrickCount(props);
 
   return (
     <Paper>
@@ -32,9 +33,15 @@ export function PlayerAreaWhiteBackground(
         }}
         height={PLAYER_AREA_HEIGHT_PX}
       >
-        <Typography align="center" noWrap style={{ flexShrink: 0 }}>
-          {getPlayerNameWithTrickCount(props)}
-        </Typography>
+        {/*
+         * Player name should be defined everywhere except the Join UI. In the Join UI, let the
+         * content (the join button) take all the vertical space.
+         */}
+        {playerName ? (
+          <Typography align="center" noWrap style={{ flexShrink: 0 }}>
+            {playerName}
+          </Typography>
+        ) : null}
         <FlexView
           grow
           style={{ position: 'relative' }}
@@ -52,6 +59,7 @@ export function PlayerAreaNoBackground(
   props: PropsWithChildren<PlayerAreaProps>
 ) {
   const { awaited, children } = props;
+  const playerName = getPlayerNameWithTrickCount(props);
 
   return (
     <FlexView
@@ -64,7 +72,7 @@ export function PlayerAreaNoBackground(
       }}
     >
       <Typography align="center" noWrap style={{ flexShrink: 0 }}>
-        {getPlayerNameWithTrickCount(props)}
+        {playerName}
       </Typography>
       <FlexView
         grow
@@ -100,7 +108,7 @@ function getPlayerNameWithTrickCount(props: PlayerAreaProps) {
       props.playerName
     );
 
-  return nameWithTricks || PLACEHOLDER;
+  return nameWithTricks;
 }
 
 function PlayerCardUserContent(props: PropsWithChildren<unknown>): JSX.Element {

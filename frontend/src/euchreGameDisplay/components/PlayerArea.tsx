@@ -3,6 +3,7 @@ import Typography from '@material-ui/core/Typography';
 import { PropsWithChildren } from 'react';
 import FlexView from 'react-flexview/lib';
 import { Position } from '../../gameLogic/apiContract/database/Position';
+import { absolutePositionFill } from '../../style/LayoutStyles';
 
 /** Zero-width space character */
 export const PLACEHOLDER = '\u200b';
@@ -34,7 +35,12 @@ export function PlayerAreaWhiteBackground(
         <Typography align="center" noWrap style={{ flexShrink: 0 }}>
           {getPlayerNameWithTrickCount(props)}
         </Typography>
-        <FlexView grow vAlignContent="center" hAlignContent="center">
+        <FlexView
+          grow
+          style={{ position: 'relative' }}
+          vAlignContent="center"
+          hAlignContent="center"
+        >
           <PlayerCardUserContent>{children}</PlayerCardUserContent>
         </FlexView>
       </FlexView>
@@ -62,6 +68,7 @@ export function PlayerAreaNoBackground(
       </Typography>
       <FlexView
         grow
+        style={{ position: 'relative' }}
         vAlignContent="center"
         hAlignContent="center"
         marginTop={4}
@@ -102,6 +109,8 @@ function PlayerCardUserContent(props: PropsWithChildren<unknown>): JSX.Element {
       {props.children}
     </Typography>
   ) : (
-    <>{props.children}</>
+    <div className={absolutePositionFill} style={{ textAlign: 'center' }}>
+      {props.children}
+    </div>
   );
 }

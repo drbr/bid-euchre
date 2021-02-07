@@ -102,15 +102,15 @@ export const CARD_MAX_WIDTH = 100;
 export function CardIcon(props: { card: Card }) {
   const { suit, rank } = props.card;
   const cardSpec = CardComponentMapping[suit][rank];
-  const CardComponent = cardSpec.component;
   return (
-    <div style={{ height: '100%' }} role="img" aria-label={cardSpec.cardName}>
-      <CardComponent
-        preserveAspectRatio="xMidYMid meet"
-        width="100%"
-        height="100%"
-      />
-    </div>
+    <img
+      src={cardSpec.src}
+      alt={cardSpec.cardName}
+      style={{
+        maxHeight: '100%',
+        maxWidth: '100%',
+      }}
+    />
   );
 }
 

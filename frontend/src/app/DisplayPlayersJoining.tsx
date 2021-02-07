@@ -40,42 +40,47 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
     : 'Enter your name and join at any open position.';
 
   return (
-    <GameLayout
-      colorMode="light"
-      playerFriendlyNames={playerNames}
-      score={null}
-      trumpSuit={undefined}
-      trickCount={undefined}
-      seatedAt="south"
-      awaitedPosition={props.seatedAt ?? undefined}
-      renderPlayerCardContent={(position) => (
-        <JoinButton
-          playerNameAtPosition={playerNames[position]}
-          canJoin={canTakeAnySeat()}
-          joinInProgress={props.joinInProgress}
-          joinGame={() => props.joinGameAtPosition({ position, playerName })}
-        />
-      )}
-      handsElement={null}
-      promptMessage={promptMessage}
-      userActionControls={
-        props.seatedAt ? null : (
-          <Paper>
-            <Box p={1} textAlign="center">
-              <TextField
-                inputRef={textFieldRef}
-                label="Name"
-                error={!!helperText}
-                helperText={helperText}
-                fullWidth
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-              />
-            </Box>
-          </Paper>
-        )
-      }
-    />
+    <div style={{ width: '100%' }}>
+      <p>
+        Copy the URL of this page and send it to your friends to let them join!
+      </p>
+      <GameLayout
+        colorMode="light"
+        playerFriendlyNames={playerNames}
+        score={null}
+        trumpSuit={undefined}
+        trickCount={undefined}
+        seatedAt="south"
+        awaitedPosition={props.seatedAt ?? undefined}
+        renderPlayerCardContent={(position) => (
+          <JoinButton
+            playerNameAtPosition={playerNames[position]}
+            canJoin={canTakeAnySeat()}
+            joinInProgress={props.joinInProgress}
+            joinGame={() => props.joinGameAtPosition({ position, playerName })}
+          />
+        )}
+        handsElement={null}
+        promptMessage={promptMessage}
+        userActionControls={
+          props.seatedAt ? null : (
+            <Paper>
+              <Box p={1} textAlign="center">
+                <TextField
+                  inputRef={textFieldRef}
+                  label="Name"
+                  error={!!helperText}
+                  helperText={helperText}
+                  fullWidth
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                />
+              </Box>
+            </Paper>
+          )
+        }
+      />
+    </div>
   );
 }
 

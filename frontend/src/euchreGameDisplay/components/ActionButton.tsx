@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import { ComponentPropsWithoutRef, PropsWithChildren } from 'react';
@@ -17,9 +18,20 @@ export type IconButtonProps = ComponentPropsWithoutRef<typeof IconButton>;
  * wrap/overwrite the `children`, `onClick`, and `disabled` props if they were provided.
  */
 export function ActionButton(props: ButtonProps & ActionButtonDomainProps) {
+  // Remove the props that the MUI Button widget doesn't recognize
+  const buttonProps = _.omit(props, Object.keys(ActionButtonDomainPropNames));
+
   const actionButtonProps = useButtonPropsForActionButton(props);
-  return <Button {...props} {...actionButtonProps} />;
+  return <Button {...buttonProps} {...actionButtonProps} />;
 }
+
+const ActionButtonDomainPropNames: {
+  [K in keyof ActionButtonDomainProps]: K;
+} = {
+  actionInProgress: 'actionInProgress',
+  actionValid: 'actionValid',
+  sendEvent: 'sendEvent',
+};
 
 /**
  * A special version of the ActionButton, formatted for displaying a card icon. The icon should be

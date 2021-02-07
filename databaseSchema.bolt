@@ -6,7 +6,7 @@
  */
 
 path / {
-  read() { true } /* TODO change this to false when the game is done! */
+  read() { false }
   write() { false }
 }
 

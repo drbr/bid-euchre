@@ -53,8 +53,7 @@ export default async function executeSendGameEvent(
     positionEvent.position &&
     positionEvent.position !== playerPositionInThisGame
   ) {
-    // TODO: When the game is done, reënable this check!!!
-    // throw new USER_NOT_AUTHORIZED_ERROR();
+    throw new USER_NOT_AUTHORIZED_ERROR();
   }
 
   await incrementStateMachineAndTransactionallyStoreResult(

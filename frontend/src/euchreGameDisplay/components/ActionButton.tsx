@@ -52,5 +52,12 @@ export function NonInteractiveCard(props: PropsWithChildren<unknown>) {
  * the style as similar as possible between non-interactive cards and card buttons.
  */
 function IconButtonForCard(props: IconButtonProps) {
-  return <IconButton size="small" {...props} />;
+  // The MUI icon button has "border-radius: 50%", which seems to be ignored in Chrome/Firefox but
+  // obeyed in Safari, which cuts off the corners of the cards and makes it look awful. Manually set
+  // it to 0 so it looks okay in Safari.
+  const buttonStyles: React.CSSProperties = {
+    ...props.style,
+    borderRadius: 0,
+  };
+  return <IconButton size="small" {...props} style={buttonStyles} />;
 }

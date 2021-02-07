@@ -2,11 +2,11 @@ import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import _ from 'lodash';
-import { Dispatch, useState } from 'react';
+import { Dispatch, useLayoutEffect, useRef, useState } from 'react';
+import { ActionButton } from '../euchreGameDisplay/components/ActionButton';
 import { GameLayout } from '../euchreGameDisplay/components/GameLayout';
 import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { Position } from '../gameLogic/apiContract/database/Position';
-import { ActionButton } from '../euchreGameDisplay/components/ActionButton';
 
 const MAX_NAME_LENGTH = 12;
 
@@ -19,6 +19,11 @@ export type DisplayPlayersJoiningProps = {
 };
 
 export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
+  const textFieldRef = useRef<HTMLInputElement>(null);
+  useLayoutEffect(() => {
+    textFieldRef.current?.focus();
+  }, []);
+
   const playerNames = props.gameConfig.playerFriendlyNames;
 
   const [playerName, setPlayerName] = useState('');
@@ -58,6 +63,7 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
           <Paper>
             <Box p={1} textAlign="center">
               <TextField
+                inputRef={textFieldRef}
                 label="Name"
                 error={!!helperText}
                 helperText={helperText}

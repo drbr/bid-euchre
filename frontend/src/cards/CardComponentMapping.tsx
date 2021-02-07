@@ -44,12 +44,12 @@ export const CardComponentMapping: Record<
     A: { src: srcAC, component: AC, cardName: 'Ace of Clubs' },
   },
   D: {
-    '9': { src: srcAD, component: _9D, cardName: '9 of Diamonds' },
-    '10': { src: srcKD, component: TD, cardName: '10 of Diamonds' },
-    J: { src: srcQD, component: JD, cardName: 'Jack of Diamonds' },
-    Q: { src: srcJD, component: QD, cardName: 'Queen of Diamonds' },
-    K: { src: srcTD, component: KD, cardName: 'King of Diamonds' },
-    A: { src: src9D, component: AD, cardName: 'Ace of Diamonds' },
+    '9': { src: src9D, component: _9D, cardName: '9 of Diamonds' },
+    '10': { src: srcTD, component: TD, cardName: '10 of Diamonds' },
+    J: { src: srcJD, component: JD, cardName: 'Jack of Diamonds' },
+    Q: { src: srcQD, component: QD, cardName: 'Queen of Diamonds' },
+    K: { src: srcKD, component: KD, cardName: 'King of Diamonds' },
+    A: { src: srcAD, component: AD, cardName: 'Ace of Diamonds' },
   },
   H: {
     '9': { src: src9H, component: _9H, cardName: '9 of Hearts' },

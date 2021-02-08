@@ -1,15 +1,9 @@
 import { customAlphabet, nanoid } from 'nanoid';
-
-function generateNumbers(n: number) {
-  return customAlphabet('0123456789', n);
-}
-
-function generateLetters(n: number) {
-  return customAlphabet('abcdefghijklmnopqrstuvwxyz', n);
-}
+const generateNumbers = customAlphabet('0123456789', 4);
+const generateLetters = customAlphabet('abcdefghijklmnopqrstuvwxyz', 5);
 
 export function generateFriendlyId(): string {
-  return `${generateNumbers(4)}-${generateLetters(5)}`;
+  return `${generateNumbers()}-${generateLetters()}`;
 }
 
 export function generateHardToGuessId(): string {

@@ -425,3 +425,87 @@ export const PlayedOneCard = JSON.parse(`
   "meta": {}
 }
 `);
+
+export const GameComplete = JSON.parse(`
+{
+  "value": {
+    "runGame": "gameCompleteInfo"
+  },
+  "actions": [],
+  "event": {
+    "type": "AUTO_TRANSITION"
+  },
+  "_event": {
+    "name": "AUTO_TRANSITION",
+    "data": {
+      "type": "AUTO_TRANSITION"
+    },
+    "$$type": "scxml",
+    "type": "external"
+  },
+  "context": {
+    "score": {
+      "northsouth": 4,
+      "eastwest": 2
+    },
+    "trickCount": {
+      "north": 3,
+      "south": 1,
+      "east": 2,
+      "west": 0
+    },
+    "scoreDelta": {
+      "bidWasMet": true,
+      "northsouth": {
+        "side": "offense",
+        "delta": 4
+      },
+      "eastwest": {
+        "side": "defense",
+        "delta": 2
+      }
+    },
+    "eventCount": 1,
+    "previousEventCount": 0,
+    "roundIndex": 0,
+    "currentDealer": "north",
+    "private_hands": {
+      "north": [],
+      "south": [],
+      "east": [],
+      "west": []
+    },
+    "awaitedPlayer": "north",
+    "bids": {
+      "north": "pass",
+      "south": 3,
+      "east": "pass",
+      "west": "pass"
+    },
+    "trump": "H",
+    "highestBid": 3,
+    "highestBidder": "south",
+    "playersSittingOut": [],
+    "leader": "north",
+    "currentTrick": {
+      "north": {
+        "rank": "Q",
+        "suit": "C"
+      },
+      "south": {
+        "rank": "Q",
+        "suit": "S"
+      },
+      "east": {
+        "rank": "A",
+        "suit": "S"
+      },
+      "west": {
+        "rank": "9",
+        "suit": "C"
+      }
+    }
+  },
+  "meta": {}
+}
+`);

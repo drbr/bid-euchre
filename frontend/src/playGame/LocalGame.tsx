@@ -19,7 +19,7 @@ import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import * as LocalGameStates from './LocalGameStates';
 import { BufferMachineMode, useStateBuffer } from './useStateBuffer';
 
-const InitialLocalGameState: GameStateConfig = LocalGameStates.WaitForDeal;
+const InitialLocalGameState: GameStateConfig = LocalGameStates.GameComplete;
 
 function hydrateInitialState() {
   return hydrateStateFromConfig(InitialLocalGameState);

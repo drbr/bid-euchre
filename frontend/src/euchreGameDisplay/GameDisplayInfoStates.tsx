@@ -1,3 +1,4 @@
+import Typography from '@material-ui/core/Typography';
 import { Position } from '../gameLogic/apiContract/database/Position';
 import {
   determineGameWinner,
@@ -10,6 +11,48 @@ import { InfoStateOKButton } from './components/InfoStateOKButton';
 import { GameDisplayProps } from './GameDisplayDelegator';
 
 export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
+  const winner = determineGameWinner(props.stateContext);
+
+  const nextRoundActionControl = winner ? null : (
+    <InfoStateOKButton {...props} />
+  );
+
+  return (
+    <GameLayout
+      colorMode="dark"
+      playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      playersSittingOut={[]}
+      score={props.stateContext.score}
+      trumpSuit={undefined}
+      trickCount={props.stateContext.trickCount}
+      seatedAt={props.seatedAt}
+      awaitedPosition={undefined}
+      renderPlayerCardContent={() => null}
+      promptMessage={getFullPrompt(props)}
+      handsElement={null}
+      userActionControls={nextRoundActionControl}
+    />
+  );
+}
+
+function getTeamNames(
+  team: Partnership,
+  playerNames: Record<Position, string>
+): string {
+  const positions = PositionsForPartnership[team];
+  const names = positions.map((pos) => playerNames[pos]).join('/');
+  return names;
+}
+
+function getTeamPrompt(teamNames: string, teamScore: number) {
+  return (
+    <span>
+      {teamNames}: <strong>{teamScore}</strong>
+    </span>
+  );
+}
+
+function getFullPrompt(props: GameDisplayProps) {
   const playerNames = props.gameConfig.playerFriendlyNames;
   const scoreDelta = props.stateContext.scoreDelta;
   const { offense, defense } = getSides(props.stateContext);
@@ -33,49 +76,18 @@ export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
   }`;
 
   const winner = determineGameWinner(props.stateContext);
-  const winnerActionControls = winner ? (
-    `${winner === offense ? offenseNames : defenseNames} won the game!`
-  ) : (
-    <InfoStateOKButton {...props} />
-  );
+  const winnerPrompt = winner
+    ? `${winner === offense ? offenseNames : defenseNames} won the game!`
+    : null;
 
   return (
-    <GameLayout
-      colorMode="dark"
-      playerFriendlyNames={props.gameConfig.playerFriendlyNames}
-      playersSittingOut={[]}
-      score={props.stateContext.score}
-      trumpSuit={undefined}
-      trickCount={props.stateContext.trickCount}
-      seatedAt={props.seatedAt}
-      awaitedPosition={undefined}
-      renderPlayerCardContent={() => null}
-      promptMessage={
-        <div>
-          <p>{roundCompletePrompt}</p>
-          <p>{offensePrompt}</p>
-          <p>{defensePrompt}</p>
-        </div>
-      }
-      handsElement={null}
-      userActionControls={winnerActionControls}
-    />
-  );
-}
-
-function getTeamNames(
-  team: Partnership,
-  playerNames: Record<Position, string>
-): string {
-  const positions = PositionsForPartnership[team];
-  const names = positions.map((pos) => playerNames[pos]).join('/');
-  return names;
-}
-
-function getTeamPrompt(teamNames: string, teamScore: number) {
-  return (
-    <span>
-      {teamNames}: <strong>{teamScore}</strong>
-    </span>
+    <>
+      <Typography variant="body1" component="div" align="center">
+        <p>{roundCompletePrompt}</p>
+        <p>{offensePrompt}</p>
+        <p>{defensePrompt}</p>
+        {winnerPrompt ? <p>{winnerPrompt}</p> : null}
+      </Typography>
+    </>
   );
 }

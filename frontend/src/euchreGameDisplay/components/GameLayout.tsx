@@ -249,10 +249,14 @@ function Trump(props: { suit: Suit; colorMode: GameLayoutProps['colorMode'] }) {
 }
 
 function PromptText(props: { children?: React.ReactNode }) {
-  const messageOrSpacer = props.children ?? PLACEHOLDER;
-  return (
-    <Typography variant="body1" align="center">
-      {messageOrSpacer}
-    </Typography>
-  );
+  const childrenOrSpacer = props.children ?? PLACEHOLDER;
+  if (typeof childrenOrSpacer === 'string') {
+    return (
+      <Typography variant="body1" align="center">
+        {childrenOrSpacer}
+      </Typography>
+    );
+  } else {
+    return <>{childrenOrSpacer}</>;
+  }
 }

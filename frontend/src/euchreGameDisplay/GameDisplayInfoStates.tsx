@@ -14,24 +14,7 @@ import { InfoStateOKButton } from './components/InfoStateOKButton';
 import { GameDisplayProps } from './GameDisplayDelegator';
 
 export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
-  const navigate = useNavigate();
-
   const winner = determineGameWinner(props.stateContext);
-
-  const nextRoundActionControl = winner ? (
-    props.stateContext.nextGameID ? (
-      <Button
-        variant="contained"
-        onClick={() =>
-          navigate(GamePathLink({ gameId: props.stateContext.nextGameID }))
-        }
-      >
-        Play Again
-      </Button>
-    ) : null
-  ) : (
-    <InfoStateOKButton {...props} />
-  );
 
   return (
     <GameLayout
@@ -44,9 +27,9 @@ export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
       seatedAt={props.seatedAt}
       awaitedPosition={undefined}
       renderPlayerCardContent={() => null}
-      promptMessage={getFullPrompt(props)}
+      promptMessage={<RoundOrGameCompletePrompt {...props} />}
       handsElement={null}
-      userActionControls={nextRoundActionControl}
+      userActionControls={winner ? null : <InfoStateOKButton {...props} />}
     />
   );
 }
@@ -68,7 +51,7 @@ function getTeamPrompt(teamNames: string, teamScore: number) {
   );
 }
 
-function getFullPrompt(props: GameDisplayProps) {
+function RoundOrGameCompletePrompt(props: GameDisplayProps) {
   const playerNames = props.gameConfig.playerFriendlyNames;
   const scoreDelta = props.stateContext.scoreDelta;
   const { offense, defense } = getSides(props.stateContext);
@@ -96,6 +79,8 @@ function getFullPrompt(props: GameDisplayProps) {
     ? `${winner === offense ? offenseNames : defenseNames} won the game!`
     : null;
 
+  const nextGameID = props.stateContext.nextGameID;
+
   return (
     <>
       <Typography variant="body1" component="div" align="center">
@@ -103,7 +88,20 @@ function getFullPrompt(props: GameDisplayProps) {
         <p>{offensePrompt}</p>
         <p>{defensePrompt}</p>
         {winnerPrompt ? <p>{winnerPrompt}</p> : null}
+        {nextGameID ? <PlayAgainButton nextGameID={nextGameID} /> : null}
       </Typography>
     </>
+  );
+}
+
+function PlayAgainButton(props: { nextGameID: string }): JSX.Element {
+  const navigate = useNavigate();
+  return (
+    <Button
+      variant="contained"
+      onClick={() => navigate(GamePathLink({ gameId: props.nextGameID }))}
+    >
+      Play Again
+    </Button>
   );
 }

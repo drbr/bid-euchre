@@ -123,7 +123,7 @@ export function assignScoreFromRoundContext(
     throw new Error('Cannot compute score; highest bid is not a number');
   }
 
-  const tricksRequired = Math.max(highestBid, 6);
+  const tricksRequired = Math.min(highestBid, 6);
   const teamTricks: Record<Partnership, number> = {
     northsouth: trickCount.north + trickCount.south,
     eastwest: trickCount.east + trickCount.west,

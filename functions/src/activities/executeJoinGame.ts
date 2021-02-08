@@ -11,7 +11,8 @@ import { initializeGameStates } from './initializeGameStates';
 export default async function executeJoinGame(
   request: JoinGameRequest
 ): Promise<JoinGameResult> {
-  const { gameId, position, friendlyName } = request;
+  const { gameId, position, friendlyName: rawFriendlyName } = request;
+  const normalizedFriendlyName = rawFriendlyName.trim();
   const playerId = generateHardToGuessId();
 
   const gameConfig = await DAO.getGameConfig({ gameId });
@@ -27,7 +28,11 @@ export default async function executeJoinGame(
     playerId,
     position,
   });
-  await DAO.setPlayerNameAtPosition({ gameId, friendlyName, position });
+  await DAO.setPlayerNameAtPosition({
+    gameId,
+    friendlyName: normalizedFriendlyName,
+    position,
+  });
 
   const playerIdentities = await DAO.getPlayerIdentities({ gameId });
   if (_.size(playerIdentities) === 4 && _.every(playerIdentities)) {
@@ -37,5 +42,5 @@ export default async function executeJoinGame(
     });
   }
 
-  return { playerId, gameId, position, friendlyName };
+  return { playerId, gameId, position, friendlyName: normalizedFriendlyName };
 }

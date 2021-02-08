@@ -113,7 +113,10 @@ function nameInvalidHelperText(
     return 'The name entered is too long.';
   }
   if (
-    _.some(playerFriendlyNames, (v) => v?.toLowerCase() === name.toLowerCase())
+    _.some(
+      playerFriendlyNames,
+      (v) => v?.toLowerCase().trim() === name.toLowerCase().trim()
+    )
   ) {
     return 'Another player has already joined with that name.';
   }

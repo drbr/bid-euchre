@@ -11,11 +11,14 @@ export const PLACEHOLDER = '\u200b';
 export type PlayerAreaProps = {
   position: Position;
   playerName: string | null;
+  sittingOut: boolean;
   awaited: boolean;
   trickCount?: Record<Position, number>;
 };
 
 const PLAYER_AREA_HEIGHT_PX = 130;
+
+const PLAYER_SITTING_OUT_TEXT_DECORATION = 'line-through .2em';
 
 export function PlayerAreaWhiteBackground(
   props: PropsWithChildren<PlayerAreaProps>
@@ -38,7 +41,16 @@ export function PlayerAreaWhiteBackground(
          * content (the join button) take all the vertical space.
          */}
         {playerName ? (
-          <Typography align="center" noWrap style={{ flexShrink: 0 }}>
+          <Typography
+            align="center"
+            noWrap
+            style={{
+              flexShrink: 0,
+              textDecoration: props.sittingOut
+                ? PLAYER_SITTING_OUT_TEXT_DECORATION
+                : undefined,
+            }}
+          >
             {playerName}
           </Typography>
         ) : null}
@@ -71,7 +83,16 @@ export function PlayerAreaNoBackground(
         backgroundColor: awaited ? '#ea78157a' : undefined,
       }}
     >
-      <Typography align="center" noWrap style={{ flexShrink: 0 }}>
+      <Typography
+        align="center"
+        noWrap
+        style={{
+          flexShrink: 0,
+          textDecoration: props.sittingOut
+            ? PLAYER_SITTING_OUT_TEXT_DECORATION
+            : undefined,
+        }}
+      >
         {playerName}
       </Typography>
       <FlexView

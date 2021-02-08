@@ -136,7 +136,7 @@ function processNextState<
   const hasAnyOutstandingActivities = _.some(nextState.activities);
   const nextEvents = getRealisticNextEvents(nextState);
 
-  if (nextEvents.includes(AUTO_TRANSITION)) {
+  if (_.includes(nextEvents, AUTO_TRANSITION)) {
     if (nextEvents.length > 1) {
       throw new Error(
         `State ${JSON.stringify(
@@ -154,7 +154,7 @@ function processNextState<
       finished: false,
       sendEvent: 'AUTO_TRANSITION',
     };
-  } else if (nextEvents.includes(SECRET_ACTION_COMPLETE)) {
+  } else if (_.includes(nextEvents, SECRET_ACTION_COMPLETE)) {
     if (nextEvents.length > 1) {
       throw new Error(
         `State ${JSON.stringify(

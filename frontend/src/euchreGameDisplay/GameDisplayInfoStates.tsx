@@ -43,6 +43,7 @@ export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
     <GameLayout
       colorMode="dark"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      playersSittingOut={[]}
       score={props.stateContext.score}
       trumpSuit={undefined}
       trickCount={props.stateContext.trickCount}

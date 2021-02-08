@@ -47,6 +47,7 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
       <GameLayout
         colorMode="light"
         playerFriendlyNames={playerNames}
+        playersSittingOut={[]}
         score={null}
         trumpSuit={undefined}
         trickCount={undefined}

@@ -166,7 +166,7 @@ function isFollowValid(context: ThePlayContext, event: PlayCardEvent): boolean {
 /** Gets the next person to play, taking into account that someone might be playing alone. */
 function getNextPlayer(context: ThePlayContext): Position {
   let next = NextPlayer[context.awaitedPlayer];
-  while (context.playersSittingOut.includes(next)) {
+  while (_.includes(context.playersSittingOut, next)) {
     next = NextPlayer[next];
   }
   return next;
@@ -199,7 +199,7 @@ function haveAllPlayersPlayedToTrick(context: ThePlayContext): boolean {
   const playersSittingOut = context.playersSittingOut;
   const cardsFromParticipatingPlayers = filterPositions(
     context.currentTrick,
-    (_, position) => !playersSittingOut.includes(position)
+    (card, position) => !_.includes(playersSittingOut, position)
   );
   return cardsFromParticipatingPlayers.every((card) => card !== null);
 }
@@ -208,7 +208,7 @@ function arePlayersOutOfCardsAfterTrick(context: ThePlayContext): boolean {
   const playersSittingOut = context.playersSittingOut;
   const handCountsFromParticipatingPlayers = filterPositions(
     context.private_hands,
-    (_, position) => !playersSittingOut.includes(position)
+    (card, position) => !_.includes(playersSittingOut, position)
   ).map((hand) => hand.length);
 
   for (const count of handCountsFromParticipatingPlayers) {

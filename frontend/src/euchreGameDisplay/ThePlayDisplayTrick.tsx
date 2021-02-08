@@ -17,6 +17,7 @@ export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
     <GameLayout
       colorMode="dark"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      playersSittingOut={props.stateContext.playersSittingOut}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
       trickCount={props.stateContext.trickCount}

@@ -26,6 +26,7 @@ export function RoundDisplayDeal(props: RoundDisplayProps): JSX.Element {
     <GameLayout
       colorMode="light"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      playersSittingOut={[]}
       score={props.stateContext.score}
       trumpSuit={undefined}
       trickCount={undefined}

@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
@@ -18,6 +19,7 @@ import {
 export type GameLayoutProps = {
   colorMode: 'dark' | 'light';
   playerFriendlyNames: Record<Position, string | null>;
+  playersSittingOut: ReadonlyArray<Position>;
   score: Record<Partnership, number> | null;
   trumpSuit: Suit | undefined;
   trickCount: Record<Position, number> | undefined;
@@ -77,6 +79,7 @@ export function GameLayout(props: GameLayoutProps) {
       <CardComponent
         position={position}
         playerName={playerName}
+        sittingOut={_.includes(props.playersSittingOut, position)}
         awaited={awaited}
         trickCount={props.trickCount}
       >

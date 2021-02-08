@@ -38,6 +38,7 @@ export function BiddingDisplayPassCardToPartner(
     <GameLayout
       colorMode="light"
       playerFriendlyNames={props.gameConfig.playerFriendlyNames}
+      playersSittingOut={[]}
       score={props.stateContext.score}
       trumpSuit={props.stateContext.trump}
       trickCount={undefined}

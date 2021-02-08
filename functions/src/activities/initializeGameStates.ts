@@ -1,12 +1,13 @@
 import * as _ from 'lodash';
+import { PlayerIdentities } from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
 import { GameStateMachine } from '../../../frontend/src/gameLogic/euchreStateMachine/GameStateMachine';
 import { serializeState } from '../../../frontend/src/gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { StartGameEvent } from '../../../frontend/src/gameLogic/stateMachineUtils/SpecialEvents';
-import { getInitialMachineState } from '../backendStateMachineUtils/getInitialMachineState';
 import { transitionStateMachine } from '../../../frontend/src/gameLogic/stateMachineUtils/transitionStateMachine';
+import { getInitialMachineState } from '../backendStateMachineUtils/getInitialMachineState';
 import * as DAO from '../databaseHelpers/BackendDAO';
+import executeNewGame from './executeNewGame';
 import { storePublicAndPrivateSnapshotsFromTransition } from './incrementAndStoreState';
-import { PlayerIdentities } from '../../../frontend/src/gameLogic/apiContract/database/DataModel';
 
 export async function initializeGameStates(params: {
   gameId: string;
@@ -21,7 +22,10 @@ export async function initializeGameStates(params: {
   const nextStates = await transitionStateMachine(
     GameStateMachine,
     { hydratedState: getInitialMachineState() },
-    startGameEvent
+    startGameEvent,
+    {
+      initializeNewGame: () => executeNewGame().then((result) => result.gameId),
+    }
   );
   const finalState = _.last(nextStates);
   if (!finalState) {

@@ -20,6 +20,10 @@ const AUTO_TRANSITION: AutoTransitionEvent['type'] = 'AUTO_TRANSITION';
 const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
   'SECRET_ACTION_COMPLETE';
 
+export type GameStateMachineServices = {
+  initializeNewGame: () => Promise<string>;
+};
+
 /**
  * Transitions the state machine from the given `prev` state and `event`, while also executing
  * activities involved in the transition and returning those transitions.
@@ -43,10 +47,13 @@ export async function transitionStateMachine<
 >(
   stateMachine: StateMachine<C, SS, E>,
   prev: HydratedState<C, E, SS>,
-  event: E
+  event: E,
+  services: GameStateMachineServices
 ): Promise<ReadonlyArray<State<C, E>>> {
   const initialContext = prev.hydratedState.context;
-  const machineService = interpret(stateMachine.withContext(initialContext));
+  const machineService = interpret(
+    stateMachine.withContext(initialContext).withConfig({ services })
+  );
 
   try {
     const deferred = new SimpleDeferred<void>();

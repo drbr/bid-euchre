@@ -83,6 +83,15 @@ describe('transitionStateMachine function', () => {
     );
 
     test(
+      'when transitioning to a state that invokes a service, will wait for that service to complete' +
+        'and then move on to the next state',
+      async () => {
+        const { stateNames } = await doTransition('invokePromise');
+        expect(stateNames).toEqual(['invokePromise', 'destination']);
+      }
+    );
+
+    test(
       'when an event contains secret data, its immediate destination can be passed over ' +
         'in the exposed transitions by responding to the SECRET_ACTION_COMPLETE event',
       async () => {

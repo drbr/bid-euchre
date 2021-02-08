@@ -25,6 +25,7 @@ export type GameContext = EventCountContext & {
   score: Record<Partnership, number>;
   scoreDelta: ScoreDelta | null;
   trickCount: RoundContext['trickCount'];
+  nextGameID: string;
 };
 
 export type GameMeta = {
@@ -36,7 +37,12 @@ export type GameStatesGeneric<T> = {
   round: T;
   checkIfGameIsWon: T;
   roundCompleteInfo: T;
-  gameCompleteInfo: T;
+  gameCompleteInfo: {
+    states: {
+      createNextGame: T;
+      complete: T;
+    }
+  };
 };
 
 export type GameStateNames = keyof GameStatesGeneric<unknown>;

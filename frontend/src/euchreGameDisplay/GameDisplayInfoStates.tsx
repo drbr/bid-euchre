@@ -1,4 +1,5 @@
 import Typography from '@material-ui/core/Typography';
+import { GamePathLink } from '../app/paths';
 import { Position } from '../gameLogic/apiContract/database/Position';
 import {
   determineGameWinner,
@@ -13,7 +14,13 @@ import { GameDisplayProps } from './GameDisplayDelegator';
 export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
   const winner = determineGameWinner(props.stateContext);
 
-  const nextRoundActionControl = winner ? null : (
+  const nextRoundActionControl = winner ? (
+    props.stateContext.nextGameID ? (
+      <a href={GamePathLink({ gameId: props.stateContext.nextGameID })}>
+        Play Again
+      </a>
+    ) : null
+  ) : (
     <InfoStateOKButton {...props} />
   );
 

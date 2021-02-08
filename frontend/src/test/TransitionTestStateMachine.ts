@@ -25,6 +25,7 @@ export type TransitionTestStatesGeneric<T> = {
   secretAction: T;
   invokeSecretAction: T;
   respondsToSecretActionAndNext: T;
+  invokePromise: T;
   invokeANonEnumeratedEvent: T;
   invokeAndAutoTransition: T;
   transitionOnlyIfTruthy: T;
@@ -82,6 +83,7 @@ export const TransitionTestStateMachine = Machine<
         secretAction: 'secretAction',
         invokeSecretAction: 'invokeSecretAction',
         respondsToSecretActionAndNext: 'respondsToSecretActionAndNext',
+        invokePromise: 'invokePromise',
         invokeANonEnumeratedEvent: 'invokeANonEnumeratedEvent',
         invokeAndAutoTransition: 'invokeAndAutoTransition',
         transitionOnlyIfTruthy: {
@@ -136,6 +138,12 @@ export const TransitionTestStateMachine = Machine<
       on: {
         SECRET_ACTION_COMPLETE: 'entry',
         NEXT: 'entry',
+      },
+    },
+    invokePromise: {
+      invoke: {
+        src: () => () => Promise.resolve(),
+        onDone: 'destination',
       },
     },
     invokeANonEnumeratedEvent: {

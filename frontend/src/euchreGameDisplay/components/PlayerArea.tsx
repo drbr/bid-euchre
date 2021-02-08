@@ -42,6 +42,7 @@ export function PlayerAreaWhiteBackground(
          */}
         {playerName ? (
           <Typography
+            component="div"
             align="center"
             noWrap
             style={{
@@ -84,6 +85,7 @@ export function PlayerAreaNoBackground(
       }}
     >
       <Typography
+        component="div"
         align="center"
         noWrap
         style={{

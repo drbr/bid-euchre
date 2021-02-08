@@ -15,6 +15,7 @@ import { transitionStateMachine } from '../../../frontend/src/gameLogic/stateMac
 import { preparePublicAndPrivateStateForStorage } from '../backendStateMachineUtils/preparePublicAndPrivateStateForStorage';
 import * as DAO from '../databaseHelpers/BackendDAO';
 import { assertEventsAreInSync } from './assertEventsAreInSync';
+import executeNewGame from './executeNewGame';
 
 /**
  * The Firebase database does not support asynchronous transaction updaters. Usually it would be a
@@ -47,7 +48,10 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
   const nextStates = await transitionStateMachine(
     GameStateMachine,
     hydratedCurrentState,
-    event as GameEvent
+    event as GameEvent,
+    {
+      initializeNewGame: () => executeNewGame().then((result) => result.gameId),
+    }
   );
   const finalState = _.last(nextStates);
   if (!finalState) {

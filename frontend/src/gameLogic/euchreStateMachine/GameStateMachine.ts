@@ -33,6 +33,7 @@ const initialGameContext: GameContext = {
   scoreDelta: null,
   eventCount: 0,
   previousEventCount: null,
+  nextGameID: '',
 };
 
 // const GameActions: ActionFunctionMap<GameContext, GameEvent> = {
@@ -61,6 +62,7 @@ export const GameStateMachine = Machine<
               START_GAME: 'round',
             },
           },
+
           round: {
             ...(RoundStates as StateNodeConfig<
               GameContext,
@@ -76,6 +78,7 @@ export const GameStateMachine = Machine<
               ),
             },
           },
+
           checkIfGameIsWon: {
             always: [
               {
@@ -87,13 +90,31 @@ export const GameStateMachine = Machine<
               },
             ],
           },
+
           roundCompleteInfo: {
             meta: { blocking: true },
             on: {
               AUTO_TRANSITION: 'round',
             },
           },
-          gameCompleteInfo: { type: 'final' },
+
+          gameCompleteInfo: {
+            type: 'final',
+            states: {
+              createNextGame: {
+                invoke: {
+                  src: 'initializeNextGame',
+                  onDone: {
+                    target: 'complete',
+                    actions: assign({
+                      nextGameID: (context, event) => event.data,
+                    }),
+                  },
+                },
+              },
+              complete: { type: 'final' },
+            },
+          },
         },
       },
       // recordEvents: {
@@ -156,7 +177,7 @@ export function assignScoreFromRoundContext(
   };
 }
 
-const WIN_GAME_POINTS = 32;
+const WIN_GAME_POINTS = 1;
 
 export function getSides(
   context: GameContext

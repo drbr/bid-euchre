@@ -19,7 +19,7 @@ import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import * as LocalGameStates from './LocalGameStates';
 import { BufferMachineMode, useStateBuffer } from './useStateBuffer';
 
-const InitialLocalGameState: GameStateConfig = LocalGameStates.PlayedOneCard;
+const InitialLocalGameState: GameStateConfig = LocalGameStates.BeforeEndOfRound;
 
 function hydrateInitialState() {
   return hydrateStateFromConfig(InitialLocalGameState);
@@ -47,7 +47,7 @@ export function LocalGameContainer() {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         currentGameState,
         gameEvent as GameEvent,
-        { initializeNewGame: () => Promise.resolve('newGameUrl') }
+        { initializeNextGame: () => Promise.resolve('newGameUrl') }
       );
       for (const next of nextStates) {
         addSnapshotToBuffer(hydrateStateFromConfig(next));

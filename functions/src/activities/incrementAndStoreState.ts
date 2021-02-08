@@ -50,7 +50,8 @@ export async function incrementStateMachineAndTransactionallyStoreResult(
     hydratedCurrentState,
     event as GameEvent,
     {
-      initializeNewGame: () => executeNewGame().then((result) => result.gameId),
+      initializeNextGame: () =>
+        executeNewGame().then((result) => result.gameId),
     }
   );
   const finalState = _.last(nextStates);

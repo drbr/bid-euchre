@@ -24,7 +24,8 @@ export async function initializeGameStates(params: {
     { hydratedState: getInitialMachineState() },
     startGameEvent,
     {
-      initializeNewGame: () => executeNewGame().then((result) => result.gameId),
+      initializeNextGame: () =>
+        executeNewGame().then((result) => result.gameId),
     }
   );
   const finalState = _.last(nextStates);

@@ -21,7 +21,7 @@ const SECRET_ACTION_COMPLETE: SecretActionCompleteEvent['type'] =
   'SECRET_ACTION_COMPLETE';
 
 export type GameStateMachineServices = {
-  initializeNewGame: () => Promise<string>;
+  initializeNextGame: () => Promise<string>;
 };
 
 /**

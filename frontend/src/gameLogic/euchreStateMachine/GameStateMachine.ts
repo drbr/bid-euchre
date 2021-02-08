@@ -99,7 +99,7 @@ export const GameStateMachine = Machine<
           },
 
           gameCompleteInfo: {
-            type: 'final',
+            initial: 'createNextGame',
             states: {
               createNextGame: {
                 invoke: {

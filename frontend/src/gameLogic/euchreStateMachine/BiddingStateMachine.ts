@@ -275,7 +275,11 @@ export function playerHandsForPassedCard(
   const passerHand = originalHands[passer].filter(
     (c) => !_.isEqual(c, event.card)
   );
-  const passeeHand = originalHands[passee].concat(event.card);
+
+  // If we're evaluating the event on a client, to see if it will effect a state change,
+  // each client has knowledge of only their own hand, so we must prevent against an undefined
+  // passee hand. However, the server knows all the hands and will correctly concatenate.
+  const passeeHand = (originalHands[passee] || []).concat(event.card);
 
   return {
     ...originalHands,

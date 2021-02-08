@@ -39,7 +39,11 @@ export function HandDisplay(props: HandDisplayProps) {
     return null;
   }
   const position = props.position;
-  const playerHand = props.stateContext.private_hands[position];
+
+  // The debug mode controls render the hand for the awaited player, who may not be the current
+  // player in that session. If so, and if playing in a real game, the other players' hands won't
+  // be present in the client, so we must safeguard against NPEs.
+  const playerHand = props.stateContext.private_hands[position] || [];
 
   if (!props.renderAsButtons) {
     return (

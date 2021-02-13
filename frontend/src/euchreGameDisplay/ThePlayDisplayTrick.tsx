@@ -1,7 +1,9 @@
+import Box from '@material-ui/core/Box';
 import * as React from 'react';
 import { Card } from '../gameLogic/Cards';
-import { GameLayout } from './components/GameLayout';
+import { GameLayout, PromptText } from './components/GameLayout';
 import { CardIcon, HandDisplay } from './components/HandDisplay';
+import { LastTrickButton } from './components/LastTrickButton';
 import { ThePlayDisplayProps } from './ThePlayDisplayDelegator';
 
 export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
@@ -12,6 +14,21 @@ export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
     props.stateContext.awaitedPlayer === props.seatedAt
       ? "It's your turn. Click a card to play it."
       : `Waiting for ${awaitedPlayerName} to play a card…`;
+
+  const playedYet = props.seatedAt
+    ? !!props.stateContext.currentTrick[props.seatedAt]
+    : false;
+
+  const promptElement = playedYet ? (
+    <PromptText>{promptMessage}</PromptText>
+  ) : (
+    <>
+      <PromptText>{promptMessage}</PromptText>
+      <Box mt={2}>
+        <LastTrickButton />
+      </Box>
+    </>
+  );
 
   return (
     <GameLayout
@@ -26,7 +43,7 @@ export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
       renderPlayerCardContent={(position) => (
         <PlayedCard card={props.stateContext.currentTrick[position]} />
       )}
-      promptMessage={promptMessage}
+      promptMessage={promptElement}
       handsElement={
         <HandDisplay
           position={props.seatedAt}

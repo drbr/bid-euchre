@@ -144,7 +144,7 @@ export function GameLayout(props: GameLayoutProps) {
 
       {props.promptMessage ? (
         <Box mt={3}>
-          <PromptText>{props.promptMessage}</PromptText>
+          <PromptElement>{props.promptMessage}</PromptElement>
         </Box>
       ) : null}
 
@@ -248,15 +248,19 @@ function Trump(props: { suit: Suit; colorMode: GameLayoutProps['colorMode'] }) {
   );
 }
 
-function PromptText(props: { children?: React.ReactNode }) {
+function PromptElement(props: { children?: React.ReactNode }) {
   const childrenOrSpacer = props.children ?? PLACEHOLDER;
   if (typeof childrenOrSpacer === 'string') {
-    return (
-      <Typography variant="body1" align="center">
-        {childrenOrSpacer}
-      </Typography>
-    );
+    return <PromptText>{childrenOrSpacer}</PromptText>;
   } else {
     return <>{childrenOrSpacer}</>;
   }
+}
+
+export function PromptText(props: { children?: string }) {
+  return (
+    <Typography variant="body1" align="center">
+      {props.children}
+    </Typography>
+  );
 }

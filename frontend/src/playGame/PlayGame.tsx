@@ -5,16 +5,11 @@ import * as FunctionsClient from '../firebase/CloudFunctionsClient';
 import * as DAO from '../firebase/FrontendDAO';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { Position } from '../gameLogic/apiContract/database/Position';
-import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
-import {
-  GameEvent,
-  GameStateConfig,
-} from '../gameLogic/euchreStateMachine/GameStateTypes';
+import { GameStateConfig } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import {
   HydratedGameState,
   hydrateStateFromConfig,
 } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
-import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import { useStateHeadStorage } from '../uiHelpers/LocalStorageClient';
 import { Subscription, useSubscription } from '../uiHelpers/useSubscription';
 import { useStateBuffer } from './useStateBuffer';
@@ -40,33 +35,39 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
     [gameId, playerId]
   );
 
+  const [head, storeHead] = useStateHeadStorage({ gameId });
+
   const {
     currentGameState,
-    dispatchToBuffer,
+    addSnapshotToBuffer,
+    sendGameEventViaBufferMachine,
+    isGameEventValid,
     unblockHead,
     bufferMachineMode,
-  } = useBufferWithGameState({
-    gameId,
-    playerId,
+    dispatchToBuffer,
+  } = useStateBuffer({
     participatingInGame: !!props.seatedAt,
-    sendGameEventToServer,
+    initialHead: head,
+    onHeadChanged: storeHead,
+    sendGameEventToServer: sendGameEventToServer,
   });
 
-  const sendGameEventToBufferMachine = useCallback(
-    (event: AnyEventObject) => {
-      dispatchToBuffer({
-        type: 'SEND_GAME_EVENT_TO_SERVER',
-        gameEvent: event,
-      });
+  const putDownloadedGameStateInBuffer = useCallback(
+    (data: GameStateConfig | null) => {
+      if (!data) {
+        throw new Error(`Game with ID ${gameId} was not found!`);
+      } else {
+        const hydrated = hydrateStateFromConfig(data);
+        addSnapshotToBuffer(hydrated);
+      }
     },
-    [dispatchToBuffer]
+    [addSnapshotToBuffer, gameId]
   );
 
-  const isEventValid = useCallback(
-    (event: GameEvent) =>
-      bufferMachineMode.mode === 'head' &&
-      willEventApply(GameStateMachine, currentGameState, event),
-    [currentGameState, bufferMachineMode]
+  useSubscription(
+    { gameId, playerId },
+    subscribeToPublicOrPrivateGameState,
+    putDownloadedGameStateInBuffer
   );
 
   if (!currentGameState) {
@@ -93,66 +94,14 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
         stateContext={gameState.context}
         gameConfig={props.gameConfig}
         seatedAt={props.seatedAt}
-        isEventValid={isEventValid}
-        sendGameEvent={sendGameEventToBufferMachine}
+        isEventValid={isGameEventValid}
+        sendGameEvent={sendGameEventViaBufferMachine}
         sendGameEventInProgress={bufferMachineMode.mode === 'sendingGameEvent'}
         unblockHead={unblockHead}
       />
     </div>
   );
 });
-
-function useBufferWithGameState(props: {
-  gameId: string;
-  playerId: string | null;
-  participatingInGame: boolean;
-  sendGameEventToServer: (
-    currentGameState: HydratedGameState,
-    event: AnyEventObject
-  ) => Promise<void>;
-}) {
-  const { gameId, playerId } = props;
-
-  const [head, storeHead] = useStateHeadStorage({ gameId });
-
-  const {
-    currentGameState,
-    addSnapshotToBuffer,
-    dispatchToBuffer,
-    unblockHead,
-    bufferMachineMode,
-  } = useStateBuffer({
-    participatingInGame: props.participatingInGame,
-    initialHead: head,
-    onHeadChanged: storeHead,
-    sendGameEventToServer: props.sendGameEventToServer,
-  });
-
-  const putDownloadedGameStateInBuffer = useCallback(
-    (data: GameStateConfig | null) => {
-      if (!data) {
-        throw new Error(`Game with ID ${gameId} was not found!`);
-      } else {
-        const hydrated = hydrateStateFromConfig(data);
-        addSnapshotToBuffer(hydrated);
-      }
-    },
-    [addSnapshotToBuffer, gameId]
-  );
-
-  useSubscription(
-    { gameId, playerId },
-    subscribeToPublicOrPrivateGameState,
-    putDownloadedGameStateInBuffer
-  );
-
-  return {
-    currentGameState,
-    dispatchToBuffer,
-    unblockHead,
-    bufferMachineMode,
-  };
-}
 
 const subscribeToPublicOrPrivateGameState: Subscription<
   { gameId: string; playerId: string | null },

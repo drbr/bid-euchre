@@ -108,7 +108,7 @@ export function createBufferStateMachine<S>(): StateMachine<
             id: 'showHead',
             initial: 'enterHead',
             on: {
-              SEND_GAME_EVENT_TO_SERVER: '#sendingGameEvent.makeApiCall',
+              SEND_GAME_EVENT_VIA_BUFFER: '#sendingGameEvent.makeApiCall',
             },
             exit: actions.cancel(DELAYED_UNBLOCK_ID),
             states: {

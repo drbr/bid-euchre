@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { AnyEventObject } from 'xstate';
 import { GameDisplayDelegatorPure } from '../euchreGameDisplay/GameDisplayDelegator';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
@@ -15,7 +15,6 @@ import {
   serializeState,
 } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
 import { transitionStateMachine } from '../gameLogic/stateMachineUtils/transitionStateMachine';
-import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import * as LocalGameStates from './LocalGameStates';
 import { BufferMachineMode, useStateBuffer } from './useStateBuffer';
 
@@ -32,8 +31,10 @@ export function LocalGameContainer() {
   const {
     currentGameState,
     addSnapshotToBuffer,
-    dispatchToBuffer,
+    sendGameEventViaBufferMachine,
+    isGameEventValid,
     unblockHead,
+    dispatchToBuffer,
     bufferMachineMode,
   } = useStateBuffer({
     participatingInGame: !!seatedAt,
@@ -54,16 +55,6 @@ export function LocalGameContainer() {
       }
     },
   });
-
-  const sendGameEventToBufferMachine = useCallback(
-    (event: AnyEventObject) => {
-      dispatchToBuffer({
-        type: 'SEND_GAME_EVENT_TO_SERVER',
-        gameEvent: event,
-      });
-    },
-    [dispatchToBuffer]
-  );
 
   // Populate the initial game state into the buffer
   useEffect(() => addSnapshotToBuffer(hydrateInitialState()), [
@@ -88,7 +79,8 @@ export function LocalGameContainer() {
   return (
     <LocalGame
       gameState={currentGameState}
-      sendGameEvent={sendGameEventToBufferMachine}
+      sendGameEvent={sendGameEventViaBufferMachine}
+      isEventValid={isGameEventValid}
       bufferMachineMode={bufferMachineMode}
       unblockHead={unblockHead}
     />
@@ -98,27 +90,20 @@ export function LocalGameContainer() {
 export type LocalGameProps = {
   gameState: HydratedGameState;
   sendGameEvent: (event: GameEvent) => void;
+  isEventValid: (event: GameEvent) => boolean;
   bufferMachineMode: BufferMachineMode;
   unblockHead: (() => void) | null;
 };
 
 export function LocalGame(props: LocalGameProps) {
-  const { sendGameEvent, gameState } = props;
-
-  const isEventValid = useCallback(
-    (event: AnyEventObject): boolean =>
-      props.bufferMachineMode.mode === 'head' &&
-      willEventApply(GameStateMachine, props.gameState, event as GameEvent),
-    [props.bufferMachineMode, props.gameState]
-  );
 
   return (
     <div style={{ width: '100%' }}>
       <GameDisplayDelegatorPure
-        stateValue={gameState.hydratedState.value}
-        stateContext={gameState.hydratedState.context}
-        isEventValid={isEventValid}
-        sendGameEvent={sendGameEvent}
+        stateValue={props.gameState.hydratedState.value}
+        stateContext={props.gameState.hydratedState.context}
+        isEventValid={props.isEventValid}
+        sendGameEvent={props.sendGameEvent}
         sendGameEventInProgress={
           props.bufferMachineMode.mode === 'sendingGameEvent'
         }

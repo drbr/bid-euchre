@@ -138,8 +138,8 @@ type SwitchToDetachedIndexEvent = {
   index: number;
 };
 
-export type SendGameEventToServerEvent = {
-  type: 'SEND_GAME_EVENT_TO_SERVER';
+export type SendGameEventViaBufferEvent = {
+  type: 'SEND_GAME_EVENT_VIA_BUFFER';
 
   /**
    * Yes, this event object contains another event object, because the inner one is the event
@@ -154,7 +154,7 @@ export type BufferEvent<S> =
   | { type: 'DETACHED_GO_FORWARD' }
   | { type: 'DETACHED_GO_BACK' }
   | SwitchToDetachedIndexEvent
-  | SendGameEventToServerEvent
+  | SendGameEventViaBufferEvent
   | { type: 'UNBLOCK_HEAD' }
   | { type: 'RESET' };
 

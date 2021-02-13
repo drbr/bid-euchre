@@ -1,14 +1,17 @@
 import { useMachine } from '@xstate/react';
 import { useCallback, useEffect, useMemo } from 'react';
 import { AnyEventObject } from 'xstate';
+import { GameStateMachine } from '../gameLogic/euchreStateMachine/GameStateMachine';
+import { GameEvent } from '../gameLogic/euchreStateMachine/GameStateTypes';
 import { flattenGameMeta } from '../gameLogic/stateMachineUtils/MetaUtils';
 import { HydratedGameState } from '../gameLogic/stateMachineUtils/serializeAndHydrateState';
+import { willEventApply } from '../gameLogic/stateMachineUtils/willEventApply';
 import { createBufferStateMachine, headShouldBlock } from './BufferMachine';
 import {
   BufferEvent,
   BufferMachineState,
   BufferStateValue,
-  SendGameEventToServerEvent,
+  SendGameEventViaBufferEvent,
   StateBuffer,
 } from './BufferMachineTypes';
 
@@ -57,12 +60,12 @@ export function useStateBuffer(params: {
     sendGameEventToServer,
   } = params;
 
-  const sendGameEvent = useCallback(
+  const sendGameEventService = useCallback(
     (
       context: StateBuffer<HydratedGameState>,
       ev: BufferEvent<HydratedGameState>
     ) => {
-      const bufferEvent = ev as SendGameEventToServerEvent;
+      const bufferEvent = ev as SendGameEventViaBufferEvent;
       const gameEvent = bufferEvent.gameEvent;
       const currentGameState =
         context.gameStateSnapshots[context.currentIndexShowing ?? 0];
@@ -74,7 +77,7 @@ export function useStateBuffer(params: {
 
   const [bufferMachineState, dispatchToBuffer] = useMachine(BufferMachine, {
     context: { head: initialHead },
-    services: { sendGameEvent },
+    services: { sendGameEvent: sendGameEventService },
     devTools: true,
   });
   const buffer = bufferMachineState.context;
@@ -112,12 +115,37 @@ export function useStateBuffer(params: {
    * not the one initially configured in the state node.
    */
   const unblockHead: (() => void) | null = useMemo(() => {
-    const showingBlockedState =
-      bufferMachineMode.mode === 'head' && bufferMachineMode.manuallyBlocked;
-    return showingBlockedState
+    const canUnblockHead = willEventApply(
+      BufferMachine,
+      { hydratedState: bufferMachineState },
+      { type: 'UNBLOCK_HEAD' }
+    );
+    return canUnblockHead
       ? () => dispatchToBuffer({ type: 'UNBLOCK_HEAD' })
       : null;
-  }, [dispatchToBuffer, bufferMachineMode]);
+  }, [bufferMachineState, dispatchToBuffer]);
+
+  const sendGameEventViaBufferMachine = useCallback(
+    (event: AnyEventObject) => {
+      dispatchToBuffer({
+        type: 'SEND_GAME_EVENT_VIA_BUFFER',
+        gameEvent: event,
+      });
+    },
+    [dispatchToBuffer]
+  );
+
+  // A game event can be sent if the game state machine will accept it, AND if the buffer machine
+  // is currently in a state to accept game events.
+  const isGameEventValid = useCallback(
+    (gameEvent: GameEvent) =>
+      willEventApply(
+        BufferMachine,
+        { hydratedState: bufferMachineState },
+        { type: 'SEND_GAME_EVENT_VIA_BUFFER', gameEvent }
+      ) && willEventApply(GameStateMachine, currentGameState, gameEvent),
+    [currentGameState, bufferMachineState]
+  );
 
   useEffect(() => {
     if (buffer.head && onHeadChanged) {
@@ -134,8 +162,11 @@ export function useStateBuffer(params: {
   return {
     currentGameState,
     addSnapshotToBuffer,
-    dispatchToBuffer,
+    sendGameEventViaBufferMachine,
+    isGameEventValid,
     unblockHead,
     bufferMachineMode,
+    dispatchToBuffer,
+    buffer,
   };
 }

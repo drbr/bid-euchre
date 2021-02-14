@@ -2,7 +2,10 @@ import { BiddingDisplayProps } from './BiddingDisplayDelegator';
 import { displayedBid } from './components/displayedBid';
 import { GameLayout } from './components/GameLayout';
 import { HandDisplay } from './components/HandDisplay';
-import { InfoStateOKButton } from './components/InfoStateOKButton';
+import {
+  InfoStateAutomaticProceedButton,
+  InfoStateManualProceedButton,
+} from './components/InfoStateProceedButton';
 import { SuitDisplayInfo } from './components/SuitDisplayInfo';
 
 export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
@@ -26,7 +29,9 @@ export function AllPlayersPassedInfo(props: BiddingDisplayProps): JSX.Element {
           {...props}
         />
       }
-      userActionControls={<InfoStateOKButton {...props} />}
+      userActionControls={
+        <InfoStateManualProceedButton unblockHead={props.unblockHead} />
+      }
     />
   );
 }
@@ -69,7 +74,9 @@ export function PlayerNamedTrumpInfo(props: BiddingDisplayProps) {
           {...props}
         />
       }
-      userActionControls={<InfoStateOKButton {...props} />}
+      userActionControls={
+        <InfoStateAutomaticProceedButton unblockHead={props.unblockHead} />
+      }
     />
   );
 }

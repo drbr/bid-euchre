@@ -10,7 +10,7 @@ import {
 import { Partnership } from '../gameLogic/EuchreTypes';
 import { PositionsForPartnership } from '../gameLogic/utils/PositionHelpers';
 import { GameLayout } from './components/GameLayout';
-import { InfoStateOKButton } from './components/InfoStateOKButton';
+import { InfoStateManualProceedButton } from './components/InfoStateProceedButton';
 import { GameDisplayProps } from './GameDisplayDelegator';
 
 export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
@@ -29,7 +29,11 @@ export function RoundCompleteInfo(props: GameDisplayProps): JSX.Element {
       renderPlayerCardContent={() => null}
       promptMessage={<RoundOrGameCompletePrompt {...props} />}
       handsElement={null}
-      userActionControls={winner ? null : <InfoStateOKButton {...props} />}
+      userActionControls={
+        winner ? null : (
+          <InfoStateManualProceedButton unblockHead={props.unblockHead} />
+        )
+      }
     />
   );
 }

@@ -1,7 +1,7 @@
 import { getTrickWinner } from '../gameLogic/euchreStateMachine/ThePlayStateMachine';
 import { GameLayout } from './components/GameLayout';
 import { HandDisplay } from './components/HandDisplay';
-import { InfoStateOKButton } from './components/InfoStateOKButton';
+import { InfoStateAutomaticProceedButton } from './components/InfoStateProceedButton';
 import { ThePlayDisplayProps } from './ThePlayDisplayDelegator';
 import { PlayedCard } from './ThePlayDisplayTrick';
 
@@ -36,7 +36,9 @@ export function TrickCompleteInfo(props: ThePlayDisplayProps): JSX.Element {
           {...props}
         />
       }
-      userActionControls={<InfoStateOKButton {...props} />}
+      userActionControls={
+        <InfoStateAutomaticProceedButton unblockHead={props.unblockHead} />
+      }
     />
   );
 }

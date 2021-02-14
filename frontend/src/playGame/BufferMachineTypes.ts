@@ -56,7 +56,7 @@ export type SnapshotWithBlockingInfo<S> = {
   blockType: BlockType;
 };
 
-export const LINGER_DELAY_MS = 600;
+export const LINGER_DELAY_MS = 750;
 
 type BufferStatesGeneric<X> = {
   /**

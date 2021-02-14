@@ -48,7 +48,7 @@ export function CardActionButton(
         opacity: actionButtonProps.disabled ? 0.5 : undefined,
       }}
     >
-      {props.children}
+      {actionButtonProps.children}
     </IconButtonForCard>
   );
 }

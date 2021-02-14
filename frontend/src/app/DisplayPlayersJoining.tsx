@@ -3,6 +3,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import _ from 'lodash';
 import { Dispatch, useLayoutEffect, useRef, useState } from 'react';
+import FlexView from 'react-flexview/lib';
 import { ActionButton } from '../euchreGameDisplay/components/ActionButton';
 import { GameLayout } from '../euchreGameDisplay/components/GameLayout';
 import { GameConfig } from '../gameLogic/apiContract/database/DataModel';
@@ -92,16 +93,18 @@ function JoinButton(props: {
   joinGame: () => void;
 }) {
   return props.playerNameAtPosition ? null : (
-    <ActionButton
-      fullWidth
-      size="large"
-      style={{ height: '100%' }}
-      actionValid={props.canJoin}
-      actionInProgress={props.joinInProgress}
-      sendEvent={props.joinGame}
-    >
-      Join
-    </ActionButton>
+    <FlexView height="100%" vAlignContent="center" hAlignContent="center">
+      <ActionButton
+        size="large"
+        variant="contained"
+        color="primary"
+        actionValid={props.canJoin}
+        actionInProgress={props.joinInProgress}
+        sendEvent={props.joinGame}
+      >
+        Join
+      </ActionButton>
+    </FlexView>
   );
 }
 

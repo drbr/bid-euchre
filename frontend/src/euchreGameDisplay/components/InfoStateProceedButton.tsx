@@ -3,7 +3,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import { useEffect, useState } from 'react';
 import { UnscopedGameDisplayProps } from '../GameDisplayProps';
 
-export const AUTO_PROCEED_MS = 10_000;
+export const AUTO_PROCEED_MS = 4_000;
 
 export type InfoStateProceedButtonProps = Pick<
   UnscopedGameDisplayProps,
@@ -32,7 +32,7 @@ export function InfoStateAutomaticProceedButton(
 
   // Once progress is full, automatically unblock
   useEffect(() => {
-    if (progressPercent >= 105 && unblockHead) {
+    if (progressPercent >= 110 && unblockHead) {
       unblockHead();
     }
   }, [progressPercent, unblockHead]);
@@ -51,7 +51,7 @@ export function InfoStateAutomaticProceedButton(
       <LinearProgress
         style={{ marginTop: 8 }}
         variant="determinate"
-        value={progressPercent}
+        value={Math.min(progressPercent, 100)}
       />
     </div>
   );

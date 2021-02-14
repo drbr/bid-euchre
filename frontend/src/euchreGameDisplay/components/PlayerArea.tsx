@@ -1,5 +1,7 @@
 import Paper from '@material-ui/core/Paper';
+import { useTheme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { PropsWithChildren } from 'react';
 import FlexView from 'react-flexview/lib';
 import { Position } from '../../gameLogic/apiContract/database/Position';
@@ -16,7 +18,8 @@ export type PlayerAreaProps = {
   trickCount?: Record<Position, number>;
 };
 
-const PLAYER_AREA_HEIGHT_PX = 130;
+const PLAYER_AREA_HEIGHT_PX_SMALL = 130;
+const PLAYER_AREA_HEIGHT_PX_LARGE = 180;
 
 const PLAYER_SITTING_OUT_TEXT_DECORATION = 'line-through .2em';
 
@@ -25,6 +28,7 @@ export function PlayerAreaWhiteBackground(
 ) {
   const { awaited, children } = props;
   const playerName = getPlayerNameWithTrickCount(props);
+  const isSmall = useIsSmallestSize();
 
   return (
     <Paper>
@@ -34,7 +38,9 @@ export function PlayerAreaWhiteBackground(
           backgroundColor: awaited ? '#ea78157a' : undefined,
           padding: 4,
         }}
-        height={PLAYER_AREA_HEIGHT_PX}
+        height={
+          isSmall ? PLAYER_AREA_HEIGHT_PX_SMALL : PLAYER_AREA_HEIGHT_PX_LARGE
+        }
       >
         {/*
          * Player name should be defined everywhere except the Join UI. In the Join UI, let the
@@ -73,11 +79,14 @@ export function PlayerAreaNoBackground(
 ) {
   const { awaited, children } = props;
   const playerName = getPlayerNameWithTrickCount(props);
+  const isSmall = useIsSmallestSize();
 
   return (
     <FlexView
       column
-      height={PLAYER_AREA_HEIGHT_PX}
+      height={
+        isSmall ? PLAYER_AREA_HEIGHT_PX_SMALL : PLAYER_AREA_HEIGHT_PX_LARGE
+      }
       style={{
         padding: 4,
         borderRadius: 4,
@@ -144,4 +153,10 @@ function PlayerCardUserContent(props: PropsWithChildren<unknown>): JSX.Element {
       {props.children}
     </div>
   );
+}
+
+function useIsSmallestSize() {
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down('xs'));
+  return isXs;
 }

@@ -37,7 +37,7 @@ export function DisplayPlayersJoining(props: DisplayPlayersJoiningProps) {
 
   const promptMessage = props.seatedAt
     ? 'Waiting for others to join the game…'
-    : 'Enter your name and join at any open position.';
+    : 'Enter your name below, and then join at any open position above.';
 
   return (
     <div style={{ width: '100%' }}>

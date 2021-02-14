@@ -3,7 +3,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import { useEffect, useState } from 'react';
 import { UnscopedGameDisplayProps } from '../GameDisplayProps';
 
-export const AUTO_PROCEED_MS = 3000;
+export const AUTO_PROCEED_MS = 5000;
 
 export function InfoStateOKButton(
   props: Pick<UnscopedGameDisplayProps, 'unblockHead'>

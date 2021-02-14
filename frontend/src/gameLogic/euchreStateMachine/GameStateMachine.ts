@@ -177,7 +177,7 @@ export function assignScoreFromRoundContext(
   };
 }
 
-const WIN_GAME_POINTS = 1;
+const WIN_GAME_POINTS = 32;
 
 export function getSides(
   context: GameContext

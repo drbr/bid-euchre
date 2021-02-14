@@ -27,6 +27,15 @@ export type StateBuffer<S> = {
   readonly gameStateSnapshots: ReadonlyArray<
     SnapshotWithBlockingInfo<S> | undefined
   >;
+
+  /**
+   * If in replay mode, the start and end indexes (inclusive) of the portion of the game that should
+   * be replayed. Ignored in all other states.
+   */
+  readonly replayRange?: {
+    readonly start: number;
+    readonly end: number;
+  };
 };
 
 /**
@@ -88,6 +97,12 @@ type BufferStatesGeneric<X> = {
        * the machine can move freely from state to state, ignoring blocks or lingers.
        */
       showSnapshotDetached: X;
+
+      /**
+       * "Replay mode" – automatically replays a set range of snapshots, blocking on the last one
+       * until the REPLAY_EXIT event is sent.
+       */
+      replay: X;
     };
   };
 
@@ -149,6 +164,11 @@ export type SendGameEventViaBufferEvent = {
   gameEvent: AnyEventObject;
 };
 
+export type StartReplayEvent = {
+  type: 'REPLAY_START';
+  replayRange: StateBuffer<unknown>['replayRange'];
+};
+
 export type BufferEvent<S> =
   | RecvSnapshotEvent<S>
   | { type: 'DETACHED_GO_FORWARD' }
@@ -156,6 +176,9 @@ export type BufferEvent<S> =
   | SwitchToDetachedIndexEvent
   | SendGameEventViaBufferEvent
   | { type: 'UNBLOCK_HEAD' }
+  | StartReplayEvent
+  | { type: 'REPLAY_ADVANCE' }
+  | { type: 'REPLAY_EXIT' }
   | { type: 'RESET' };
 
 export type BufferMachineState<S> = State<

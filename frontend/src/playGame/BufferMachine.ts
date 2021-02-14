@@ -54,7 +54,7 @@ export function createBufferStateMachine<S>(): StateMachine<
       },
       RESET: {
         target: 'loading',
-        actions: assign(() => initialContext),
+        actions: assign((context) => initialContext),
       },
     },
     states: {
@@ -109,6 +109,12 @@ export function createBufferStateMachine<S>(): StateMachine<
             initial: 'enterHead',
             on: {
               SEND_GAME_EVENT_VIA_BUFFER: '#sendingGameEvent.makeApiCall',
+              REPLAY_START: {
+                target: 'replay',
+                actions: assign({
+                  replayRange: (context, event) => event.replayRange,
+                }),
+              },
             },
             exit: actions.cancel(DELAYED_UNBLOCK_ID),
             states: {
@@ -153,6 +159,30 @@ export function createBufferStateMachine<S>(): StateMachine<
             always: {
               target: '#showHead.unblocked',
               cond: isAtHead,
+            },
+          },
+          replay: {
+            entry: actions.send('REPLAY_ADVANCE', {
+              delay: LINGER_DELAY_MS,
+              id: DELAYED_UNBLOCK_ID,
+            }),
+            exit: actions.cancel(DELAYED_UNBLOCK_ID),
+            on: {
+              REPLAY_ADVANCE: {
+                target: 'replay',
+                cond: (context) => canAdvanceReplayIndex(context),
+                actions: assign({
+                  currentIndexShowing: (context) =>
+                    (context.currentIndexShowing || 0) + 1,
+                }),
+              },
+              REPLAY_EXIT: {
+                target: '#showHead.unblocked',
+                actions: assign({
+                  currentIndexShowing: (context) => context.head,
+                  replayRange: (context) => undefined,
+                }),
+              },
             },
           },
         },
@@ -323,14 +353,33 @@ function isAtHead(context: StateBuffer<unknown>): boolean {
 
 function indexIsWithinDetachableRange(
   context: StateBuffer<unknown>,
-  index: number
+  nextIndex: number
 ): boolean {
   if (context.head === null) {
     throw new Error('Head was unexpectedly null');
   }
 
   // There is no index 0
-  return index <= context.head && index >= 1;
+  return nextIndex <= context.head && nextIndex >= 1;
+}
+
+function canAdvanceReplayIndex(context: StateBuffer<unknown>): boolean {
+  const nextIndex = (context.currentIndexShowing ?? 0) + 1;
+
+  if (!context.replayRange) {
+    throw new Error(
+      'Cannot advance replay index; no replay range set in the buffer machine'
+    );
+  }
+
+  const withinDetachableRange = indexIsWithinDetachableRange(
+    context,
+    nextIndex
+  );
+  const withinReplayRange =
+    nextIndex >= context.replayRange.start &&
+    nextIndex <= context.replayRange.end;
+  return withinDetachableRange && withinReplayRange;
 }
 
 function sendEventErrorWasStaleState(

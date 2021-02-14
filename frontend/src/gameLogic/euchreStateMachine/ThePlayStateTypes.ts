@@ -9,6 +9,10 @@ import { TypedStateSchema } from '../stateMachineUtils/TypedStateInterfaces';
 import { GameMeta } from './GameStateTypes';
 import { RoundContext } from './RoundStateTypes';
 
+export type ThePlayMeta = {
+  trickReplay?: 'start' | 'end';
+}
+
 export type ThePlayContext = Pick<
   RoundContext,
   'private_hands' | 'trump' | 'playersSittingOut'
@@ -36,7 +40,7 @@ export type ThePlayStatesGeneric<T> = {
 export type ThePlayStateNames = keyof ThePlayStatesGeneric<unknown>;
 
 export type ThePlayStateSchema = {
-  meta: GameMeta;
+  meta: GameMeta & ThePlayMeta;
   states: ThePlayStatesGeneric<TypedStateSchema<GameMeta, ThePlayContext>>;
 };
 

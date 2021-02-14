@@ -31,6 +31,9 @@ export const ThePlayStates: StateNodeConfig<
       initial: 'waitForLead',
       states: {
         waitForLead: {
+          meta: {
+            trickReplay: 'start',
+          },
           on: {
             PLAY_CARD: {
               target: 'waitForFollow',
@@ -88,7 +91,7 @@ export const ThePlayStates: StateNodeConfig<
     },
 
     trickCompleteInfo: {
-      meta: { blocking: true },
+      meta: { blocking: true, trickReplay: 'end' },
       on: {
         AUTO_TRANSITION: 'checkIfMoreTricksToPlay',
       },

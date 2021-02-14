@@ -447,7 +447,7 @@ describe('BufferMachine', () => {
         applyTransitions(state_detachedAt3_headIs4, {
           event: { type: 'DETACHED_GO_FORWARD' },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToMatch: UNBLOCKED,
+          expectValueToMatch: BLOCKED,
         });
       });
 
@@ -497,21 +497,21 @@ describe('BufferMachine', () => {
         });
       });
 
-      test('from "blocked", jumping to the head index goes to "unblocked"', () => {
-        // We really don't care too much about this case; it's just as acceptible to stay in BLOCKED
-        // if that makes for simpler code
+      test('from "blocked", jumping to the head index stays in "blocked"', () => {
+        // We don't actually care much about this case; go to blocked or unblocked, whichever is simpler
         applyTransitions(state_showHeadAt4Blocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToMatch: UNBLOCKED,
+          expectValueToMatch: BLOCKED,
         });
       });
 
-      test('from "unblocked", jumping to the head index stays in "unblocked"', () => {
+      test('from "unblocked", jumping to the head index goes to "blocked"', () => {
+        // We don't actually care much about this case; go to blocked or unblocked, whichever is simpler
         applyTransitions(state_showHeadAt4Unblocked, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToMatch: UNBLOCKED,
+          expectValueToMatch: BLOCKED,
         });
       });
 
@@ -567,11 +567,11 @@ describe('BufferMachine', () => {
         });
       });
 
-      test('jumping to the head index goes back to "unblocked"', () => {
+      test('jumping to the head index goes back to "blocked"', () => {
         applyTransitions(state_detachedAt3_headIs4, {
           event: { type: 'DETACHED_GO_TO_INDEX', index: 4 },
           expectedContext: contextShowingHeadAt(4),
-          expectValueToMatch: UNBLOCKED,
+          expectValueToMatch: BLOCKED,
         });
       });
 

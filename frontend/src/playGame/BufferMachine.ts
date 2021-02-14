@@ -163,7 +163,16 @@ export function createBufferStateMachine<S>(): StateMachine<
             },
           },
           showSnapshotDetached: {
-            // If we're on the head, leave detached mode
+            // If we're on the head, leave detached mode.
+            //
+            // For continutity to the user, if the head was blocking, we should go back to the
+            // blocked head. Most of the time this is actually a "linger", and it'll automatically
+            // advance after the delay.
+            //
+            // If the head was a truly blocking state, it should always be followed by another
+            // state; if the user manually unblocked it before detaching, the head would have
+            // already advanced, so we won't get into the case where the user has to manually
+            // unblock the same state twice.
             always: {
               target: 'showHead',
               cond: isAtHead,

@@ -2,12 +2,17 @@ import * as _ from 'lodash';
 import './CustomMatchers';
 import { ActionObject, AnyEventObject, StateValue } from 'xstate';
 import { SendGameEventErrorDetail } from '../gameLogic/apiContract/cloudFunctions/SendGameEvent';
-import { createBufferStateMachine } from '../playGame/BufferMachine';
+import {
+  createBufferStateMachine,
+  DELAYED_REPLAY_ADVANCE_ID,
+  DELAYED_UNBLOCK_ID,
+} from '../playGame/BufferMachine';
 import {
   BlockType,
   BufferEvent,
   BufferMachineState,
   LINGER_DELAY_MS,
+  ReplayRange,
   SnapshotWithBlockingInfo,
   StateBuffer,
 } from '../playGame/BufferMachineTypes';
@@ -97,6 +102,7 @@ function applyTransitions(
 const BLOCKED = { loaded: { showHead: 'blocked' } };
 const UNBLOCKED = { loaded: { showHead: 'unblocked' } };
 const DETACHED = { loaded: 'showSnapshotDetached' };
+const REPLAY = { loaded: 'replay' };
 const SENDING = 'sendingGameEvent';
 
 const action_callApi_start = {
@@ -121,14 +127,26 @@ const action_uiAlert = {
 
 const action_delayedUnblock = {
   type: 'xstate.send',
-  id: 'delayedUnblock',
+  id: DELAYED_UNBLOCK_ID,
   event: { type: 'UNBLOCK_HEAD' },
   delay: LINGER_DELAY_MS,
 };
 
 const action_delayedUnblock_cancel = {
   type: 'xstate.cancel',
-  sendId: 'delayedUnblock',
+  sendId: DELAYED_UNBLOCK_ID,
+};
+
+const action_delayedReplayAdvance = {
+  type: 'xstate.send',
+  id: DELAYED_REPLAY_ADVANCE_ID,
+  event: { type: 'REPLAY_ADVANCE' },
+  delay: LINGER_DELAY_MS,
+};
+
+const action_delayedReplayAdvance_cancel = {
+  type: 'xstate.cancel',
+  sendId: DELAYED_REPLAY_ADVANCE_ID,
 };
 
 function makeSnapshotsWithoutBlockingInfo(
@@ -362,32 +380,32 @@ describe('BufferMachine', () => {
     });
   });
 
+  const loadedSnapshotsThrough4 = makeSnapshotsWithBlockingInfo([
+    { index: 1, blockType: 'block' },
+    { index: 2, blockType: 'block' },
+    { index: 3, blockType: 'block' },
+    { index: 4, blockType: 'block' },
+  ]);
+
+  const state_showHeadAt4Blocked = getStartState(
+    {
+      head: 4,
+      currentIndexShowing: 4,
+      gameStateSnapshots: loadedSnapshotsThrough4,
+    },
+    BLOCKED
+  );
+
+  const state_showHeadAt4Unblocked = getStartState(
+    {
+      head: 4,
+      currentIndexShowing: 4,
+      gameStateSnapshots: loadedSnapshotsThrough4,
+    },
+    UNBLOCKED
+  );
+
   describe('Detached mode', () => {
-    const loadedSnapshotsThrough4 = makeSnapshotsWithBlockingInfo([
-      { index: 1, blockType: 'block' },
-      { index: 2, blockType: 'block' },
-      { index: 3, blockType: 'block' },
-      { index: 4, blockType: 'block' },
-    ]);
-
-    const state_showHeadAt4Blocked = getStartState(
-      {
-        head: 4,
-        currentIndexShowing: 4,
-        gameStateSnapshots: loadedSnapshotsThrough4,
-      },
-      BLOCKED
-    );
-
-    const state_showHeadAt4Unblocked = getStartState(
-      {
-        head: 4,
-        currentIndexShowing: 4,
-        gameStateSnapshots: loadedSnapshotsThrough4,
-      },
-      UNBLOCKED
-    );
-
     const state_detachedAt3_headIs4 = applyTransitions(
       state_showHeadAt4Unblocked,
       {
@@ -620,9 +638,196 @@ describe('BufferMachine', () => {
     });
   });
 
+  describe('Replay mode', () => {
+    function contextShowingReplayAt(
+      index: number,
+      replayRange: ReplayRange
+    ): StateBuffer<string> {
+      return {
+        currentIndexShowing: index,
+        head: 4,
+        gameStateSnapshots: loadedSnapshotsThrough4,
+        replayRange,
+      };
+    }
+
+    test('from head, on REPLAY_START, enters replay mode with the given range', () => {
+      const replayRange2To4 = { start: 2, end: 4 };
+      applyTransitions(state_showHeadAt4Blocked, {
+        event: { type: 'REPLAY_START', replayRange: replayRange2To4 },
+        expectValueToMatch: REPLAY,
+        expectedContext: contextShowingReplayAt(2, replayRange2To4),
+        expectActions: [
+          action_delayedUnblock_cancel,
+          action_delayedReplayAdvance,
+        ],
+      });
+    });
+
+    test('on REPLAY_ADVANCE, advances the shown index by 1', () => {
+      const replayRange2To4 = { start: 2, end: 4 };
+      applyTransitions(
+        state_showHeadAt4Blocked,
+        {
+          event: { type: 'REPLAY_START', replayRange: replayRange2To4 },
+        },
+        {
+          event: { type: 'REPLAY_ADVANCE' },
+          expectValueToMatch: REPLAY,
+          expectedContext: contextShowingReplayAt(3, replayRange2To4),
+          expectActions: [
+            action_delayedReplayAdvance_cancel,
+            action_delayedReplayAdvance,
+          ],
+        }
+      );
+    });
+
+    test('does not advance the index past the end of the replay range', () => {
+      const replayRange2To2 = { start: 2, end: 2 };
+      applyTransitions(
+        state_showHeadAt4Unblocked,
+        {
+          event: { type: 'REPLAY_START', replayRange: replayRange2To2 },
+          expectValueToMatch: REPLAY,
+          expectedContext: contextShowingReplayAt(2, replayRange2To2),
+        },
+        {
+          event: { type: 'REPLAY_ADVANCE' },
+          expectValueToMatch: REPLAY,
+          expectedContext: contextShowingReplayAt(2, replayRange2To2),
+          // No actions here, because it didn't actually act upon the REPLAY_ADVANCE transition
+          expectAnyActions: false,
+        }
+      );
+    });
+
+    test('does not advance the index past the head', () => {
+      const replayRange3To5 = { start: 3, end: 5 };
+      applyTransitions(
+        state_showHeadAt4Unblocked,
+        {
+          event: { type: 'REPLAY_START', replayRange: replayRange3To5 },
+        },
+        {
+          event: { type: 'REPLAY_ADVANCE' },
+          expectValueToMatch: REPLAY,
+          expectedContext: {
+            currentIndexShowing: 4,
+            head: 4,
+            gameStateSnapshots: loadedSnapshotsThrough4,
+            replayRange: replayRange3To5,
+          },
+          expectActions: [
+            action_delayedReplayAdvance_cancel,
+            action_delayedReplayAdvance,
+          ],
+        },
+        {
+          event: recvSnapshot(5, 'block'),
+          expectValueToMatch: REPLAY,
+          expectedContext: {
+            currentIndexShowing: 4,
+            head: 4,
+            gameStateSnapshots: makeSnapshotsWithoutBlockingInfo([
+              1,
+              2,
+              3,
+              4,
+              5,
+            ]),
+            replayRange: replayRange3To5,
+          },
+          expectAnyActions: false,
+        },
+        {
+          // Even though 5 exists in the buffer, head is still 4 so we shouldn't advance to 5
+          event: { type: 'REPLAY_ADVANCE' },
+          expectValueToMatch: REPLAY,
+          expectedContext: {
+            currentIndexShowing: 4,
+            head: 4,
+            gameStateSnapshots: makeSnapshotsWithoutBlockingInfo([
+              1,
+              2,
+              3,
+              4,
+              5,
+            ]),
+            replayRange: replayRange3To5,
+          },
+          // No actions here, because it didn't actually act upon the REPLAY_ADVANCE transition
+          expectAnyActions: false,
+        }
+      );
+    });
+
+    test('can exit replay mode from any point and jump back to head, re-blocking head if applicable', () => {
+      const replayRange2To3 = { start: 2, end: 3 };
+      applyTransitions(
+        state_showHeadAt4Blocked,
+        { event: { type: 'REPLAY_START', replayRange: replayRange2To3 } },
+        {
+          event: { type: 'REPLAY_EXIT' },
+          expectValueToMatch: BLOCKED,
+          expectedContext: contextShowingHeadAt(4),
+          expectActions: [action_delayedReplayAdvance_cancel],
+        }
+      );
+    });
+
+    test('returns to head and continues incrementing as normal if more states have been received during replay', () => {
+      const replayRange2To3 = { start: 2, end: 3 };
+      applyTransitions(
+        state_showHeadAt4Unblocked,
+        {
+          event: { type: 'REPLAY_START', replayRange: replayRange2To3 },
+        },
+        {
+          event: { type: 'REPLAY_ADVANCE' }, // advance to 3
+        },
+        {
+          event: recvSnapshot(5, 'block'),
+          expectValueToMatch: REPLAY,
+          expectedContext: {
+            currentIndexShowing: 3,
+            head: 4,
+            gameStateSnapshots: makeSnapshotsWithoutBlockingInfo([
+              1,
+              2,
+              3,
+              4,
+              5,
+            ]),
+            replayRange: replayRange2To3,
+          },
+          expectAnyActions: false,
+        },
+        {
+          // Even though we already showed the head at 4, it should start block on 4 again,
+          // to remind the player where they were.
+          event: { type: 'REPLAY_EXIT' },
+          expectValueToMatch: BLOCKED,
+          expectedContext: {
+            currentIndexShowing: 4,
+            head: 4,
+            gameStateSnapshots: makeSnapshotsWithoutBlockingInfo([
+              1,
+              2,
+              3,
+              4,
+              5,
+            ]),
+            replayRange: undefined,
+          },
+        }
+      );
+    });
+  });
+
   describe('Sending game events', () => {
     const event_sendGameEvent: BufferEvent<unknown> = {
-      type: 'SEND_GAME_EVENT_TO_SERVER',
+      type: 'SEND_GAME_EVENT_VIA_BUFFER',
       gameEvent: { type: 'FakeGameEvent', value: 1 },
     };
 

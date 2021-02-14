@@ -32,10 +32,12 @@ export type StateBuffer<S> = {
    * If in replay mode, the start and end indexes (inclusive) of the portion of the game that should
    * be replayed. Ignored in all other states.
    */
-  readonly replayRange?: {
-    readonly start: number;
-    readonly end: number;
-  };
+  readonly replayRange?: ReplayRange;
+};
+
+export type ReplayRange = {
+  readonly start: number;
+  readonly end: number;
 };
 
 /**
@@ -166,7 +168,7 @@ export type SendGameEventViaBufferEvent = {
 
 export type StartReplayEvent = {
   type: 'REPLAY_START';
-  replayRange: StateBuffer<unknown>['replayRange'];
+  replayRange: ReplayRange;
 };
 
 export type BufferEvent<S> =

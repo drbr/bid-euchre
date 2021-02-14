@@ -17,7 +17,8 @@ import {
   RecvSnapshotEvent,
 } from './BufferMachineTypes';
 
-const DELAYED_UNBLOCK_ID = 'delayedUnblock';
+export const DELAYED_UNBLOCK_ID = 'delayedUnblock';
+export const DELAYED_REPLAY_ADVANCE_ID = 'replayAdvance';
 
 /**
  * This machine controls how the UI transitions through the game states. The state snapshots can be
@@ -111,7 +112,14 @@ export function createBufferStateMachine<S>(): StateMachine<
               SEND_GAME_EVENT_VIA_BUFFER: '#sendingGameEvent.makeApiCall',
               REPLAY_START: {
                 target: 'replay',
+                cond: (context, event) =>
+                  indexIsWithinDetachableRange(
+                    context,
+                    event.replayRange.start
+                  ),
                 actions: assign({
+                  currentIndexShowing: (context, event) =>
+                    event.replayRange.start,
                   replayRange: (context, event) => event.replayRange,
                 }),
               },
@@ -157,16 +165,16 @@ export function createBufferStateMachine<S>(): StateMachine<
           showSnapshotDetached: {
             // If we're on the head, leave detached mode
             always: {
-              target: '#showHead.unblocked',
+              target: 'showHead',
               cond: isAtHead,
             },
           },
           replay: {
             entry: actions.send('REPLAY_ADVANCE', {
               delay: LINGER_DELAY_MS,
-              id: DELAYED_UNBLOCK_ID,
+              id: DELAYED_REPLAY_ADVANCE_ID,
             }),
-            exit: actions.cancel(DELAYED_UNBLOCK_ID),
+            exit: actions.cancel(DELAYED_REPLAY_ADVANCE_ID),
             on: {
               REPLAY_ADVANCE: {
                 target: 'replay',
@@ -177,7 +185,7 @@ export function createBufferStateMachine<S>(): StateMachine<
                 }),
               },
               REPLAY_EXIT: {
-                target: '#showHead.unblocked',
+                target: 'showHead',
                 actions: assign({
                   currentIndexShowing: (context) => context.head,
                   replayRange: (context) => undefined,

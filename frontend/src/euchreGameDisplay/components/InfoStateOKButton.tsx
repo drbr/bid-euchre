@@ -12,7 +12,7 @@ export function InfoStateOKButton(
 
   return (
     <Button onClick={props.unblockHead} variant="contained" color="primary">
-      OK
+      Proceed
     </Button>
   );
 }

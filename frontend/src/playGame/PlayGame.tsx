@@ -96,7 +96,7 @@ export const PlayGamePure = memo(function PlayGame(props: PlayGameProps) {
         seatedAt={props.seatedAt}
         isEventValid={isGameEventValid}
         sendGameEvent={sendGameEventViaBufferMachine}
-        sendGameEventInProgress={bufferMachineMode.mode === 'sendingGameEvent'}
+        bufferMachineMode={bufferMachineMode}
         unblockHead={unblockHead}
       />
     </div>

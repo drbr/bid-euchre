@@ -84,7 +84,7 @@ export type GameDisplayPropsForActionButton<E extends EventObject> = Pick<
   ScopedGameDisplayProps<unknown, E>,
   'isEventValid' | 'sendGameEvent'
 > &
-  Pick<UnscopedGameDisplayProps, 'sendGameEventInProgress'>;
+  Pick<UnscopedGameDisplayProps, 'bufferMachineMode'>;
 
 /**
  * The most common use case of an action button is for sending a game event. This function returns
@@ -96,7 +96,8 @@ export function actionButtonPropsForGameEvent<E extends EventObject>(
   gameDisplayProps: GameDisplayPropsForActionButton<E>
 ): ActionButtonDomainProps {
   return {
-    actionInProgress: gameDisplayProps.sendGameEventInProgress,
+    actionInProgress:
+      gameDisplayProps.bufferMachineMode.mode === 'sendingGameEvent',
     actionValid: gameDisplayProps.isEventValid(event),
     sendEvent: () => gameDisplayProps.sendGameEvent(event),
   };

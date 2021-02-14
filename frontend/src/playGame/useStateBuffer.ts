@@ -26,6 +26,7 @@ export type BufferMachineMode =
 const loadingState: BufferStateValue = 'loading';
 const headState: BufferStateValue = { loaded: 'showHead' };
 const detachedState: BufferStateValue = { loaded: 'showSnapshotDetached' };
+const replayState: BufferStateValue = { loaded: 'replay' };
 const sendingEventState: BufferStateValue = 'sendingGameEvent';
 
 function getBufferMachineMode<S>(
@@ -36,7 +37,7 @@ function getBufferMachineMode<S>(
   } else if (state.matches(headState)) {
     const manuallyBlocked = headShouldBlock(state.context);
     return { mode: 'head', manuallyBlocked };
-  } else if (state.matches(detachedState)) {
+  } else if (state.matches(detachedState) || state.matches(replayState)) {
     return { mode: 'detached' };
   } else if (state.matches(sendingEventState)) {
     return { mode: 'sendingGameEvent' };

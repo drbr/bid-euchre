@@ -1,7 +1,7 @@
 import Button from '@material-ui/core/Button';
 
-export function LastTrickButton() {
-  return <Button variant="contained">Show Last Trick</Button>;
+export function ReplayLastTrickButton() {
+  return <Button variant="contained">Replay Last Trick</Button>;
 }
 
 /**

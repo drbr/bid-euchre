@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Card } from '../gameLogic/Cards';
 import { GameLayout, PromptText } from './components/GameLayout';
 import { CardIcon, HandDisplay } from './components/HandDisplay';
-import { LastTrickButton } from './components/LastTrickButton';
+import { ReplayLastTrickButton } from './components/ReplayLastTrickButton';
 import { ThePlayDisplayProps } from './ThePlayDisplayDelegator';
 
 export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
@@ -25,7 +25,7 @@ export function ThePlayDisplayTrick(props: ThePlayDisplayProps): JSX.Element {
     <>
       <PromptText>{promptMessage}</PromptText>
       <Box mt={2}>
-        <LastTrickButton />
+        <ReplayLastTrickButton />
       </Box>
     </>
   );

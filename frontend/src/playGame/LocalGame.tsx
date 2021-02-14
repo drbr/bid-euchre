@@ -96,7 +96,6 @@ export type LocalGameProps = {
 };
 
 export function LocalGame(props: LocalGameProps) {
-
   return (
     <div style={{ width: '100%' }}>
       <GameDisplayDelegatorPure
@@ -104,9 +103,7 @@ export function LocalGame(props: LocalGameProps) {
         stateContext={props.gameState.hydratedState.context}
         isEventValid={props.isEventValid}
         sendGameEvent={props.sendGameEvent}
-        sendGameEventInProgress={
-          props.bufferMachineMode.mode === 'sendingGameEvent'
-        }
+        bufferMachineMode={props.bufferMachineMode}
         unblockHead={props.unblockHead}
         gameConfig={DummyGameConfig}
         seatedAt={seatedAt}

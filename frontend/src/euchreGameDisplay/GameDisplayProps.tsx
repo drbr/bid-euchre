@@ -1,6 +1,7 @@
 import { EventObject, StateValue } from 'xstate';
 import { InProgressGameConfig } from '../gameLogic/apiContract/database/DataModel';
 import { Position } from '../gameLogic/apiContract/database/Position';
+import { BufferMachineMode } from '../playGame/useStateBuffer';
 
 /**
  * The "scoped" props are those whose types need to match the substate we're currently in.
@@ -18,6 +19,6 @@ export type ScopedGameDisplayProps<C, E extends EventObject> = {
 export type UnscopedGameDisplayProps = {
   gameConfig: InProgressGameConfig;
   seatedAt: Position | null;
-  sendGameEventInProgress: boolean;
+  bufferMachineMode: BufferMachineMode;
   unblockHead: (() => void) | null;
 };

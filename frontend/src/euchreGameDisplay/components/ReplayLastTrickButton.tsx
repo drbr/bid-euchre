@@ -1,11 +1,12 @@
-import { ColorSchemeOutlineButton } from './ColorSchemeOutlineButton';
-
 export function ReplayLastTrickButton() {
-  return (
-    <ColorSchemeOutlineButton onClick={() => void 0}>
-      Replay Last Trick
-    </ColorSchemeOutlineButton>
-  );
+  // Temporarily disabling the button because the functionality isn't implemented
+  return null;
+
+  // return (
+  //   <ColorSchemeOutlineButton onClick={() => void 0}>
+  //     Replay Last Trick
+  //   </ColorSchemeOutlineButton>
+  // );
 }
 
 /**

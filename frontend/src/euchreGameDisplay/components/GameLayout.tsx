@@ -93,7 +93,7 @@ export function GameLayout(props: GameLayoutProps) {
       <Box mt={3} textAlign="left">
         <Grid container spacing={1} alignItems="center">
           {/* top row */}
-          <Spacer34>
+          <Spacer xs={3} sm={4}>
             {props.score ? (
               <ScoreSingle
                 colorMode={props.colorMode}
@@ -103,9 +103,9 @@ export function GameLayout(props: GameLayoutProps) {
                 partnershipName={props.seatedAt ? 'We' : null}
               />
             ) : null}
-          </Spacer34>
+          </Spacer>
           <Player>{playerCardAtIndex(0)}</Player>
-          <Spacer34>
+          <Spacer xs={3} sm={4}>
             {props.score ? (
               <ScoreSingle
                 colorMode={props.colorMode}
@@ -115,26 +115,26 @@ export function GameLayout(props: GameLayoutProps) {
                 partnershipName={props.seatedAt ? 'They' : null}
               />
             ) : null}
-          </Spacer34>
+          </Spacer>
 
           {/* middle row */}
           <Hidden xsDown>
-            <Spacer22 />
+            <Spacer sm={2} />
           </Hidden>
           <Player>{playerCardAtIndex(1)}</Player>
           <Player>{playerCardAtIndex(2)}</Player>
           <Hidden xsDown>
-            <Spacer22 />
+            <Spacer sm={2} />
           </Hidden>
 
           {/* bottom row */}
-          <Spacer34 />
+          <Spacer xs={3} sm={4} />
           <Player>{playerCardAtIndex(3)}</Player>
-          <Spacer34>
+          <Spacer xs={3} sm={4}>
             {props.trumpSuit ? (
               <Trump suit={props.trumpSuit} colorMode={props.colorMode} />
             ) : null}
-          </Spacer34>
+          </Spacer>
         </Grid>
       </Box>
 
@@ -159,17 +159,12 @@ export function GameLayout(props: GameLayoutProps) {
   );
 }
 
-function Spacer34(props: React.PropsWithChildren<unknown>) {
+type UnitNumber = React.ComponentProps<typeof Grid>['xs'];
+function Spacer(
+  props: React.PropsWithChildren<{ xs?: UnitNumber; sm?: UnitNumber }>
+) {
   return (
-    <Grid item xs={3} sm={4} style={{ textAlign: 'center' }}>
-      {props.children}
-    </Grid>
-  );
-}
-
-function Spacer22(props: React.PropsWithChildren<unknown>) {
-  return (
-    <Grid item xs={2} sm={2} style={{ textAlign: 'center' }}>
+    <Grid item xs={props.xs} sm={props.sm} style={{ textAlign: 'center' }}>
       {props.children}
     </Grid>
   );

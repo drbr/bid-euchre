@@ -19,7 +19,7 @@ export type PlayerAreaProps = {
 };
 
 const PLAYER_AREA_HEIGHT_PX_SMALL = 130;
-const PLAYER_AREA_HEIGHT_PX_LARGE = 180;
+const PLAYER_AREA_HEIGHT_PX_LARGE = 150;
 
 const PLAYER_SITTING_OUT_TEXT_DECORATION = 'line-through .2em';
 

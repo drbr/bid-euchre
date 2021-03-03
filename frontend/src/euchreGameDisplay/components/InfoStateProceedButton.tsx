@@ -3,7 +3,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import { useEffect, useState } from 'react';
 import { UnscopedGameDisplayProps } from '../GameDisplayProps';
 
-export const AUTO_PROCEED_MS = 4_000;
+export const AUTO_PROCEED_MS = 10_000;
 
 export type InfoStateProceedButtonProps = Pick<
   UnscopedGameDisplayProps,
@@ -12,7 +12,11 @@ export type InfoStateProceedButtonProps = Pick<
 
 /**
  * A "Proceed" button with a progress indicator, which automatically clicks the button after the
- * time limit.
+ * time limit. This button is used in "blocked" states where the global game state has already
+ * advanced, but the individual player's view of the game stays blocked on this state until they
+ * proceed (either manually or after the timeout).
+ *
+ * Playtesting has indicated that the word "Proceed" is confusing, so we're trying "OK" instead.
  */
 export function InfoStateAutomaticProceedButton(
   props: InfoStateProceedButtonProps
@@ -21,18 +25,25 @@ export function InfoStateAutomaticProceedButton(
 
   const [progressPercent, setProgressPercent] = useState(0);
 
-  // Update progress bar in 200 increments over its width
   useEffect(() => {
-    const intervalId = setInterval(
-      () => setProgressPercent((p) => p + 0.5),
-      AUTO_PROCEED_MS / 200
-    );
+    const startTime = Date.now();
+
+    function incrementProgress() {
+      const elapsed = Date.now() - startTime;
+      const percent = (elapsed / AUTO_PROCEED_MS) * 100;
+      setProgressPercent(percent);
+    }
+
+    // 50 ms/frame @ 20 FPS
+    const intervalId = setInterval(incrementProgress, 50);
     return () => clearInterval(intervalId);
   }, []);
 
-  // Once progress is full, automatically unblock
+  // Once progress is full, automatically unblock. Let the internal percent get
+  // a little past 100 because the browser paint lags the internal state. This
+  // way it'll look like the progress bar gets all the way across.
   useEffect(() => {
-    if (progressPercent >= 110 && unblockHead) {
+    if (progressPercent >= 115 && unblockHead) {
       unblockHead();
     }
   }, [progressPercent, unblockHead]);
@@ -46,7 +57,7 @@ export function InfoStateAutomaticProceedButton(
   return (
     <div style={{ display: 'inline-block' }}>
       <Button onClick={unblockHead} variant="contained">
-        Proceed
+        OK
       </Button>
       <LinearProgress
         style={{ marginTop: 8 }}
@@ -72,7 +83,7 @@ export function InfoStateManualProceedButton(
 
   return (
     <Button onClick={unblockHead} variant="contained" color="primary">
-      Proceed
+      OK
     </Button>
   );
 }

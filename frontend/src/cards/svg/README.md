@@ -45,8 +45,8 @@ clients as they are written to the database.
 One might think security is a concern when clients connect directly to the
 database. This is mitigated by being very careful about read/write permissions
 on the various paths. Since the app supports spectating any game, much of the
-data is indeed public, and anyone can read that data (via a client built with
-the Firebase SDK).
+game data is indeed public, and anyone can read that data (via a client built
+with the Firebase SDK).
 
 All writes are forbidden from clients – data can be written only via the
 Firebase Admin SDK, which is authorized via a secret app token. This app's Cloud
@@ -120,12 +120,46 @@ each client to subscribe to one particular database node and get all the info,
 rather than having to subscribe to a public node and a player-specific node and
 stitch together the game state.
 
-**Game events can also contain private info** (e.g. if a player passes a card to
+**Game events can also contain secret info** (e.g. if a player passes a card to
 another player, face down). Because an XState state object also contains the
 most recent event, we must also scrub that data when applicable. We achieve this
 by sending a second no-op event to the machine after any secret event. This must
 be manually configured in the state machine whenever the developer identifies
 some event as containing secret info.
+
+## Authentication
+
+There is no _formal_ auth system. Any player can view a game if they have its
+ID/URL. For a player to participate in a game, they must join the game before
+it's full.
+
+When a player joins the game through the UI, it calls the `joinGame` cloud
+function, which registers the player in the game and returns a
+randomly-generated player token, which the client persists in local storage.
+
+This token serves the following purposes:
+
+- Authenticates the user to the `sendGameEvent` cloud function (the given player
+  ID must be participating in that game for the event to be accepted)
+- The player ID is part of the database path for a player's private game state.
+  That database node can technically be read by anyone, but it can be accessed
+  only via exact path.
+
+Given the random nature and large range of player IDs, it's very unlikely that
+someone else would be able to guess the player ID and act as that player in the
+game. Hence, its security is roughly equivalent to a session token from a
+conventionally-authenticated application.
+
+## State Buffer
+
+Each client subscribes to a database node containing each successive snapshot of the game state. However, the clients do not immediately update the UI to reflect that latest game state. Instead, the snapshots get loaded into a _state buffer_, which is itself an interpreted XState machine. The buffer machine decides when to show each state in the UI.
+
+The state buffer benefits the user experience in several ways:
+
+- If snapshots arrive at the client in quick succession, those snapshots can be played back more slowly so the user can see what happened
+- A particular state can block on user acknowledgement before proceeding
+- Because all the snapshots are stored client-side, portions of the game can be replayed
+- The buffer is also in charge of sending game events, to ensure that the "busy" state is retained until the the API resolves _and_ the next snapshot is available.
 
 # How to dev
 

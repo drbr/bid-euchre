@@ -35,7 +35,8 @@
     {
       "file": "frontend/src/app/App.tsx",
       "description": "The `App` component is a container that provides the standard layout, and a color scheme picker, which persists the user's currently selected theme in local storage.",
-      "line": 16
+      "line": 16,
+      "title": "App.tsx"
     }
   ],
   "ref": "main"

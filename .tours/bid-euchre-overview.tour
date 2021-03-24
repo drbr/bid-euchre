@@ -1,0 +1,42 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Bid Euchre Overview",
+  "steps": [
+    {
+      "file": "frontend/src/cards/svg/README.md",
+      "description": "This is the Bid Euchre app! Read the readme :)",
+      "line": 2,
+      "title": "Readme"
+    },
+    {
+      "file": "databaseSchema.bolt",
+      "description": "This [Bolt](https://github.com/FirebaseExtended/bolt) file contains the source code for the Firebase Realtime Database \"schema\". It gets compiled into `database.rules.json`, which is the conventional format that gets uploaded to Firebase.\n\nThe compiled schema consists of:\n- Rules: specific paths and rules for when they can be read or written\n- Validations: specs for the shape/type of the data written to certain paths\n\nBolt builds the validations from type definitions that we specify for each path.",
+      "line": 7,
+      "title": "Database Schema (Bolt)"
+    },
+    {
+      "file": "frontend/src/gameLogic/apiContract/database/DataModel.ts",
+      "description": "The TypeScript definitions for the database schema are maintained here. These must be kept manually in sync with the types in `databaseSchema.bolt`.",
+      "line": 2,
+      "title": "Database Schema (TypeScript)"
+    },
+    {
+      "file": "frontend/src/index.tsx",
+      "description": "This is the entry point for the frontend React app, which renders the root React node into the DOM.",
+      "line": 6,
+      "title": "Frontend entry point"
+    },
+    {
+      "file": "frontend/src/app/AppRouter.tsx",
+      "description": "URL routing is handled by [Reach Router](https://reach.tech/router/). There are two main routes: Lobby, and Game.",
+      "line": 71,
+      "title": "Router"
+    },
+    {
+      "file": "frontend/src/app/App.tsx",
+      "description": "The `App` component is a container that provides the standard layout, and a color scheme picker, which persists the user's currently selected theme in local storage.",
+      "line": 16
+    }
+  ],
+  "ref": "main"
+}

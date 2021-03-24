@@ -28,11 +28,7 @@ export function usePlayerInfoStorage(params: { gameId: string }) {
   );
 
   const [rawPlayerInfo, setRawPlayerInfo] = useRawState<PlayerInfoStorage>();
-
-  return [rawPlayerInfo ?? 'gameNotFound', setRawPlayerInfo] as [
-    PlayerInfoStorage | 'gameNotFound',
-    typeof setRawPlayerInfo
-  ];
+  return [rawPlayerInfo ?? 'gameNotFound', setRawPlayerInfo] as const;
 }
 
 /**

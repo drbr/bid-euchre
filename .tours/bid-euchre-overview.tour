@@ -3,9 +3,9 @@
   "title": "Bid Euchre Overview",
   "steps": [
     {
-      "file": "frontend/src/cards/svg/README.md",
+      "file": "README.md",
       "description": "This is the Bid Euchre app! Read the readme :)",
-      "line": 2,
+      "line": 1,
       "title": "Readme"
     },
     {

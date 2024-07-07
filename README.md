@@ -1,7 +1,5 @@
 # Bid Euchre App
 
-https://play.euchre.space/
-
 This is an online multiplayer web application that allows four players to play [Bid
 Euchre](https://www.euchre.space) online, inspired by such easy-to-use apps as
 [downforacross](https://downforacross.com/) and [horsepaste](https://www.horsepaste.com/).

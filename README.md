@@ -9,7 +9,7 @@ include latest Chrome, latest Firefox, and Safari 13 or later.
 
 # Implementation goals and stack
 
-There do exist mat`ure game engines that I could have used to build this app
+There do exist mature game engines that I could have used to build this app
 (particularly promising was [boardgame.io](https://boardgame.io/)). However, I
 chose to build my own game engine for a few reasons:
 

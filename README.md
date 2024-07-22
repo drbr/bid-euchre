@@ -247,6 +247,14 @@ The frontend can be viewed in development mode on port 3000 (webpack dev server)
 mode on port 5000. To get changes to propagate to port 5000, you must run `yarn build` in the
 `frontend` directory.
 
+### Local game
+
+Navigate to http://localhost:3000/localGame to interact with a frontend-only version of the game.
+The Local Game hydrates the game state from one of several pre-stored game snapshots (in
+`LocalGameStates.tsx`) and displays a second row of cards that allow you to play as the user whose
+turn it currently is. This allows us to test out UI for any part of the game without having to play
+the game up to that point.
+
 ## Unit tests
 
 The frontend codebase has a few unit tests. Run them as follows:
@@ -259,6 +267,20 @@ The frontend codebase has a few unit tests. Run them as follows:
 First, test thoroughly locally using the production frontend on port 5000, then run `firebase deploy`. This will build all the source code and deploy it to the correct locations.
 
 There is no non-local staging environment. There is no CI pipeline.
+
+## View the state machines
+
+In a local build (via `yarn start`), you can view the state machine diagrams at the following
+routes:
+
+- http://localhost:3000/stateMachine – the euchre gameplay
+- http://localhost:3000/gameContainerMachine – where players join the game
+- http://localhost:3000/bufferMachine – state buffer
+- http://localhost:3000/experimentStateMachine – a sandbox where I played around with stuff
+- http://localhost:3000/transitionTestStateMachine – a sandbox where I played with game transitions
+
+These visualizations use the `XStateViz` component, which was innovative in 2021, but now may be
+obsolete due to the XState plugin for VS Code.
 
 # Acknowledgements
 

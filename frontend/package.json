@@ -2,6 +2,9 @@
   "name": "bid-euchre",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=12 <=16"
+  },
   "dependencies": {
     "@material-ui/core": "^4.11.1",
     "@reach/router": "^1.3.4",
